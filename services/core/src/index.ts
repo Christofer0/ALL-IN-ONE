@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import publicRoutes from "./routes/public.js";
 import adminRoutes from "./routes/admin.js";
-
+import profileRoutes from "./routes/profile.js";
 dotenv.config();
 
 const app = express();
@@ -29,6 +29,7 @@ app.get("/health", (req, res) => res.json({ status: "ok" }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api", publicRoutes);
+app.use("/api", profileRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {

@@ -1,6 +1,15 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import Navbar from "../../components/public/Navbar.vue";
 import Footer from "../../components/public/Footer.vue";
+import { applyTheme } from "@/utils/theme";
+
+onMounted(() => {
+  const saved = localStorage.getItem("publicAppearance");
+  if (saved) {
+    applyTheme(JSON.parse(saved));
+  }
+});
 </script>
 
 <template>

@@ -877,7 +877,7 @@ const toggleStatus = async (
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #111;
+  background: var(--p-surface);
   border: 1px solid var(--p-card-border);
   display: flex;
   align-items: center;
@@ -915,10 +915,10 @@ const toggleStatus = async (
   font-family: "JetBrains Mono", monospace;
   font-size: 0.6rem;
   padding: 2px 7px;
-  background: #111;
+  background: var(--p-surface);
   border: 1px solid var(--p-card-border);
   border-radius: 3px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 .tech-more {
   font-size: 0.6rem;
@@ -1054,7 +1054,7 @@ const toggleStatus = async (
   align-items: center;
   justify-content: space-between;
   padding: 14px;
-  background: #080808;
+  background: var(--p-surface);
   border-radius: 8px;
   border: 1px solid var(--p-card-border);
 }

@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Sidebar from "@/components/private/Sidebar.vue";
 import Navbar from "@/components/private/Navbar.vue";
+import { applyTheme } from "@/utils/theme";
 
 const isSidebarOpen = ref(false);
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
+
+onMounted(() => {
+  const saved = localStorage.getItem("publicAppearance");
+  if (saved) {
+    applyTheme(JSON.parse(saved));
+  }
+});
 </script>
 
 <template>

@@ -279,7 +279,8 @@ onUnmounted(() => {
         <div
           style="
             font-size: 0.7rem;
-            color: var(--p-secondary);
+            color: var(--p-accent);
+            font-weight: 700;
             font-family:
               JetBrains Mono,
               monospace;
@@ -290,7 +291,7 @@ onUnmounted(() => {
           AI SUGGESTION · TODAY
         </div>
         <div
-          style="font-size: 0.85rem; color: #efece3; transition: opacity 0.3s"
+          style="font-size: 0.85rem; color: var(--p-light); font-weight: 500; transition: opacity 0.3s"
           :style="{ opacity: suggestionOpacity }"
         >
           {{ currentSuggestion }}
@@ -323,7 +324,7 @@ onUnmounted(() => {
           <span
             style="
               font-size: 0.72rem;
-              color: #6b7280;
+              color: var(--text-muted);
               font-family:
                 JetBrains Mono,
                 monospace;
@@ -340,13 +341,13 @@ onUnmounted(() => {
           style="
             font-size: 1.6rem;
             font-weight: 800;
-            color: #efece3;
+            color: var(--p-light);
             line-height: 1;
           "
         >
           {{ isLoadingCashflow ? "..." : formatRupiah(cashflowNet) }}
         </div>
-        <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px">
           This month
         </div>
         <div class="mini-chart" style="margin-top: 12px; height: 30px">
@@ -390,7 +391,7 @@ onUnmounted(() => {
           <span
             style="
               font-size: 0.72rem;
-              color: #6b7280;
+              color: var(--text-muted);
               font-family:
                 JetBrains Mono,
                 monospace;
@@ -405,19 +406,19 @@ onUnmounted(() => {
           style="
             font-size: 1.6rem;
             font-weight: 800;
-            color: #efece3;
+            color: var(--p-light);
             line-height: 1;
           "
         >
           {{ projectStats.published }} / {{ projectStats.total }}
         </div>
-        <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px">
           {{ projectStats.draft }} in draft
         </div>
         <div
           style="
             height: 4px;
-            background: #1e1e1e;
+            background: var(--p-card-border);
             border-radius: 2px;
             margin-top: 14px;
           "
@@ -446,7 +447,7 @@ onUnmounted(() => {
           <span
             style="
               font-size: 0.72rem;
-              color: #6b7280;
+              color: var(--text-muted);
               font-family:
                 JetBrains Mono,
                 monospace;
@@ -463,13 +464,13 @@ onUnmounted(() => {
           style="
             font-size: 1.6rem;
             font-weight: 800;
-            color: #efece3;
+            color: var(--p-light);
             line-height: 1;
           "
         >
           {{ isLoadingHabits ? "..." : habitStats.completionRate + "%" }}
         </div>
-        <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px">
           completion rate
         </div>
         <div style="display: flex; gap: 4px; margin-top: 12px">
@@ -478,7 +479,7 @@ onUnmounted(() => {
             :key="i"
             style="flex: 1; height: 6px; border-radius: 2px"
             :style="{
-              background: i <= habitStats.doneToday ? '#4ade80' : '#1e1e1e',
+              background: i <= habitStats.doneToday ? '#4ade80' : 'var(--p-card-border)',
               opacity: i <= habitStats.doneToday ? 0.8 : 1,
             }"
           ></div>
@@ -498,7 +499,7 @@ onUnmounted(() => {
           <span
             style="
               font-size: 0.72rem;
-              color: #6b7280;
+              color: var(--text-muted);
               font-family:
                 JetBrains Mono,
                 monospace;
@@ -513,19 +514,19 @@ onUnmounted(() => {
           style="
             font-size: 1.6rem;
             font-weight: 800;
-            color: #efece3;
+            color: var(--p-light);
             line-height: 1;
           "
         >
           {{ isLoadingGoals ? "..." : goalStats.avgCompletion + "%" }}
         </div>
-        <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px">
           avg. completion
         </div>
         <div
           style="
             height: 4px;
-            background: #1e1e1e;
+            background: var(--p-card-border);
             border-radius: 2px;
             margin-top: 14px;
           "
@@ -569,7 +570,7 @@ onUnmounted(() => {
             <div style="font-size: 0.85rem; font-weight: 600">
               Cashflow Overview
             </div>
-            <div style="font-size: 0.7rem; color: #6b7280; margin-top: 2px">
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px">
               Apr 2025
             </div>
           </div>
@@ -580,7 +581,7 @@ onUnmounted(() => {
                 align-items: center;
                 gap: 4px;
                 font-size: 0.65rem;
-                color: #6b7280;
+                color: var(--text-muted);
               "
               ><span
                 style="
@@ -599,7 +600,7 @@ onUnmounted(() => {
                 align-items: center;
                 gap: 4px;
                 font-size: 0.65rem;
-                color: #6b7280;
+                color: var(--text-muted);
               "
               ><span
                 style="
@@ -744,7 +745,7 @@ onUnmounted(() => {
               align-items: center;
               gap: 12px;
               padding: 10px;
-              background: #161616;
+              background: var(--p-surface);
               border-radius: 8px;
               border: 1px solid var(--p-card-border);
             "
@@ -789,7 +790,7 @@ onUnmounted(() => {
               <div
                 style="
                   font-size: 0.68rem;
-                  color: #6b7280;
+                  color: var(--text-muted);
                   font-family:
                     JetBrains Mono,
                     monospace;
@@ -879,7 +880,7 @@ onUnmounted(() => {
           <div style="font-size: 0.8rem; font-weight: 500">
             {{ action.name }}
           </div>
-          <div style="font-size: 0.65rem; color: #6b7280">{{ action.sub }}</div>
+          <div style="font-size: 0.65rem; color: var(--text-muted)">{{ action.sub }}</div>
         </div>
       </router-link>
     </div>

@@ -13,3 +13,7 @@ type ContactMessage struct {
 	IsNotRobot bool      `json:"is_not_robot"`
 	CreatedAt  time.Time `json:"createdAt"`
 }
+
+func (ContactMessage) TableName() string {
+	return "email_service.contact_messages"
+}

@@ -78,6 +78,7 @@ func main() {
 	if port == "" {
 		port = "9992"
 	}
+
 	log.Printf("Worker API running on port %s\n", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to run server:", err)

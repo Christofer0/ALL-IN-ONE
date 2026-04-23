@@ -8,6 +8,7 @@ import json
 
 class AIService:
     def __init__(self):
+        self.core_api_url = os.getenv("CORE_API_URL")
         gemini_key = os.getenv("GEMINI_API_KEY")
         if gemini_key and gemini_key != "YOUR_GEMINI_API_KEY_HERE":
             genai.configure(api_key=gemini_key)
@@ -15,8 +16,6 @@ class AIService:
         else:
             self.model = None
             print("Warning: GEMINI_API_KEY not set correctly.")
-
-        self.core_api_url = os.getenv("CORE_API_URL")
 
     def _get_context_data(self, active_contexts, auth_token: str = None):
         context_text = ""

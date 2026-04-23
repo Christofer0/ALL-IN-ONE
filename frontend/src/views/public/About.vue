@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
+import api from "@/utils/api";
+
+const profile = ref({
+  avatarUrl: "",
+  fullName: "Brillian Christofer",
+  shortBio: ""
+});
 
 // --- Mock Data ---
 
@@ -126,7 +133,17 @@ const coreValues = [
 
 // --- Animation Logic ---
 
-onMounted(() => {
+onMounted(async () => {
+  // Fetch Public Profile
+  try {
+    const { data } = await api.get("/profile");
+    if (data) {
+      profile.value = data;
+    }
+  } catch (err) {
+    console.error("Failed to fetch public profile:", err);
+  }
+
   const revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
@@ -157,8 +174,8 @@ onMounted(() => {
         >
           <div class="relative w-48 h-48 mx-auto lg:mx-0">
             <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80"
-              alt="Brillian Christofer"
+              :src="profile.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80'"
+              :alt="profile.fullName"
               class="w-full h-full object-cover rounded-2xl border-2 border-accent/30"
             />
             <div
@@ -172,13 +189,11 @@ onMounted(() => {
         <!-- Name + Bio -->
         <div class="mb-6 animate-fade-up" style="animation-delay: 0.15s">
           <h1 class="font-display text-3xl font-black mb-1">
-            Brillian Christofer
+            {{ profile.fullName }}
           </h1>
           <p class="text-accent font-mono text-sm mb-3">Full-Stack Developer</p>
           <p class="text-sm leading-relaxed" style="color: var(--text-muted)">
-            1+ years crafting robust web apps and beautiful UIs. Passionate
-            about turning complex problems into elegant solutions. Based in
-            Jakarta, Indonesia 🇮🇩
+            {{ profile.shortBio || "1+ years crafting robust web apps and beautiful UIs. Passionate about turning complex problems into elegant solutions. Based in Jakarta, Indonesia 🇮🇩" }}
           </p>
         </div>
 

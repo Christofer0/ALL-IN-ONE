@@ -234,7 +234,7 @@ onMounted(() => {
         <span
           style="
             font-size: 0.72rem;
-            color: #374151;
+            color: var(--text-muted);
             font-family:
               JetBrains Mono,
               monospace;
@@ -374,7 +374,7 @@ onMounted(() => {
                   cy="21"
                   r="18"
                   fill="none"
-                  stroke="#1E1E1E"
+                  stroke="var(--p-card-border)"
                   stroke-width="3"
                 />
                 <circle
@@ -461,7 +461,7 @@ onMounted(() => {
           <div v-if="g.notes" class="goal-notes">
             <div
               class="label-mono"
-              style="font-size: 0.65rem; color: #374151; margin-bottom: 5px"
+              style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 5px"
             >
               📝 Catatan
             </div>
@@ -567,7 +567,7 @@ onMounted(() => {
         <div
           style="
             font-size: 0.65rem;
-            color: #374151;
+            color: var(--text-muted);
             font-family:
               JetBrains Mono,
               monospace;
@@ -757,6 +757,7 @@ onMounted(() => {
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  font-weight: 700;
 }
 
 .stat-label {
@@ -764,7 +765,8 @@ onMounted(() => {
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #374151;
+  color: var(--text-muted);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 .stat-value {
@@ -797,11 +799,11 @@ onMounted(() => {
 }
 .filter-tab:hover:not(.active) {
   color: var(--p-light);
-  border-color: #1e1e1e;
+  border-color: var(--p-card-border);
 }
 
 .goal-card {
-  background: #080808;
+  background: var(--p-surface);
   border: 1px solid var(--p-card-border);
   border-radius: 14px;
   overflow: hidden;
@@ -856,7 +858,7 @@ onMounted(() => {
 }
 .progress-track {
   height: 6px;
-  background: #1e1e1e;
+  background: var(--p-card-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -886,7 +888,7 @@ onMounted(() => {
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  border: 1.5px solid #374151;
+  border: 1.5px solid var(--p-card-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -909,16 +911,16 @@ onMounted(() => {
 }
 
 .goal-notes {
-  background: #0d0d0d;
+  background: var(--p-primary);
   border-radius: 8px;
-  border: 1px solid #1a1a1a;
+  border: 1px solid var(--p-card-border);
   padding: 10px 12px;
 }
 
 .goal-footer {
   padding: 12px 20px;
-  border-top: 1px solid #1e1e1e;
-  background: #040404;
+  border-top: 1px solid var(--p-card-border);
+  background: var(--p-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -926,7 +928,7 @@ onMounted(() => {
 .badge-date {
   font-size: 0.7rem;
   color: #6b7280;
-  background: #111;
+  background: var(--p-primary);
   padding: 4px 8px;
   border-radius: 4px;
   display: flex;
@@ -955,8 +957,8 @@ onMounted(() => {
 }
 
 .action-btn {
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   color: #6b7280;
   border-radius: 6px;
   padding: 5px;
@@ -969,8 +971,8 @@ onMounted(() => {
   border-color: #4a70a9;
 }
 .action-btn-danger {
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   color: #6b7280;
   border-radius: 6px;
   padding: 5px;
@@ -1001,7 +1003,7 @@ onMounted(() => {
 
 .btn-icon-danger {
   background: transparent;
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
   color: #6b7280;
   border-radius: 8px;
   padding: 0 8px;

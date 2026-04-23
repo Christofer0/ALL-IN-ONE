@@ -79,7 +79,7 @@ onMounted(() => {
             font-family:
               JetBrains Mono,
               monospace;
-            color: #374151;
+            color: var(--text-muted);
           "
         >
           {{ dateText }}
@@ -94,7 +94,7 @@ onMounted(() => {
           align-items: center;
           gap: 6px;
           padding: 6px 12px;
-          background: #111;
+          background: var(--p-surface);
           border: 1px solid var(--p-card-border);
           border-radius: 8px;
         "

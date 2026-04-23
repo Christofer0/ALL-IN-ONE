@@ -3,6 +3,9 @@ import { PublicController } from "../controllers/PublicController.js";
 
 const router = Router();
 
+// Profile
+router.get("/profile", PublicController.getProfile);
+
 // Projects
 router.get("/projects", PublicController.getProjects);
 router.get("/projects/:slug", PublicController.getProjectBySlug);

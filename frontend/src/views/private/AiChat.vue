@@ -165,7 +165,7 @@ const toggleContext = (id: string) => {
   const ctx = contexts.value.find((c) => c.id === id);
   if (ctx) {
     ctx.isOn = !ctx.isOn;
-    ctx.color = ctx.isOn ? "#4ade80" : "#374151";
+    ctx.color = ctx.isOn ? "#4ade80" : "var(--text-muted)";
   }
 };
 
@@ -343,7 +343,7 @@ onMounted(() => {
             </button>
           </div>
           <div class="input-footer">
-             <span style="font-size: 0.65rem; color: #374151; font-family: 'JetBrains Mono', monospace;">Enter to send · Shift + Enter for new line</span>
+             <span style="font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Enter to send · Shift + Enter for new line</span>
           </div>
         </div>
       </div>
@@ -364,7 +364,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 20px;
-  border-bottom: 1px solid #1e1e1e;
+  border-bottom: 1px solid var(--p-card-border);
   margin-bottom: 0;
 }
 
@@ -379,8 +379,8 @@ onMounted(() => {
 .mode-toggles {
   display: flex;
   gap: 2px;
-  background: #0d0d0d;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 3px;
 }
@@ -414,8 +414,8 @@ onMounted(() => {
 
 .chat-sidebar {
   width: 260px;
-  border-right: 1px solid #1e1e1e;
-  background: #040404;
+  border-right: 1px solid var(--p-card-border);
+  background: var(--p-surface);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -432,7 +432,8 @@ onMounted(() => {
   font-family: 'JetBrains Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #374151;
+  color: var(--text-muted);
+  font-weight: 700;
   margin-bottom: 12px;
 }
 
@@ -443,8 +444,8 @@ onMounted(() => {
 }
 
 .ctx-card {
-  background: #0a0a0a;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 8px 10px;
   display: flex;
@@ -456,12 +457,12 @@ onMounted(() => {
 
 .ctx-card:hover { border-color: rgba(74, 112, 169, 0.3); }
 
-.ctx-name { font-size: 0.75rem; flex: 1; }
-.ctx-status { font-size: 0.65rem; font-weight: 700; }
+.ctx-name { font-size: 0.75rem; flex: 1; font-weight: 500; }
+.ctx-status { font-size: 0.65rem; font-weight: 800; }
 
 .prompt-chip {
-  background: #0a0a0a;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 0.75rem;
@@ -487,10 +488,10 @@ onMounted(() => {
   transition: background 0.15s;
 }
 
-.history-item:hover { background: #111; }
+.history-item:hover { background: var(--p-primary); }
 .history-item.active { background: rgba(74, 112, 169, 0.1); border: 1px solid rgba(74, 112, 169, 0.15); }
-.history-title { font-size: 0.78rem; color: var(--p-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
-.history-meta { font-size: 0.65rem; color: #374151; }
+.history-title { font-size: 0.78rem; color: var(--p-light); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.history-meta { font-size: 0.65rem; color: var(--text-muted); }
 
 .history-section { flex: 1; border-bottom: none; }
 
@@ -499,7 +500,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: #000;
+  background: var(--p-primary);
 }
 
 .chat-messages {
@@ -525,15 +526,15 @@ onMounted(() => {
 }
 
 .msg-bubble-user {
-  background: #4a70a9; color: #efece3; border-radius: 16px 16px 4px 16px;
+  background: #4a70a9; color: #ffffff; font-weight: 500; border-radius: 16px 16px 4px 16px;
 }
 
 .msg-bubble-ai {
-  background: #0a0a0a; border: 1px solid #1e1e1e; color: #efece3; border-radius: 4px 16px 16px 16px;
+  background: var(--p-surface); border: 1px solid var(--p-card-border); color: var(--p-light); font-weight: 500; border-radius: 4px 16px 16px 16px;
 }
 
 .msg-time {
-  font-size: 0.68rem; color: #374151; margin-top: 6px;
+  font-size: 0.68rem; color: var(--text-muted); margin-top: 6px;
   display: flex; justify-content: flex-end;
 }
 .msg-bubble-ai .msg-time { justify-content: flex-start; }
@@ -547,13 +548,13 @@ onMounted(() => {
 
 .chat-input-area {
   padding: 20px 30px 30px;
-  border-top: 1px solid #1e1e1e;
-  background: #000;
+  border-top: 1px solid var(--p-card-border);
+  background: var(--p-primary);
 }
 
 .input-wrapper {
   display: flex; gap: 12px; align-items: flex-end;
-  background: #080808; border: 1px solid #1e1e1e; border-radius: 12px; padding: 10px;
+  background: var(--p-surface); border: 1px solid var(--p-card-border); padding: 10px;
   transition: border-color 0.2s;
 }
 
@@ -579,5 +580,5 @@ onMounted(() => {
 
 .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-.input-footer { margin-top: 10px; text-align: center; }
+.input-footer { margin-top: 10px; text-align: center; font-weight: 500; }
 </style>

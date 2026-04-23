@@ -298,7 +298,7 @@ const insertMd = (before: string, after: string) => {
             left: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: #374151;
+            color: var(--text-muted);
           "
           width="13"
           height="13"
@@ -615,12 +615,13 @@ const insertMd = (before: string, after: string) => {
   flex: 1;
   display: flex;
   overflow: hidden;
-  background: #000;
+  background: var(--p-primary);
 }
 
 /* Panel Layouts */
 .folders-panel {
   width: 180px;
+  background: var(--p-surface);
   border-right: 1px solid var(--p-card-border);
   display: flex;
   flex-direction: column;
@@ -630,7 +631,7 @@ const insertMd = (before: string, after: string) => {
 .notes-list-panel {
   width: 260px;
   border-right: 1px solid var(--p-card-border);
-  background: #080808;
+  background: var(--p-surface);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -641,7 +642,7 @@ const insertMd = (before: string, after: string) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #000;
+  background: var(--p-primary);
 }
 
 .panel-header {
@@ -654,7 +655,7 @@ const insertMd = (before: string, after: string) => {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 .panel-content {
@@ -668,7 +669,7 @@ const insertMd = (before: string, after: string) => {
   border-top: 1px solid var(--p-card-border);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 /* Sidebar items */
@@ -710,13 +711,13 @@ const insertMd = (before: string, after: string) => {
 /* Note List Items */
 .note-item {
   padding: 16px;
-  border-bottom: 1px solid #111;
+  border-bottom: 1px solid var(--p-card-border);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .note-item:hover {
-  background: #111;
+  background: var(--p-surface);
 }
 .note-item.active {
   background: rgba(74, 112, 169, 0.05);
@@ -757,7 +758,7 @@ const insertMd = (before: string, after: string) => {
 .note-date {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.6rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 .tag-list {
@@ -776,7 +777,7 @@ const insertMd = (before: string, after: string) => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #000;
+  background: var(--p-primary);
 }
 
 .current-note-title-input {
@@ -805,7 +806,7 @@ const insertMd = (before: string, after: string) => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-muted);
   padding: 4px;
   transition: color 0.2s;
 }
@@ -822,7 +823,7 @@ const insertMd = (before: string, after: string) => {
 .loading-state {
   padding: 40px;
   text-align: center;
-  color: #374151;
+  color: var(--text-muted);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.8rem;
 }
@@ -830,7 +831,7 @@ const insertMd = (before: string, after: string) => {
 .save-status {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 /* Toolbar */
@@ -857,15 +858,15 @@ const insertMd = (before: string, after: string) => {
 }
 
 .tool-btn:hover {
-  background: #1e1e1e;
+  background: var(--p-surface);
   color: var(--p-light);
-  border-color: #333;
+  border-color: var(--p-card-border);
 }
 
 .toolbar-divider {
   width: 1px;
   height: 16px;
-  background: #222;
+  background: var(--p-card-border);
   margin: 0 4px;
 }
 
@@ -878,12 +879,12 @@ const insertMd = (before: string, after: string) => {
 .word-count {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 .tag-add-input {
-  background: #111;
-  border: 1px solid #222;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 0.7rem;
@@ -908,7 +909,7 @@ const insertMd = (before: string, after: string) => {
 }
 
 .editor-write {
-  background: #0a0a0a;
+  background: var(--p-primary);
   border-right: 1px solid var(--p-card-border);
 }
 
@@ -918,7 +919,7 @@ const insertMd = (before: string, after: string) => {
   background: transparent;
   border: none;
   outline: none;
-  color: #ccc;
+  color: var(--p-light);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.9rem;
   line-height: 1.8;
@@ -929,10 +930,10 @@ const insertMd = (before: string, after: string) => {
 .mode-toggles {
   display: flex;
   gap: 4px;
-  background: #111;
+  background: var(--p-primary);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid #222;
+  border: 1px solid var(--p-card-border);
 }
 
 .mode-btn {
@@ -948,7 +949,7 @@ const insertMd = (before: string, after: string) => {
 }
 
 .mode-btn.active {
-  background: #222;
+  background: var(--p-surface);
   color: var(--p-accent);
 }
 
@@ -1005,14 +1006,14 @@ const insertMd = (before: string, after: string) => {
   background: transparent;
 }
 .scrollbar-minimal::-webkit-scrollbar-thumb {
-  background: #1e1e1e;
+  background: var(--p-card-border);
   border-radius: 2px;
 }
 
 /* Markdown Styles */
 :deep(.markdown-body) {
   font-family: "Inter", sans-serif;
-  color: #bbb;
+  color: var(--text-muted);
   line-height: 1.8;
   font-size: 0.95rem;
 }
@@ -1020,28 +1021,28 @@ const insertMd = (before: string, after: string) => {
 :deep(.markdown-body h1) {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--p-light);
   margin-bottom: 24px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid var(--p-card-border);
   padding-bottom: 8px;
 }
 :deep(.markdown-body h2) {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--p-light);
   margin: 32px 0 16px;
 }
 :deep(.markdown-body h3) {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--p-light);
   margin: 24px 0 12px;
 }
 :deep(.markdown-body p) {
   margin-bottom: 16px;
 }
 :deep(.markdown-body strong) {
-  color: #fff;
+  color: var(--p-light);
   font-weight: 600;
 }
 :deep(.markdown-body em) {
@@ -1049,7 +1050,7 @@ const insertMd = (before: string, after: string) => {
 }
 :deep(.markdown-body blockquote) {
   border-left: 4px solid var(--p-secondary);
-  background: #0d0d0d;
+  background: var(--p-surface);
   padding: 16px 20px;
   margin: 20px 0;
   color: #888;
@@ -1058,8 +1059,8 @@ const insertMd = (before: string, after: string) => {
 }
 
 :deep(.markdown-body .code-block) {
-  background: #111;
-  border: 1px solid #222;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   padding: 20px;
   border-radius: 10px;
   margin: 20px 0;
@@ -1069,7 +1070,7 @@ const insertMd = (before: string, after: string) => {
 :deep(.markdown-body code) {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.85rem;
-  background: #1a1a1a;
+  background: var(--p-surface);
   padding: 2px 6px;
   border-radius: 4px;
   color: var(--p-accent);

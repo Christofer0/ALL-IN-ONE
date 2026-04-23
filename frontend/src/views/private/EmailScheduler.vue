@@ -9,7 +9,7 @@ interface Email {
   date: string;
   time: string;
   repeat: "none" | "daily" | "weekly" | "monthly";
-  status: "pending" | "sent";
+  status: "pending" | "sent" | "failed";
   sentAt: string | null;
 }
 
@@ -86,7 +86,7 @@ const pendingSorted = computed(() => {
 
 const historySorted = computed(() => {
   return [...emails.value]
-    .filter((e) => e.status === "sent")
+    .filter((e) => e.status === "sent" || e.status === "failed")
     .sort((a, b) => (b.sentAt || "").localeCompare(a.sentAt || ""));
 });
 
@@ -231,6 +231,22 @@ const useTemplate = (t: Template) => {
 const togglePreview = () => {
   showPreview.value = !showPreview.value;
 };
+
+const formatDate = (dateStr: string | null) => {
+  if (!dateStr) return "-";
+  try {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  } catch (err) {
+    return dateStr;
+  }
+};
 </script>
 
 <template>
@@ -323,8 +339,8 @@ const togglePreview = () => {
       "
     >
       <div class="card p-4">
-        <div class="stat-label" style="color: #fbbf24">Pending</div>
-        <div class="stat-value" style="color: #fbbf24">{{ stats.pending }}</div>
+        <div class="stat-label" style="color: var(--p-accent)">Pending</div>
+        <div class="stat-value" style="color: var(--p-accent)">{{ stats.pending }}</div>
       </div>
       <div class="card p-4">
         <div class="stat-label" style="color: #4ade80">Sent Today</div>
@@ -409,7 +425,7 @@ const togglePreview = () => {
             <div
               style="
                 font-size: 0.78rem;
-                color: #aaaaaa;
+                color: var(--text-muted);
                 margin-bottom: 12px;
                 white-space: nowrap;
                 overflow: hidden;
@@ -442,7 +458,7 @@ const togglePreview = () => {
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                {{ e.date }} · {{ e.time }}
+                {{ formatDate(e.date + 'T' + e.time) }}
               </div>
               <span class="badge-amber">Scheduled</span>
               <div style="margin-left: auto; display: flex; gap: 8px">
@@ -509,10 +525,14 @@ const togglePreview = () => {
         </thead>
         <tbody>
           <tr v-for="e in historySorted" :key="e.id" class="table-row">
-            <td class="td-mono">{{ e.sentAt }}</td>
+            <td class="td-mono">{{ formatDate(e.sentAt) }}</td>
             <td>{{ e.subject }}</td>
             <td style="color: #6b7280; font-size: 0.78rem">{{ e.to }}</td>
-            <td><span class="badge-green">✓ Sent</span></td>
+            <td>
+              <span v-if="e.status === 'sent'" class="badge-green">✓ Sent</span>
+              <span v-else-if="e.status === 'failed'" class="badge-red">✗ Failed</span>
+              <span v-else class="badge-blue">{{ e.status }}</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -949,7 +969,7 @@ const togglePreview = () => {
 .tab-group {
   display: flex;
   gap: 4px;
-  background: #0a0a0a;
+  background: var(--p-primary);
   border: 1px solid var(--p-card-border);
   padding: 4px;
   border-radius: 10px;
@@ -966,7 +986,7 @@ const togglePreview = () => {
   color: #6b7280;
 }
 .tab-btn.active {
-  background: #1a1a1a;
+  background: var(--p-surface);
   color: var(--p-light);
   border: 1px solid var(--p-card-border);
 }
@@ -974,11 +994,11 @@ const togglePreview = () => {
 .email-card {
   transition: all 0.2s;
   cursor: pointer;
-  background: #080808;
+  background: var(--p-surface);
 }
 .email-card:hover {
   border-color: rgba(74, 112, 169, 0.3);
-  background: #111;
+  background: var(--p-primary);
 }
 
 .email-icon {
@@ -1035,7 +1055,7 @@ const togglePreview = () => {
   padding: 6px;
 }
 .btn-tag {
-  background: #111;
+  background: var(--p-primary);
   border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 6px 12px;
@@ -1051,14 +1071,14 @@ const togglePreview = () => {
 }
 
 .preview-panel {
-  background: #050505;
+  background: var(--p-primary);
   border: 1px solid var(--p-card-border);
   border-radius: 12px;
   overflow: hidden;
   margin-top: 8px;
 }
 .preview-header {
-  background: #111;
+  background: var(--p-surface);
   padding: 10px 16px;
   border-bottom: 1px solid var(--p-card-border);
   display: flex;

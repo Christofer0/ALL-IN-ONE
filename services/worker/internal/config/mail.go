@@ -17,9 +17,12 @@ type MailConfig struct {
 
 func GetMailConfig() MailConfig {
 	port, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
+	if port == 0 {
+		port = 587
+	}
 	useTLS := os.Getenv("MAIL_USE_TLS") == "True"
 
-	return MailConfig{
+	cfg := MailConfig{
 		Server:        os.Getenv("MAIL_SERVER"),
 		Port:          port,
 		Username:      os.Getenv("MAIL_USERNAME"),
@@ -28,4 +31,6 @@ func GetMailConfig() MailConfig {
 		AdminEmail:    os.Getenv("MAIL_ADMIN"),
 		UseTLS:        useTLS,
 	}
+
+	return cfg
 }

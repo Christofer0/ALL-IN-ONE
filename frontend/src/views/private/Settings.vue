@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/utils/api";
+import axios from "axios";
+import { applyTheme } from "@/utils/theme";
 
 const router = useRouter();
 
@@ -30,15 +33,64 @@ const showToast = (msg: string) => {
   }, 3000);
 };
 
-// Profile State
+const isSavingProfile = ref(false);
 const avatarPreview = ref(
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&q=80",
 );
 const profile = reactive({
-  fullName: "Alex Kurniawan",
-  username: "alexkurniawan",
-  email: "admin@portfolio.dev",
-  bio: "Full-Stack Developer & UI/UX enthusiast based in Jakarta, Indonesia. 5+ years crafting beautiful, scalable web apps.",
+  fullName: "",
+  username: "",
+  email: "",
+  shortBio: "",
+  avatarUrl: "",
+});
+
+const fetchProfile = async () => {
+  try {
+    const { data } = await api.get("/profile");
+    profile.fullName = data.fullName || "";
+    profile.username = data.username || "";
+    profile.email = data.email || "";
+    profile.shortBio = data.shortBio || "";
+    profile.avatarUrl = data.avatarUrl || "";
+    if (data.avatarUrl) {
+      avatarPreview.value = data.avatarUrl;
+    }
+  } catch (error) {
+    console.error("Failed to fetch profile:", error);
+    showToast("Error loading profile data");
+  }
+};
+
+const saveProfile = async () => {
+  isSavingProfile.value = true;
+  try {
+    const payload = {
+      ...profile,
+      // If avatarPreview is a base64 string, it means it's a new upload
+      avatarUrl: avatarPreview.value.startsWith("data:image/")
+        ? avatarPreview.value
+        : profile.avatarUrl,
+    };
+
+    const { data } = await api.put("/profile", payload);
+    profile.avatarUrl = data.avatarUrl;
+    showToast("Profile updated successfully!");
+  } catch (error) {
+    console.error("Failed to update profile:", error);
+    showToast("Error saving profile changes");
+  } finally {
+    isSavingProfile.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchProfile();
+  const saved = localStorage.getItem('publicAppearance');
+  if (saved) {
+    Object.assign(appearance, JSON.parse(saved));
+    applyColorsToDOM();
+  }
 });
 
 const handleAvatarChange = (e: Event) => {
@@ -54,7 +106,7 @@ const handleAvatarChange = (e: Event) => {
   }
 };
 
-// Security State
+const isChangingPassword = ref(false);
 const security = reactive({
   currentPassword: "",
   newPassword: "",
@@ -64,6 +116,32 @@ const showPasswords = reactive({
   current: false,
   new: false,
 });
+
+const handleChangePassword = async () => {
+  if (security.newPassword.length < 8) {
+    showToast("New password must be at least 8 characters");
+    return;
+  }
+
+  isChangingPassword.value = true;
+  try {
+    await api.patch("/change-password", {
+      currentPassword: security.currentPassword,
+      newPassword: security.newPassword,
+    });
+    showToast("Password updated successfully!");
+    // Reset form
+    security.currentPassword = "";
+    security.newPassword = "";
+    security.confirmPassword = "";
+    passwordStrength.value = 0;
+  } catch (error: any) {
+    console.error("Failed to change password:", error);
+    showToast(error.response?.data?.error || "Error updating password");
+  } finally {
+    isChangingPassword.value = false;
+  }
+};
 const passwordStrength = ref(0);
 const strengthLabel = computed(() => {
   const labels = ["", "Weak", "Fair", "Good", "Strong"];
@@ -83,40 +161,25 @@ const checkStrength = (val: string) => {
   passwordStrength.value = score;
 };
 
-// API Keys State
-const apiKeys = reactive({
-  openai: "sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  anthropic: "",
-  github: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-});
-const apiKeyVisible = reactive({
-  openai: false,
-  anthropic: false,
-  github: false,
+
+// Appearance State
+const appearance = reactive({
+  bg: '#eeeeee',
+  bgCard: '#ffffff',
+  border: '#d0d0d0',
+  text: '#222831',
+  textMuted: '#555e6a',
+  accent: '#00adb5',
 });
 
-const toggleApiKey = (key: keyof typeof apiKeyVisible) => {
-  apiKeyVisible[key] = !apiKeyVisible[key];
+const applyAppearance = () => {
+  localStorage.setItem('publicAppearance', JSON.stringify(appearance));
+  applyTheme(appearance);
+  showToast('Appearance saved!');
 };
 
-const copyToClipboard = (val: string) => {
-  navigator.clipboard.writeText(val).then(() => {
-    showToast("Copied to clipboard!");
-  });
-};
-
-// Preferences State
-const activeTheme = ref("dark");
-const notifications = reactive({
-  messages: true,
-  deployments: true,
-  analytics: false,
-  marketing: false,
-});
-
-const setTheme = (theme: string) => {
-  activeTheme.value = theme;
-  showToast(`Theme set to "${theme}" mode!`);
+const applyColorsToDOM = () => {
+  applyTheme(appearance);
 };
 
 // Danger Zone State
@@ -141,11 +204,11 @@ const fetchMessages = async () => {
     isLoadingMessages.value = true;
     const workerUrl =
       import.meta.env.VITE_API_BASE_WORKER || "http://localhost:9992";
-    const response = await fetch(`${workerUrl}/api/worker/contact/messages`);
-    if (!response.ok) throw new Error("Failed to fetch messages");
-    messages.value = await response.json();
+    const response = await axios.get(
+      `${workerUrl}/api/worker/contact/messages`,
+    );
+    messages.value = response.data;
   } catch (err) {
-    console.error(err);
     showToast("Failed to load messages.");
   } finally {
     isLoadingMessages.value = false;
@@ -172,634 +235,104 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <template>
-  <div
-    class="settings-page bg-slate-900 font-sans text-white min-h-screen flex flex-col overflow-x-hidden relative"
-  >
-    <!-- Background Effects -->
-    <div class="mesh absolute inset-0 pointer-events-none"></div>
-    <div class="grid-bg absolute inset-0 pointer-events-none"></div>
-    <div class="grain-overlay"></div>
-
-    <!-- ══════════════ MAIN CONTENT ══════════════ -->
-    <main class="flex-1 min-w-0 overflow-y-auto relative z-10">
-      <!-- Top Bar -->
-      <div
-        class="sticky top-0 z-20 bg-slate-900/90 backdrop-blur border-b border-sky-700/30 px-6 py-4 flex items-center justify-between"
-      >
-        <div class="flex items-center gap-3">
-          <div>
-            <h1 class="font-serif text-xl font-bold">Settings</h1>
-            <p class="text-white/30 text-xs font-mono">dashboard/settings</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            class="w-8 h-8 flex items-center justify-center rounded-xl border border-sky-700/50 hover:border-cyan-400/40 text-white/40 hover:text-cyan-400 transition-all"
-          >
-            <svg
-              width="15"
-              height="15"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"
-              />
-            </svg>
-          </button>
-          <img
-            :src="avatarPreview"
-            alt="Avatar"
-            class="w-8 h-8 rounded-lg object-cover border border-sky-700/60"
-          />
-        </div>
+  <main class="page-content">
+    <div class="max-w-3xl mx-auto">
+      <div class="mb-8">
+        <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--p-light)">
+          Settings
+        </h1>
+        <p
+          style="
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: JetBrains Monospace;
+          "
+        >
+          Manage your account preferences and system configuration.
+        </p>
       </div>
 
-      <div class="px-6 py-8 max-w-3xl mx-auto space-y-0">
-        <!-- ── Tabs ── -->
-        <div
-          class="flex gap-1 bg-sky-800/20 border border-sky-700/30 rounded-xl p-1 mb-8 overflow-x-auto"
-        >
-          <button
-            v-for="tab in [
-              'profile',
-              'messages',
-              'security',
-              'api',
-              'prefs',
-              'danger',
-            ]"
-            :key="tab"
-            @click="switchTab(tab)"
-            :class="[
+      <!-- ── Tabs ── -->
+      <div
+        style="
+          display: flex;
+          gap: 4px;
+          background: var(--p-surface);
+          border: 1px solid var(--p-card-border);
+          border-radius: 12px;
+          padding: 4px;
+          margin-bottom: 28px;
+          overflow-x: auto;
+        "
+      >
+        <button
+          v-for="tab in [
+            'profile',
+            'messages',
+            'security',
+            'appearance',
+            'danger',
+          ]"
+          :key="tab"
+          @click="switchTab(tab)"
+          :style="{
+            background:
+              activeTab === tab ? 'rgba(74, 112, 169, 0.15)' : 'transparent',
+            color:
               activeTab === tab
-                ? 'bg-sky-700/60 text-cyan-400 font-semibold'
+                ? 'var(--p-accent)'
                 : tab === 'danger'
-                  ? 'text-red-400/60 hover:text-red-400'
-                  : 'text-white/40 hover:text-white/70',
-            ]"
-            class="tab-btn flex-1 min-w-max text-[11px] font-mono py-2.5 px-3 rounded-lg transition-all capitalize"
-          >
-            {{
-              tab === "api"
-                ? "API Keys"
-                : tab === "prefs"
-                  ? "Preferences"
-                  : tab === "messages"
-                    ? "Messages"
-                    : tab
-            }}
-          </button>
-        </div>
-
-        <!-- ══ TAB: PROFILE ══ -->
-        <div
-          v-show="activeTab === 'profile'"
-          class="tab-section animate-fade-up"
+                  ? '#f87171'
+                  : 'var(--text-muted)',
+            border:
+              activeTab === tab
+                ? '1px solid rgba(74, 112, 169, 0.2)'
+                : '1px solid transparent',
+          }"
+          class="flex-1 min-w-max text-[11px] font-mono py-2.5 px-4 rounded-lg transition-all capitalize font-medium"
         >
-          <div class="settings-card">
-            <h2 class="font-serif text-lg font-bold mb-1">Update Profile</h2>
-            <p class="text-white/40 text-xs mb-5">
-              Your public-facing information on the portfolio.
-            </p>
+          {{
+            tab === 'appearance'
+              ? 'Appearance'
+              : tab === "messages"
+                ? "Messages"
+                : tab
+          }}
+        </button>
+      </div>
 
-            <div class="flex items-start gap-5 mb-6">
-              <div class="relative flex-shrink-0">
-                <img
-                  :src="avatarPreview"
-                  alt="Avatar"
-                  class="w-20 h-20 rounded-2xl object-cover border-2 border-sky-700/60"
-                />
-              </div>
-              <div class="flex-1">
-                <label
-                  class="avatar-drop rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer gap-2 text-center"
-                  for="avatarInput"
-                >
-                  <svg
-                    class="text-cyan-400/50"
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
-                    />
-                  </svg>
-                  <p class="text-xs text-white/40">
-                    Click to upload or drag &amp; drop
-                  </p>
-                  <p class="text-xs text-white/20 font-mono">
-                    PNG, JPG up to 2MB
-                  </p>
-                </label>
-                <input
-                  type="file"
-                  id="avatarInput"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleAvatarChange"
-                />
-              </div>
-            </div>
+      <!-- ══ TAB: PROFILE ══ -->
+      <div v-show="activeTab === 'profile'" class="tab-section animate-fade-up">
+        <div class="card p-6">
+          <h2
+            style="
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--p-light);
+              margin-bottom: 4px;
+            "
+          >
+            Update Profile
+          </h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 24px">
+            Your public-facing information on the portfolio.
+          </p>
 
-            <div class="grid sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">FULL NAME</label>
-                <input
-                  type="text"
-                  v-model="profile.fullName"
-                  class="form-input"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">USERNAME</label>
-                <input
-                  type="text"
-                  v-model="profile.username"
-                  class="form-input"
-                  placeholder="username"
-                />
-              </div>
-            </div>
-            <div class="mb-4">
-              <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">EMAIL</label>
-              <input
-                type="email"
-                v-model="profile.email"
-                class="form-input"
-                placeholder="you@example.com"
+          <div class="flex items-start gap-5 mb-8">
+            <div class="relative flex-shrink-0">
+              <img
+                :src="avatarPreview"
+                alt="Avatar"
+                class="w-20 h-20 rounded-xl object-cover border border-sky-700/60"
               />
             </div>
-            <div class="mb-5">
-              <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">BIO SINGKAT</label>
-              <textarea
-                rows="3"
-                v-model="profile.bio"
-                class="form-input resize-none"
-                placeholder="Tell visitors a bit about yourself..."
-              ></textarea>
-            </div>
-            <div class="flex justify-end">
-              <button
-                @click="showToast('Profile updated successfully!')"
-                class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
-              >
-                Save Profile
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ TAB: MESSAGES ══ -->
-        <div
-          v-show="activeTab === 'messages'"
-          class="tab-section animate-fade-up"
-        >
-          <div class="settings-card">
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h2 class="font-serif text-lg font-bold mb-1">Messages</h2>
-                <p class="text-white/40 text-xs">
-                  Review and respond to contact requests from your website.
-                </p>
-              </div>
-              <button
-                @click="fetchMessages"
-                class="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1"
+            <div class="flex-1">
+              <label
+                class="upload-zone flex flex-col items-center justify-center cursor-pointer gap-2 text-center"
+                for="avatarInput"
               >
                 <svg
-                  width="14"
-                  height="14"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Refresh
-              </button>
-            </div>
-
-            <!-- Messages List -->
-            <div
-              v-if="isLoadingMessages"
-              class="py-12 text-center text-white/30"
-            >
-              <div
-                class="animate-spin w-6 h-6 border-2 border-cyan-400/50 border-t-cyan-400 rounded-full mx-auto mb-3"
-              ></div>
-              <p class="text-sm font-mono tracking-widest">
-                LOADING MESSAGES...
-              </p>
-            </div>
-
-            <div
-              v-else-if="messages.length === 0"
-              class="py-12 text-center text-white/20"
-            >
-              <svg
-                width="40"
-                height="40"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1"
-                viewBox="0 0 24 24"
-                class="mx-auto mb-3 opacity-20"
-              >
-                <path
-                  d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-                />
-              </svg>
-              <p class="text-sm italic">No messages found.</p>
-            </div>
-
-            <div v-else class="space-y-3">
-              <div
-                v-for="msg in messages"
-                :key="msg.id"
-                @click="openMessage(msg)"
-                class="message-item group p-4 rounded-xl border border-sky-700/30 bg-slate-900/50 hover:bg-sky-400/5 hover:border-cyan-400/30 transition-all cursor-pointer"
-              >
-                <div class="flex justify-between items-start mb-1">
-                  <h4
-                    class="text-sm font-bold text-white/80 group-hover:text-cyan-400"
-                  >
-                    {{ msg.name }}
-                  </h4>
-                  <span class="text-[10px] font-mono text-white/30">{{
-                    formatDate(msg.createdAt)
-                  }}</span>
-                </div>
-                <p
-                  class="text-[11px] text-cyan-400/60 font-mono mb-2 uppercase tracking-wide"
-                >
-                  {{ msg.subject || "No Subject" }}
-                </p>
-                <p class="text-xs text-white/40 line-clamp-1 italic">
-                  "{{ msg.message }}"
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ MESSAGE DETAIL MODAL ══ -->
-        <div
-          v-if="selectedMessage"
-          class="fixed inset-0 z-[60] flex items-center justify-center p-4 lg:p-6"
-        >
-          <div
-            class="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
-            @click="closeMessage"
-          ></div>
-          <div
-            class="relative bg-slate-900 border border-sky-400/30 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl animate-fade-up"
-          >
-            <div
-              class="p-6 border-b border-sky-700/30 flex justify-between items-center bg-sky-400/5"
-            >
-              <div>
-                <h3 class="text-lg font-serif font-bold text-cyan-400">
-                  {{ selectedMessage.subject || "Contact Inquiry" }}
-                </h3>
-                <p
-                  class="text-[10px] font-mono text-white/30 uppercase tracking-widest mt-1"
-                >
-                  From: {{ selectedMessage.name }} &lt;{{
-                    selectedMessage.email
-                  }}&gt;
-                </p>
-              </div>
-              <button
-                @click="closeMessage"
-                class="text-white/40 hover:text-white transition-colors"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div class="p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
-              <div
-                class="flex items-center gap-4 mb-8 text-[11px] font-mono text-white/30 border-b border-sky-700/20 pb-4"
-              >
-                <span>DATE: {{ formatDate(selectedMessage.createdAt) }}</span>
-                <span
-                  class="ml-auto px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                  >VERIFIED HUMAN</span
-                >
-              </div>
-              <div
-                class="text-white/70 leading-relaxed whitespace-pre-wrap font-body text-sm"
-              >
-                {{ selectedMessage.message }}
-              </div>
-            </div>
-            <div
-              class="p-4 bg-slate-900/50 border-t border-sky-700/30 flex justify-end"
-            >
-              <a
-                :href="`mailto:${selectedMessage.email}`"
-                class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-5 py-2 rounded-xl text-sm transition-all flex items-center gap-2"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                Reply via Email
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ TAB: SECURITY ══ -->
-        <div
-          v-show="activeTab === 'security'"
-          class="tab-section animate-fade-up"
-        >
-          <div class="settings-card">
-            <h2 class="font-serif text-lg font-bold mb-1">Change Password</h2>
-            <p class="text-white/40 text-xs mb-5">
-              Use a strong, unique password to keep your account secure.
-            </p>
-            <div class="space-y-4 mb-5">
-              <div>
-                <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">CURRENT PASSWORD</label>
-                <div class="relative">
-                  <input
-                    :type="showPasswords.current ? 'text' : 'password'"
-                    v-model="security.currentPassword"
-                    placeholder="••••••••••"
-                    class="form-input pr-11"
-                  />
-                  <button
-                    @click="showPasswords.current = !showPasswords.current"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-cyan-400 transition-colors"
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-mono text-white/40 tracking-wider mb-2">NEW PASSWORD</label>
-                <div class="relative">
-                  <input
-                    :type="showPasswords.new ? 'text' : 'password'"
-                    v-model="security.newPassword"
-                    @input="checkStrength(security.newPassword)"
-                    placeholder="Min. 8 characters"
-                    class="form-input pr-11"
-                  />
-                  <button
-                    @click="showPasswords.new = !showPasswords.new"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-cyan-400 transition-colors"
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-                <div class="mt-2 flex gap-1">
-                  <div
-                    v-for="i in 4"
-                    :key="i"
-                    :class="[
-                      i <= passwordStrength
-                        ? passwordStrength === 4
-                          ? 'bg-emerald-400'
-                          : passwordStrength === 3
-                            ? 'bg-yellow-400'
-                            : passwordStrength === 2
-                              ? 'bg-orange-400'
-                              : 'bg-red-500'
-                        : 'bg-sky-700/40',
-                    ]"
-                    class="flex-1 h-1 rounded-full transition-colors duration-300"
-                  ></div>
-                </div>
-                <p
-                  v-if="strengthLabel"
-                  :class="{
-                    'text-red-400': passwordStrength === 1,
-                    'text-orange-400': passwordStrength === 2,
-                    'text-yellow-400': passwordStrength === 3,
-                    'text-emerald-400': passwordStrength === 4,
-                  }"
-                  class="text-[10px] mt-1 font-mono uppercase font-bold tracking-wider"
-                >
-                  {{ strengthLabel }}
-                </p>
-              </div>
-            </div>
-            <div class="flex justify-end">
-              <button
-                @click="showToast('Password changed successfully!')"
-                class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
-              >
-                Update Password
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ TAB: API KEYS ══ -->
-        <div v-show="activeTab === 'api'" class="tab-section animate-fade-up">
-          <div class="settings-card">
-            <h2 class="font-serif text-lg font-bold mb-1">API Keys</h2>
-            <p class="text-white/40 text-xs mb-5">
-              These keys are stored encrypted. Never share them publicly.
-            </p>
-
-            <div class="space-y-5">
-              <div v-for="(val, key) in apiKeys" :key="key">
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-xs font-mono text-white/40 tracking-wider uppercase">{{ key }} API KEY</label>
-                  <span
-                    v-if="val"
-                    class="text-[10px] bg-emerald-900/20 text-emerald-400 border border-emerald-500/20 rounded-full px-2 py-0.5"
-                    >Connected</span
-                  >
-                  <span
-                    v-else
-                    class="text-[10px] bg-sky-800/30 text-white/40 border border-sky-700/50 rounded-full px-2 py-0.5"
-                    >Not set</span
-                  >
-                </div>
-                <div class="relative">
-                  <input
-                    :type="apiKeyVisible[key] ? 'text' : 'password'"
-                    v-model="apiKeys[key]"
-                    class="form-input font-mono tracking-wider pr-24"
-                    :placeholder="`sk-${key.substring(0, 3)}-xxx...`"
-                  />
-                  <div
-                    class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1"
-                  >
-                    <button
-                      @click="toggleApiKey(key)"
-                      class="text-[10px] bg-sky-800/40 hover:bg-sky-800/80 text-white/50 hover:text-cyan-400 px-2 py-1 rounded-lg transition-all font-mono"
-                    >
-                      {{ apiKeyVisible[key] ? "Hide" : "Show" }}
-                    </button>
-                    <button
-                      v-if="val"
-                      @click="copyToClipboard(val)"
-                      class="text-[10px] bg-sky-800/40 hover:bg-sky-800/80 text-white/50 hover:text-cyan-400 px-2 py-1 rounded-lg transition-all font-mono"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex justify-end mt-6">
-              <button
-                @click="showToast('API keys saved securely!')"
-                class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
-              >
-                Save Keys
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ TAB: PREFERENCES ══ -->
-        <div v-show="activeTab === 'prefs'" class="tab-section animate-fade-up">
-          <div class="settings-card">
-            <h2 class="font-serif text-lg font-bold mb-4">Appearance</h2>
-            <div class="grid grid-cols-3 gap-3 mb-4">
-              <button
-                v-for="theme in ['dark', 'light', 'system']"
-                :key="theme"
-                @click="setTheme(theme)"
-                :class="{
-                  'border-cyan-400 ring-2 ring-cyan-400/10':
-                    activeTheme === theme,
-                }"
-                class="border-2 border-sky-700/40 rounded-xl p-3 text-center transition-all hover:border-cyan-400/40"
-              >
-                <div
-                  v-if="theme === 'dark'"
-                  class="w-full h-10 bg-slate-900 rounded-lg mb-2 flex items-center justify-center"
-                >
-                  <div class="w-5 h-5 rounded-full bg-cyan-400/60"></div>
-                </div>
-                <div
-                  v-else-if="theme === 'light'"
-                  class="w-full h-10 bg-gray-200 rounded-lg mb-2 flex items-center justify-center"
-                >
-                  <div class="w-5 h-5 rounded-full bg-sky-600/60"></div>
-                </div>
-                <div
-                  v-else
-                  class="w-full h-10 rounded-lg mb-2 flex overflow-hidden"
-                >
-                  <div class="flex-1 bg-slate-900"></div>
-                  <div class="flex-1 bg-gray-200"></div>
-                </div>
-                <p
-                  :class="
-                    activeTheme === theme
-                      ? 'text-cyan-400 font-semibold'
-                      : 'text-white/40'
-                  "
-                  class="text-xs capitalize"
-                >
-                  {{ theme }}
-                </p>
-              </button>
-            </div>
-          </div>
-
-          <div class="settings-card">
-            <h2 class="font-serif text-lg font-bold mb-4">
-              Email Notifications
-            </h2>
-            <div class="space-y-4">
-              <div
-                v-for="(val, key) in notifications"
-                :key="key"
-                class="flex items-center justify-between py-2 first:pt-0 last:pb-0 border-b last:border-0 border-sky-700/20"
-              >
-                <div>
-                  <p class="text-sm font-medium capitalize">
-                    {{ key.replace(/([A-Z])/g, " $1") }}
-                  </p>
-                  <p class="text-xs text-white/40">
-                    Receive alerts related to {{ key }}.
-                  </p>
-                </div>
-                <label class="toggle-wrap">
-                  <input
-                    type="checkbox"
-                    v-model="notifications[key]"
-                    @change="showToast('Preference saved!')"
-                  />
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ TAB: DANGER ZONE ══ -->
-        <div
-          v-show="activeTab === 'danger'"
-          class="tab-section animate-fade-up"
-        >
-          <div
-            class="danger-card border border-red-500/30 bg-red-900/10 rounded-2xl p-6"
-          >
-            <div class="flex items-start gap-4 mb-6">
-              <div
-                class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center shrink-0"
-              >
-                <svg
-                  class="text-red-400"
+                  style="color: var(--p-accent); opacity: 0.5"
                   width="20"
                   height="20"
                   fill="none"
@@ -808,88 +341,602 @@ const formatDate = (dateStr: string) => {
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                    d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
                   />
                 </svg>
-              </div>
-              <div>
-                <h2 class="font-serif text-lg font-bold text-red-300">
-                  Danger Zone
-                </h2>
-                <p class="text-red-400/60 text-sm">
-                  Action here cannot be undone.
+                <p style="font-size: 0.7rem; color: var(--text-muted)">
+                  Click to upload or drag &amp; drop
                 </p>
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <div
-                class="p-4 bg-red-900/20 border border-red-500/30 rounded-xl space-y-4"
-              >
-                <p class="text-sm font-bold text-red-300">
-                  Delete Account & Data
-                </p>
-                <div class="space-y-2">
-                  <label class="block text-xs font-mono text-red-400/60 tracking-wider">TYPE "DELETE" TO CONFIRM</label>
-                  <input
-                    type="text"
-                    v-model="deleteConfirmText"
-                    placeholder='Type "DELETE" here...'
-                    class="form-input border-red-500/30 focus:border-red-500/60 text-red-300 placeholder:text-red-900"
-                  />
-                </div>
-                <button
-                  @click="confirmDelete"
-                  class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2"
+                <p
+                  style="
+                    font-size: 0.65rem;
+                    color: var(--text-muted);
+                    font-family: JetBrains Mono, monospace;
+                  "
                 >
-                  Delete My Account
-                </button>
+                  PNG, JPG up to 2MB
+                </p>
+              </label>
+              <input
+                type="file"
+                id="avatarInput"
+                accept="image/*"
+                class="hidden"
+                @change="handleAvatarChange"
+              />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="form-label">FULL NAME</label>
+              <input
+                type="text"
+                v-model="profile.fullName"
+                class="form-input"
+                placeholder="Your name"
+              />
+            </div>
+            <div>
+              <label class="form-label">USERNAME</label>
+              <input
+                type="text"
+                v-model="profile.username"
+                class="form-input"
+                placeholder="username"
+              />
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">EMAIL</label>
+            <input
+              type="email"
+              v-model="profile.email"
+              class="form-input"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div class="mb-6">
+            <label class="form-label">BIO SINGKAT</label>
+            <textarea
+              rows="3"
+              v-model="profile.shortBio"
+              class="form-input resize-none"
+              placeholder="Tell visitors a bit about yourself..."
+            ></textarea>
+          </div>
+          <div class="flex justify-end">
+            <button
+              @click="saveProfile"
+              :disabled="isSavingProfile"
+              class="btn-primary"
+            >
+              {{ isSavingProfile ? "Saving..." : "Save Profile" }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TAB: MESSAGES ══ -->
+      <div
+        v-show="activeTab === 'messages'"
+        class="tab-section animate-fade-up"
+      >
+        <div class="card p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2
+                style="
+                  font-size: 1rem;
+                  font-weight: 600;
+                  color: var(--p-light);
+                  margin-bottom: 4px;
+                "
+              >
+                Messages
+              </h2>
+              <p style="font-size: 0.75rem; color: var(--text-muted)">
+                Review and respond to contact requests from your website.
+              </p>
+            </div>
+            <button
+              @click="fetchMessages"
+              class="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1"
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh
+            </button>
+          </div>
+
+          <!-- Messages List -->
+          <div v-if="isLoadingMessages" class="py-12 text-center" style="color: var(--text-muted); opacity: 0.4">
+            <div
+              class="animate-spin w-6 h-6 border-2 border-cyan-400/50 border-t-cyan-400 rounded-full mx-auto mb-3"
+            ></div>
+            <p class="text-xs font-mono tracking-widest uppercase">
+              LOADING MESSAGES...
+            </p>
+          </div>
+
+          <div
+            v-else-if="messages.length === 0"
+            class="py-12 text-center"
+            style="color: var(--text-muted); opacity: 0.3"
+          >
+            <svg
+              width="40"
+              height="40"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              viewBox="0 0 24 24"
+              class="mx-auto mb-3 opacity-20"
+            >
+              <path
+                d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+              />
+            </svg>
+            <p class="text-sm italic">No messages found.</p>
+          </div>
+
+          <div v-else class="space-y-3">
+            <div
+              v-for="msg in messages"
+              :key="msg.id"
+              @click="openMessage(msg)"
+              style="
+                background: var(--p-surface);
+                border: 1px solid var(--p-card-border);
+              "
+              class="p-4 rounded-xl hover:border-cyan-400/30 transition-all cursor-pointer group"
+            >
+              <div class="flex justify-between items-start mb-1">
+                <h4
+                  style="color: var(--p-light)"
+                  class="text-sm font-bold group-hover:text-cyan-400 transition-colors"
+                >
+                  {{ msg.name }}
+                </h4>
+                <span class="text-[10px] font-mono" style="color: var(--text-muted)">{{
+                  formatDate(msg.createdAt)
+                }}</span>
               </div>
+              <p
+                class="text-[11px] text-cyan-400/60 font-mono mb-2 uppercase tracking-wide"
+              >
+                {{ msg.subject || "No Subject" }}
+              </p>
+              <p class="text-xs line-clamp-1 italic" style="color: var(--text-muted); opacity: 0.6">
+                "{{ msg.message }}"
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </main>
+
+      <!-- ══ MESSAGE DETAIL MODAL ══ -->
+      <div
+        v-if="selectedMessage"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 lg:p-6"
+      >
+        <div
+          class="absolute inset-0 bg-black/80 backdrop-blur-md"
+          @click="closeMessage"
+        ></div>
+        <div
+          style="background: var(--p-surface); border: 1px solid var(--p-card-border);"
+          class="relative rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl animate-fade-up"
+        >
+          <div
+            class="p-6 border-b border-sky-700/30 flex justify-between items-center"
+            style="background: rgba(74, 112, 169, 0.05)"
+          >
+            <div>
+              <h3 class="text-lg font-serif font-bold text-cyan-400">
+                {{ selectedMessage.subject || "Contact Inquiry" }}
+              </h3>
+              <p
+                class="text-[10px] font-mono uppercase tracking-widest mt-1"
+                style="color: var(--text-muted)"
+              >
+                From: {{ selectedMessage.name }} &lt;{{
+                  selectedMessage.email
+                }}&gt;
+              </p>
+            </div>
+            <button
+              @click="closeMessage"
+              class="transition-colors"
+              style="color: var(--text-muted)"
+            >
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
+            <div
+              class="flex items-center gap-4 mb-8 text-[11px] font-mono border-b border-sky-700/20 pb-4"
+              style="color: var(--text-muted)"
+            >
+              <span>DATE: {{ formatDate(selectedMessage.createdAt) }}</span>
+              <span
+                class="ml-auto px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                >VERIFIED HUMAN</span
+              >
+            </div>
+            <div
+              class="leading-relaxed whitespace-pre-wrap font-body text-sm"
+              style="color: var(--p-light)"
+            >
+              {{ selectedMessage.message }}
+            </div>
+          </div>
+          <div
+            class="p-4 border-t border-sky-700/30 flex justify-end"
+            style="background: rgba(0, 0, 0, 0.2)"
+          >
+            <a
+              :href="`mailto:${selectedMessage.email}`"
+              class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-5 py-2 rounded-xl text-sm transition-all flex items-center gap-2"
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Reply via Email
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TAB: SECURITY ══ -->
+      <div
+        v-show="activeTab === 'security'"
+        class="tab-section animate-fade-up"
+      >
+        <div class="card p-6">
+          <h2
+            style="
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--p-light);
+              margin-bottom: 4px;
+            "
+          >
+            Change Password
+          </h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 24px">
+            Use a strong, unique password to keep your account secure.
+          </p>
+          <div class="space-y-5 mb-6">
+            <div>
+              <label class="form-label">CURRENT PASSWORD</label>
+              <div class="relative">
+                <input
+                  :type="showPasswords.current ? 'text' : 'password'"
+                  v-model="security.currentPassword"
+                  placeholder="••••••••••"
+                  class="form-input pr-11"
+                />
+                <button
+                  @click="showPasswords.current = !showPasswords.current"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-cyan-400 transition-colors"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">NEW PASSWORD</label>
+              <div class="relative">
+                <input
+                  :type="showPasswords.new ? 'text' : 'password'"
+                  v-model="security.newPassword"
+                  @input="checkStrength(security.newPassword)"
+                  placeholder="Min. 8 characters"
+                  class="form-input pr-11"
+                />
+                <button
+                  @click="showPasswords.new = !showPasswords.new"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-cyan-400 transition-colors"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+              <div class="mt-2 flex gap-1">
+                <div
+                  v-for="i in 4"
+                  :key="i"
+                  :class="[
+                    i <= passwordStrength
+                      ? passwordStrength === 4
+                        ? 'bg-emerald-400'
+                        : passwordStrength === 3
+                          ? 'bg-yellow-400'
+                          : passwordStrength === 2
+                            ? 'bg-orange-400'
+                            : 'bg-red-500'
+                      : 'bg-sky-700/40',
+                  ]"
+                  class="flex-1 h-1 rounded-full transition-colors duration-300"
+                ></div>
+              </div>
+              <p
+                v-if="strengthLabel"
+                :class="{
+                  'text-red-400': passwordStrength === 1,
+                  'text-orange-400': passwordStrength === 2,
+                  'text-yellow-400': passwordStrength === 3,
+                  'text-emerald-400': passwordStrength === 4,
+                }"
+                class="text-[10px] mt-1 font-mono uppercase font-bold tracking-wider"
+              >
+                {{ strengthLabel }}
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button
+              @click="handleChangePassword"
+              :disabled="isChangingPassword"
+              class="btn-primary"
+            >
+              {{ isChangingPassword ? "Updating..." : "Update Password" }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ══ TAB: APPEARANCE ══ -->
+      <div v-show="activeTab === 'appearance'" class="tab-section animate-fade-up">
+        <div class="card p-6">
+          <h2 style="font-size: 1rem; font-weight: 600; color: var(--p-light); margin-bottom: 4px;">
+            Appearance
+          </h2>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 24px;">
+            Customize the color scheme of your public portfolio website.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Background Color -->
+            <div>
+              <label class="form-label">Background Color</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.bg" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.bg" class="form-input" placeholder="#eeeeee" style="font-family: monospace;" />
+              </div>
+            </div>
+
+            <!-- Card Background -->
+            <div>
+              <label class="form-label">Card Background</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.bgCard" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.bgCard" class="form-input" placeholder="#ffffff" style="font-family: monospace;" />
+              </div>
+            </div>
+
+            <!-- Accent / Primary Color -->
+            <div>
+              <label class="form-label">Accent Color</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.accent" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.accent" class="form-input" placeholder="#00adb5" style="font-family: monospace;" />
+              </div>
+            </div>
+
+            <!-- Border Color -->
+            <div>
+              <label class="form-label">Border Color</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.border" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.border" class="form-input" placeholder="#d0d0d0" style="font-family: monospace;" />
+              </div>
+            </div>
+
+            <!-- Text Color -->
+            <div>
+              <label class="form-label">Primary Text</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.text" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.text" class="form-input" placeholder="#222831" style="font-family: monospace;" />
+              </div>
+            </div>
+
+            <!-- Muted Text Color -->
+            <div>
+              <label class="form-label">Muted Text</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" v-model="appearance.textMuted" style="width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
+                <input type="text" v-model="appearance.textMuted" class="form-input" placeholder="#555e6a" style="font-family: monospace;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Box -->
+          <div style="margin-top: 28px; padding: 20px; border-radius: 12px; border: 1px solid; transition: all 0.3s;"
+               :style="{ background: appearance.bg, borderColor: appearance.border }">
+            <div style="font-size: 0.7rem; font-family: monospace; margin-bottom: 12px; opacity: 0.5;" :style="{ color: appearance.textMuted }">LIVE PREVIEW</div>
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px;" :style="{ color: appearance.text }">
+              Hello, I'm a Developer 👋
+            </div>
+            <div style="font-size: 0.85rem; margin-bottom: 16px;" :style="{ color: appearance.textMuted }">
+              This is how your public page will look with these colors.
+            </div>
+            <div style="display: inline-block; padding: 8px 18px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;" :style="{ background: appearance.accent, color: appearance.bg }">
+              View Projects →
+            </div>
+          </div>
+
+          <!-- Reset & Save Buttons -->
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+            <button class="btn-ghost" @click="Object.assign(appearance, { bg: '#eeeeee', bgCard: '#ffffff', border: '#d0d0d0', text: '#222831', textMuted: '#555e6a', accent: '#00adb5' }); applyColorsToDOM()">
+              Reset to Default
+            </button>
+            <button class="btn-primary" @click="applyAppearance">
+              Save Appearance
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TAB: DANGER ZONE ══ -->
+      <div v-show="activeTab === 'danger'" class="tab-section animate-fade-up">
+        <div
+          style="
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+          "
+          class="rounded-2xl p-6"
+        >
+          <div class="flex items-start gap-4 mb-8">
+            <div
+              class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0"
+            >
+              <svg
+                class="text-red-400"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 style="color: #f87171" class="text-lg font-bold">
+                Danger Zone
+              </h2>
+              <p class="text-red-400/40 text-xs mt-1">
+                Actions here are permanent and cannot be undone.
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              style="
+                background: #000;
+                border: 1px solid rgba(239, 68, 68, 0.15);
+              "
+              class="p-6 rounded-xl"
+            >
+              <p class="text-sm font-bold text-red-400/80 mb-4">
+                Delete Account & Data
+              </p>
+              <div class="space-y-3 mb-6">
+                <label style="color: #4b5563" class="form-label"
+                  >TYPE "DELETE" TO CONFIRM</label
+                >
+                <input
+                  type="text"
+                  v-model="deleteConfirmText"
+                  placeholder='Type "DELETE" here...'
+                  class="form-input border-red-500/10 focus:border-red-500/30 text-red-300 placeholder:text-red-900/40"
+                />
+              </div>
+              <button
+                @click="confirmDelete"
+                style="background: #ef4444; border: none; color: white"
+                class="w-full font-bold py-3 rounded-xl text-sm transition-all hover:bg-red-500 active:scale-[0.98]"
+              >
+                Delete My Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Toast notification -->
     <div
       v-if="toast.show"
       id="toast"
-      class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-sky-800/90 backdrop-blur border border-cyan-400/30 rounded-xl px-4 py-3 shadow-xl max-w-xs animate-fade-up show"
+      style="
+        background: var(--p-surface);
+        border: 1px solid var(--p-card-border);
+      "
+      class="fixed bottom-8 right-8 z-50 flex items-center gap-3 backdrop-blur-xl rounded-2xl px-5 py-4 shadow-2xl animate-fade-up"
     >
-      <svg
-        class="text-cyan-400"
-        width="16"
-        height="16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        viewBox="0 0 24 24"
-      >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <p class="text-sm font-medium">{{ toast.message }}</p>
+      <div class="w-2 h-2 rounded-full bg-emerald-400 pulse"></div>
+      <p style="color: var(--p-light)" class="text-sm font-medium">
+        {{ toast.message }}
+      </p>
     </div>
 
     <!-- Delete confirm modal -->
     <div
       v-if="isDeleteModalOpen"
-      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+      class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-6"
     >
       <div
-        class="bg-slate-900 border border-red-500/40 rounded-2xl p-6 max-w-sm w-full animate-fade-up"
+        style="
+          background: var(--p-card-bg);
+          border: 1px solid var(--p-card-border);
+        "
+        class="rounded-2xl p-8 max-w-sm w-full animate-fade-up shadow-2xl"
       >
-        <h3 class="font-serif text-xl font-bold text-red-300 mb-2">
+        <h3 style="color: #f87171" class="text-xl font-bold mb-2">
           Final Confirmation
         </h3>
-        <p class="text-white/50 text-sm mb-5">
-          Are you sure? All your data will be permanently erased.
+        <p class="text-white/40 text-sm mb-8 leading-relaxed">
+          Are you sure? All your data will be permanently erased. This action
+          cannot be reversed.
         </p>
         <div class="flex gap-3">
-          <button
-            @click="isDeleteModalOpen = false"
-            class="flex-1 border border-sky-700/60 text-white/60 font-medium py-2.5 rounded-xl text-sm transition-all hover:border-cyan-400/50 hover:text-cyan-400"
-          >
+          <button @click="isDeleteModalOpen = false" class="flex-1 btn-ghost">
             Cancel
           </button>
           <button
@@ -897,30 +944,18 @@ const formatDate = (dateStr: string) => {
               showToast('Account Deleted (Simulation)');
               isDeleteModalOpen = false;
             "
-            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-all"
+            style="background: #ef4444; border: none; color: white"
+            class="flex-1 font-bold py-2.5 rounded-xl text-sm transition-all hover:bg-red-500"
           >
             Yes, Delete
           </button>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped>
-/* Font imports */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
-
-.font-display {
-  font-family: "Playfair Display", serif !important;
-}
-.font-body {
-  font-family: "DM Sans", sans-serif !important;
-}
-.font-mono {
-  font-family: "JetBrains Mono", monospace !important;
-}
-
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
@@ -928,132 +963,11 @@ const formatDate = (dateStr: string) => {
   background: rgba(15, 23, 42, 0.5);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.2);
+  background: rgba(74, 112, 169, 0.2);
   border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(34, 211, 238, 0.4);
-}
-
-/* Grain Overlay */
-.grain-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Grid Background */
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* Mesh Gradient */
-.mesh {
-  background:
-    radial-gradient(
-      ellipse at 30% 40%,
-      rgba(34, 211, 238, 0.08) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse at 80% 70%,
-      rgba(8, 145, 178, 0.12) 0%,
-      transparent 55%
-    );
-}
-
-.settings-card {
-  background: rgba(8, 145, 178, 0.12);
-  border: 1px solid rgba(8, 145, 178, 0.4);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.form-input {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(8, 145, 178, 0.5);
-  color: #ffffff;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.2s;
-  font-family: inherit;
-  font-size: 0.875rem;
-}
-
-.form-input:focus {
-  border-color: rgba(34, 211, 238, 0.6);
-  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
-}
-
-.form-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* Toggle switch */
-.toggle-wrap {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-}
-.toggle-wrap input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: #0891b2;
-  border-radius: 24px;
-  transition: 0.3s;
-}
-.toggle-slider::before {
-  content: "";
-  position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background: #ffffff;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-input:checked + .toggle-slider {
-  background: #22d3ee;
-}
-input:checked + .toggle-slider::before {
-  transform: translateX(20px);
-  background: #0f172a;
-}
-
-.nav-item {
-  transition: all 0.15s ease;
-  cursor: pointer;
-}
-.nav-item.active {
-  background: rgba(34, 211, 238, 0.12);
-  color: #22d3ee;
-  border-left: 2px solid #22d3ee;
-}
-
-.avatar-drop {
-  border: 2px dashed rgba(34, 211, 238, 0.3);
-  transition: all 0.2s;
-}
-.avatar-drop:hover {
-  border-color: rgba(34, 211, 238, 0.6);
-  background: rgba(34, 211, 238, 0.05);
+  background: rgba(74, 112, 169, 0.4);
 }
 
 @keyframes fadeUp {
@@ -1081,7 +995,7 @@ input:checked + .toggle-slider::before {
     transform: scale(1.1);
   }
 }
-.pulse-slow {
+.pulse {
   animation: pulse 2.5s infinite;
 }
 </style>

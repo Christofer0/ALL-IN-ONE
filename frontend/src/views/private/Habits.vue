@@ -228,8 +228,8 @@ onMounted(() => {
         <span
           style="
             font-size: 0.72rem;
-            color: #374151;
-            font-family: JetBrains Mono monospace;
+            color: var(--text-muted);
+            font-family: JetBrains Mono, monospace;
             margin-top: 2px;
           "
         >
@@ -416,10 +416,10 @@ onMounted(() => {
                   :key="i"
                   class="preview-dot"
                   :style="{
-                    background: d ? h.color + '55' : '#1E1E1E',
+                    background: d ? h.color + '55' : 'var(--p-primary)',
                     border: d
                       ? '1px solid ' + h.color + '33'
-                      : '1px solid transparent',
+                      : '1px solid var(--p-card-border)',
                   }"
                   @click.stop="toggleWeekCell(h.id, i)"
                   title="Klik untuk toggle status hari ini"
@@ -708,14 +708,16 @@ onMounted(() => {
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #374151;
+  color: var(--text-muted);
+  font-weight: 700;
 }
 .stat-label {
   font-size: 0.65rem;
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #374151;
+  color: var(--text-muted);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 .stat-value {
@@ -726,7 +728,7 @@ onMounted(() => {
 }
 .stat-total {
   font-size: 1rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 .stat-meta {
   font-size: 0.72rem;
@@ -737,8 +739,8 @@ onMounted(() => {
 .view-toggles {
   display: flex;
   gap: 2px;
-  background: #0d0d0d;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 3px;
 }
@@ -786,7 +788,7 @@ onMounted(() => {
 }
 .progress-bar-bg {
   height: 6px;
-  background: #1e1e1e;
+  background: var(--p-card-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -799,13 +801,13 @@ onMounted(() => {
 .rem-count-wrap {
   text-align: center;
   flex-shrink: 0;
-  border-left: 1px solid #1e1e1e;
+  border-left: 1px solid var(--p-card-border);
   padding-left: 20px;
 }
 .rem-label {
   font-size: 0.65rem;
   font-family: "JetBrains Mono", monospace;
-  color: #374151;
+  color: var(--text-muted);
 }
 .rem-val {
   font-size: 2rem;
@@ -821,7 +823,7 @@ onMounted(() => {
   gap: 10px;
 }
 .habit-card {
-  background: #080808;
+  background: var(--p-surface);
   transition: border-color 0.2s;
   border: 1px solid var(--p-card-border);
   cursor: pointer;
@@ -830,7 +832,7 @@ onMounted(() => {
 }
 .habit-card:hover {
   border-color: rgba(74, 112, 169, 0.25);
-  background: #0c0c0c;
+  background: var(--p-primary);
 }
 .habit-name {
   font-size: 0.88rem;
@@ -864,7 +866,7 @@ onMounted(() => {
 }
 .preview-rate {
   font-size: 0.65rem;
-  color: #374151;
+  color: var(--text-muted);
   font-family: "JetBrains Mono", monospace;
   margin-left: 4px;
 }
@@ -877,7 +879,7 @@ onMounted(() => {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  border: 2px solid #374151;
+  border: 2px solid var(--p-card-border);
   background: transparent;
   cursor: pointer;
   display: flex;
@@ -952,9 +954,9 @@ onMounted(() => {
   color: #8fabd4;
 }
 .week-cell.missed {
-  background: #161616;
-  border-color: #1e1e1e;
-  color: #374151;
+  background: var(--p-primary);
+  border-color: var(--p-card-border);
+  color: var(--text-muted);
 }
 .week-cell.today {
   border: 1.5px solid #4a70a9;
@@ -976,7 +978,7 @@ onMounted(() => {
 .prog-bar-bg {
   flex: 1;
   height: 5px;
-  background: #1e1e1e;
+  background: var(--p-card-border);
   border-radius: 3px;
 }
 .prog-bar-fill {
@@ -997,16 +999,16 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 0.65rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 .heat-cell {
   width: 10px;
   height: 10px;
   border-radius: 2px;
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
 }
 .heat-cell.v0 {
-  background: #161616;
+  background: var(--p-primary);
 }
 .heat-cell.v1 {
   background: rgba(74, 112, 169, 0.2);
@@ -1035,7 +1037,7 @@ onMounted(() => {
 .month-label {
   font-size: 0.6rem;
   font-family: "JetBrains Mono", monospace;
-  color: #374151;
+  color: var(--text-muted);
   margin-bottom: 8px;
   letter-spacing: 0.08em;
 }
@@ -1048,7 +1050,7 @@ onMounted(() => {
 .heat-stats {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #1e1e1e;
+  border-top: 1px solid var(--p-card-border);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
@@ -1063,17 +1065,17 @@ onMounted(() => {
 .freq-toggles {
   display: flex;
   gap: 4px;
-  background: #080808;
+  background: var(--p-primary);
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
   width: fit-content;
 }
 .action-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-muted);
   padding: 6px;
   transition: 0.2s;
 }

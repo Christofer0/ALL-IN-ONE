@@ -928,7 +928,7 @@ const exportCSV = () => {
 
 .progress-bar-wrap {
   height: 4px;
-  background: #1e1e1e;
+  background: var(--p-card-border);
   border-radius: 2px;
   margin-top: 10px;
 }
@@ -1041,7 +1041,7 @@ const exportCSV = () => {
   font-size: 0.72rem;
   color: #374151;
   font-family: "JetBrains Mono", monospace;
-  border: 1px dashed #1e1e1e;
+  border: 1px dashed var(--p-card-border);
   border-radius: 8px;
 }
 .no-data-chart.mini {
@@ -1051,7 +1051,7 @@ const exportCSV = () => {
 
 .table-toolbar {
   padding: 16px 20px;
-  border-bottom: 1px solid #1e1e1e;
+  border-bottom: 1px solid var(--p-card-border);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1059,10 +1059,10 @@ const exportCSV = () => {
 }
 .tab-toggles {
   display: flex;
-  background: #080808;
+  background: var(--p-primary);
   padding: 3px;
   border-radius: 8px;
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
 }
 .tab-btn {
   padding: 6px 12px;
@@ -1076,17 +1076,17 @@ const exportCSV = () => {
   font-family: "JetBrains Mono", monospace;
 }
 .tab-btn.active {
-  background: #1a1a1a;
+  background: var(--p-surface);
   color: var(--p-light);
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
 }
 
 .mini-tabs {
   display: flex;
-  background: #080808;
+  background: var(--p-primary);
   padding: 2px;
   border-radius: 6px;
-  border: 1px solid #1e1e1e;
+  border: 1px solid var(--p-card-border);
 }
 .mini-tab {
   width: 24px;
@@ -1096,15 +1096,15 @@ const exportCSV = () => {
   justify-content: center;
   border: none;
   background: transparent;
-  color: #374151;
+  color: var(--text-muted);
   cursor: pointer;
   border-radius: 4px;
   transition: 0.2s;
 }
 .mini-tab.active {
-  background: #1a1a1a;
-  color: #efece3;
-  border: 1px solid #1e1e1e;
+  background: var(--p-surface);
+  color: var(--p-light);
+  border: 1px solid var(--p-card-border);
 }
 
 .search-input {
@@ -1121,14 +1121,14 @@ const exportCSV = () => {
   color: #374151;
   padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #1e1e1e;
+  border-bottom: 1px solid var(--p-card-border);
 }
 .td-mono {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.72rem;
   color: #6b7280;
   padding: 12px 16px;
-  border-bottom: 1px solid #0d0d0d;
+  border-bottom: 1px solid var(--p-card-border);
 }
 
 .table-row:hover td {
@@ -1158,8 +1158,8 @@ const exportCSV = () => {
 }
 .type-toggle {
   display: flex;
-  background: #080808;
-  border: 1px solid #1e1e1e;
+  background: var(--p-primary);
+  border: 1px solid var(--p-card-border);
   border-radius: 8px;
   padding: 3px;
 }
