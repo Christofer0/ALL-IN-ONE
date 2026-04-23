@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Page Not Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001C30",
+              secondary: "#176B87",
+              accent: "#64CCC5",
+              light: "#DAFFFB",
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', "serif"],
+              body: ['"DM Sans"', "sans-serif"],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+            animation: {
+              float: "float 5s ease-in-out infinite",
+              "fade-up": "fadeUp 0.7s ease forwards",
+              "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
+              "spin-slow": "spin 20s linear infinite",
+              glitch: "glitch 2s steps(2,end) infinite",
+            },
+            keyframes: {
+              float: {
+                "0%,100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-18px)" },
+              },
+              fadeUp: {
+                "0%": { opacity: "0", transform: "translateY(24px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+              glitch: {
+                "0%,100%": {
+                  clipPath: "inset(0 0 98% 0)",
+                  transform: "translate(-2px,0)",
+                },
+                "25%": {
+                  clipPath: "inset(40% 0 50% 0)",
+                  transform: "translate(2px,0)",
+                },
+                "50%": {
+                  clipPath: "inset(80% 0 5% 0)",
+                  transform: "translate(-2px,0)",
+                },
+                "75%": {
+                  clipPath: "inset(20% 0 70% 0)",
+                  transform: "translate(1px,0)",
+                },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+      /* Mesh bg */
+      .mesh {
+        background:
+          radial-gradient(
+            ellipse at 30% 40%,
+            rgba(100, 204, 197, 0.1) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse at 80% 70%,
+            rgba(23, 107, 135, 0.15) 0%,
+            transparent 55%
+          );
+      }
+      /* Grid lines */
+      .grid-bg {
+        background-image:
+          linear-gradient(rgba(100, 204, 197, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(100, 204, 197, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+      /* Glitch text layers */
+      .glitch-wrap {
+        position: relative;
+        display: inline-block;
+      }
+      .glitch-wrap::before,
+      .glitch-wrap::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+      }
+      .glitch-wrap::before {
+        color: #64ccc5;
+        animation: glitch 2.5s steps(2, end) infinite;
+        animation-delay: 0s;
+      }
+      .glitch-wrap::after {
+        color: #176b87;
+        animation: glitch 2.5s steps(2, end) infinite;
+        animation-delay: 0.15s;
+      }
+      /* Orbit rings */
+      @keyframes orbit {
+        from {
+          transform: rotate(0deg) translateX(90px) rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg) translateX(90px) rotate(-360deg);
+        }
+      }
+      .orbit-dot {
+        animation: orbit 8s linear infinite;
+      }
+      .orbit-dot2 {
+        animation: orbit 13s linear infinite reverse;
+      }
+      /* Reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-primary font-body text-light overflow-x-hidden mesh grid-bg min-h-screen flex flex-col"
+  >
+    <!-- NAVBAR -->
+    <nav
+      class="relative z-10 border-b border-secondary/40 bg-primary/70 backdrop-blur-md"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
+        <a
+          href="index.html"
+          class="font-mono text-accent font-medium tracking-widest text-sm"
+          >&lt;PORTFOLIO /&gt;</a
+        >
+        <ul class="hidden md:flex gap-8 text-sm font-medium text-light/60">
+          <li>
+            <a href="index.html" class="hover:text-accent transition-colors"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a href="about.html" class="hover:text-accent transition-colors"
+              >About</a
+            >
+          </li>
+          <li>
+            <a href="projects.html" class="hover:text-accent transition-colors"
+              >Projects</a
+            >
+          </li>
+          <li>
+            <a href="blog.html" class="hover:text-accent transition-colors"
+              >Blog</a
+            >
+          </li>
+          <li>
+            <a href="contact.html" class="hover:text-accent transition-colors"
+              >Contact</a
+            >
+          </li>
+        </ul>
+        <a
+          href="contact.html"
+          class="bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all"
+          >Hire Me</a
+        >
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main
+      class="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-20 text-center"
+    >
+      <!-- SVG Illustration -->
+      <div class="animate-float mb-10 relative">
+        <!-- Orbit rings -->
+        <div
+          class="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div class="w-52 h-52 rounded-full border border-accent/10 relative">
+            <div
+              class="orbit-dot absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            >
+              <div
+                class="w-3 h-3 rounded-full bg-accent/60 shadow-lg shadow-accent/40"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div
+            class="w-72 h-72 rounded-full border border-secondary/30 relative"
+          >
+            <div
+              class="orbit-dot2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            >
+              <div class="w-2 h-2 rounded-full bg-secondary/80"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Core SVG -->
+        <svg
+          width="220"
+          height="220"
+          viewBox="0 0 220 220"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="relative z-10"
+        >
+          <!-- Outer glow circle -->
+          <circle
+            cx="110"
+            cy="110"
+            r="90"
+            stroke="rgba(100,204,197,0.15)"
+            stroke-width="1.5"
+          />
+          <circle
+            cx="110"
+            cy="110"
+            r="72"
+            stroke="rgba(100,204,197,0.08)"
+            stroke-width="1"
+            stroke-dasharray="4 6"
+          />
+          <!-- Planet body -->
+          <circle cx="110" cy="110" r="55" fill="url(#planetGrad)" />
+          <!-- Planet ring -->
+          <ellipse
+            cx="110"
+            cy="110"
+            rx="80"
+            ry="18"
+            stroke="rgba(100,204,197,0.35)"
+            stroke-width="1.5"
+            fill="none"
+            transform="rotate(-15 110 110)"
+          />
+          <!-- Crater details -->
+          <circle cx="92" cy="98" r="8" fill="rgba(0,28,48,0.3)" />
+          <circle cx="128" cy="120" r="5" fill="rgba(0,28,48,0.25)" />
+          <circle cx="105" cy="128" r="3" fill="rgba(0,28,48,0.2)" />
+          <!-- Star sparkles -->
+          <g fill="rgba(218,255,251,0.6)">
+            <circle cx="30" cy="35" r="1.5" />
+            <circle cx="185" cy="42" r="1" />
+            <circle cx="200" cy="90" r="1.5" />
+            <circle cx="18" cy="145" r="1" />
+            <circle cx="195" cy="170" r="1.5" />
+            <circle cx="55" cy="185" r="1" />
+          </g>
+          <defs>
+            <radialGradient id="planetGrad" cx="38%" cy="38%">
+              <stop offset="0%" stop-color="#176B87" />
+              <stop offset="100%" stop-color="#001C30" />
+            </radialGradient>
+          </defs>
+        </svg>
+        <!-- 404 text on planet -->
+        <div class="absolute inset-0 flex items-center justify-center z-20">
+          <span
+            class="font-mono text-accent font-bold text-2xl tracking-widest opacity-80"
+            >404</span
+          >
+        </div>
+      </div>
+
+      <!-- Glitch Headline -->
+      <div class="mb-4 animate-fade-up" style="animation-delay: 0.1s">
+        <p class="font-mono text-accent text-xs tracking-widest mb-3">
+          // ERROR_404
+        </p>
+        <h1
+          class="font-display text-5xl md:text-7xl font-black mb-0 leading-tight"
+        >
+          <span class="glitch-wrap" data-text="Lost in">Lost in</span>
+          <br />
+          <span class="text-accent italic">Space</span>
+        </h1>
+      </div>
+
+      <p
+        class="text-light/50 text-lg max-w-md leading-relaxed mb-8 animate-fade-up"
+        style="animation-delay: 0.2s"
+      >
+        Oops! We can't find that page. It may have been moved, deleted, or
+        perhaps never existed in this galaxy.
+      </p>
+
+      <!-- Search Bar -->
+      <div
+        class="w-full max-w-md mb-8 animate-fade-up"
+        style="animation-delay: 0.25s"
+      >
+        <div class="relative">
+          <svg
+            class="absolute left-4 top-1/2 -translate-y-1/2 text-light/30"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search for something..."
+            class="w-full bg-secondary/30 border border-secondary/60 focus:border-accent/70 rounded-xl pl-11 pr-4 py-3 text-sm text-light placeholder-light/30 outline-none transition-all focus:ring-1 focus:ring-accent/30 backdrop-blur-sm"
+          />
+          <button
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-accent hover:bg-accent/80 text-primary text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      <!-- Back to Home CTA -->
+      <div
+        class="flex flex-col sm:flex-row gap-3 mb-12 animate-fade-up"
+        style="animation-delay: 0.3s"
+      >
+        <a
+          href="index.html"
+          class="flex items-center gap-2 bg-accent hover:bg-accent/80 text-primary font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105 hover:shadow-xl hover:shadow-accent/20 text-base"
+        >
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Back to Home
+        </a>
+        <button
+          onclick="history.back()"
+          class="flex items-center gap-2 border border-light/20 hover:border-accent text-light/60 hover:text-accent font-medium px-8 py-3.5 rounded-full transition-all"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Go Back
+        </button>
+      </div>
+
+      <!-- Popular Links -->
+      <div class="reveal animate-fade-up" style="animation-delay: 0.35s">
+        <p class="text-light/30 text-xs font-mono tracking-widest mb-4">
+          // POPULAR PAGES
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <a
+            href="about.html"
+            class="flex items-center gap-2 bg-secondary/40 hover:bg-secondary/70 border border-secondary/60 hover:border-accent/40 text-light/60 hover:text-accent text-sm px-4 py-2 rounded-full transition-all"
+          >
+            <span>👤</span> About Me
+          </a>
+          <a
+            href="projects.html"
+            class="flex items-center gap-2 bg-secondary/40 hover:bg-secondary/70 border border-secondary/60 hover:border-accent/40 text-light/60 hover:text-accent text-sm px-4 py-2 rounded-full transition-all"
+          >
+            <span>🚀</span> Projects
+          </a>
+          <a
+            href="blog.html"
+            class="flex items-center gap-2 bg-secondary/40 hover:bg-secondary/70 border border-secondary/60 hover:border-accent/40 text-light/60 hover:text-accent text-sm px-4 py-2 rounded-full transition-all"
+          >
+            <span>✍️</span> Blog
+          </a>
+          <a
+            href="contact.html"
+            class="flex items-center gap-2 bg-secondary/40 hover:bg-secondary/70 border border-secondary/60 hover:border-accent/40 text-light/60 hover:text-accent text-sm px-4 py-2 rounded-full transition-all"
+          >
+            <span>💬</span> Contact
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 border-t border-secondary/40 py-8">
+      <div
+        class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3"
+      >
+        <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+        <p class="text-light/20 text-xs">
+          © 2026 Alex Kurniawan. Page not found — but you are!
+        </p>
+        <p class="font-mono text-xs text-light/20">ERR_404_NOT_FOUND</p>
+      </div>
+    </footer>
+
+    <script>
+      // Trigger reveals
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("visible");
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // Search mock
+      document
+        .querySelector("input[type=text]")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const q = e.target.value.trim();
+            if (q)
+              window.location.href = `index.html?q=${encodeURIComponent(q)}`;
+          }
+        });
+    </script>
+  </body>
+</html>

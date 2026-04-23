@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevFlow Dashboard — Project Detail</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#222831', secondary:'#393E46', accent:'#00ADB5', light:'#EEEEEE' },
+          fontFamily: {
+            display:['"Playfair Display"','serif'],
+            body:['"DM Sans"','sans-serif'],
+            mono:['"JetBrains Mono"','monospace'],
+          },
+          animation: {
+            'fade-up':'fadeUp 0.7s ease forwards',
+            'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeUp:{'0%':{opacity:'0',transform:'translateY(28px)'},'100%':{opacity:'1',transform:'translateY(0)'}},
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"/>
+  <style>
+    :root {
+      --bg:        #EEEEEE;
+      --bg-card:   #FFFFFF;
+      --bg-nav:    rgba(238,238,238,0.85);
+      --border:    #d0d0d0;
+      --text:      #222831;
+      --text-muted:#555e6a;
+    }
+    html.dark {
+      --bg:        #222831;
+      --bg-card:   #393E46;
+      --bg-nav:    rgba(34,40,49,0.85);
+      --border:    #393E46;
+      --text:      #EEEEEE;
+      --text-muted:rgba(238,238,238,0.6);
+    }
+    body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
+    #iconMoon { display: block; }
+    #iconSun  { display: none; }
+    html.dark #iconMoon { display: none; }
+    html.dark #iconSun  { display: block; }
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+    .prose p{color:var(--text-muted);line-height:1.9;font-size:1rem;margin-bottom:1.25rem}
+    .prose h3{color:var(--text);font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:0.75rem;margin-top:2rem}
+    .prose ul{color:var(--text-muted);padding-left:1.5rem;margin-bottom:1.25rem;list-style:disc;line-height:1.9}
+    .prose ul li{margin-bottom:0.4rem}
+    .prose strong{color:var(--text)}
+    .gallery-img{transition:transform 0.3s ease}
+    .gallery-img:hover{transform:scale(1.02)}
+    @keyframes skeleton{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skeleton{background:linear-gradient(90deg,var(--bg-card) 25%,var(--border) 50%,var(--bg-card) 75%);background-size:200% 100%;animation:skeleton 1.5s infinite}
+    .toc-link{transition:all 0.2s}
+    .toc-link:hover,.toc-link.active{color:#00ADB5;padding-left:8px}
+  </style>
+</head>
+<body class="font-body overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b" style="background-color:var(--bg-nav);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="font-mono text-accent font-medium tracking-widest text-sm">&lt;PORTFOLIO /&gt;</a>
+      <ul class="hidden md:flex gap-8 text-sm font-medium" style="color:var(--text-muted)">
+        <li><a href="index.html" class="hover:text-accent transition-colors">Home</a></li>
+        <li><a href="about.html" class="hover:text-accent transition-colors">About</a></li>
+        <li><a href="projects.html" class="text-accent">Projects</a></li>
+        <li><a href="blog.html" class="hover:text-accent transition-colors">Blog</a></li>
+        <li><a href="contact.html" class="hover:text-accent transition-colors">Contact</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <button id="darkToggle" class="w-9 h-9 rounded-full border border-secondary hover:border-accent flex items-center justify-center transition-all hover:text-accent" style="color:var(--text-muted)" title="Toggle dark mode">
+          <svg id="iconMoon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg id="iconSun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="contact.html" class="bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all">Hire Me</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-6 pt-28 pb-20">
+
+    <!-- Back -->
+    <div class="reveal mb-8">
+      <a href="projects.html" class="flex items-center gap-2 hover:text-accent text-sm font-mono transition-all group" style="color:var(--text-muted)">
+        <svg class="group-hover:-translate-x-1 transition-transform" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Projects
+      </a>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="reveal mb-8">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="bg-accent text-primary text-xs font-bold px-3 py-1 rounded-full">Web App</span>
+        <span class="text-light/30 text-xs font-mono">2023</span>
+      </div>
+      <h1 class="font-display text-5xl md:text-6xl font-black mb-4 leading-[1.05]">
+        DevFlow<br/><span class="text-accent italic">Dashboard</span>
+      </h1>
+      <p class="text-xl leading-relaxed max-w-2xl mb-6" style="color:var(--text-muted)">
+        A real-time developer productivity platform that turns raw GitHub activity into actionable team insights.
+      </p>
+      <!-- Tech Stack Badges -->
+      <div class="flex flex-wrap gap-2">
+        <span class="border border-accent/30 text-accent text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card)">React</span>
+        <span class="border text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">Node.js</span>
+        <span class="border text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">WebSocket</span>
+        <span class="border text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">PostgreSQL</span>
+        <span class="border text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">Redis</span>
+        <span class="border text-sm px-4 py-1.5 rounded-full font-mono" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">Docker</span>
+      </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="reveal flex gap-3 mb-12">
+      <a href="#" class="flex items-center gap-2 bg-accent hover:bg-accent/80 text-primary font-bold px-6 py-3 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-accent/30">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Live Demo
+      </a>
+      <a href="#" class="flex items-center gap-2 border hover:border-accent hover:text-accent font-medium px-6 py-3 rounded-full transition-all" style="border-color:var(--border);color:var(--text-muted)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub Repo
+      </a>
+    </div>
+
+    <!-- Cover Image -->
+    <div class="reveal mb-16">
+      <div class="relative w-full h-80 md:h-[500px] rounded-3xl overflow-hidden">
+        <!-- Skeleton loader placeholder -->
+        <div class="skeleton absolute inset-0 z-0 rounded-3xl"></div>
+        <img
+          src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&q=85"
+          alt="DevFlow Dashboard Cover"
+          class="relative z-10 w-full h-full object-cover rounded-3xl"
+          onload="this.previousElementSibling.style.display='none'"
+        />
+        <div class="absolute inset-0 z-20 bg-gradient-to-t from-[var(--bg)]/40 to-transparent rounded-3xl pointer-events-none"></div>
+      </div>
+    </div>
+
+    <!-- Content Layout: Article + Sidebar -->
+    <div class="flex flex-col lg:flex-row gap-12">
+
+      <!-- Article Body -->
+      <article class="flex-1 min-w-0">
+
+        <!-- Quick Stats -->
+        <div class="reveal grid grid-cols-3 gap-4 mb-12">
+          <div class="border rounded-2xl p-4 text-center" style="background-color:var(--bg-card);border-color:var(--border)">
+            <p class="font-display text-3xl font-black text-accent mb-1">3mo</p>
+            <p class="text-xs" style="color:var(--text-muted)">Build Duration</p>
+          </div>
+          <div class="border rounded-2xl p-4 text-center" style="background-color:var(--bg-card);border-color:var(--border)">
+            <p class="font-display text-3xl font-black text-accent mb-1">40%</p>
+            <p class="text-xs" style="color:var(--text-muted)">Performance Gain</p>
+          </div>
+          <div class="border rounded-2xl p-4 text-center" style="background-color:var(--bg-card);border-color:var(--border)">
+            <p class="font-display text-3xl font-black text-accent mb-1">5+</p>
+            <p class="text-xs" style="color:var(--text-muted)">Teams Using It</p>
+          </div>
+        </div>
+
+        <!-- Prose content -->
+        <div class="prose max-w-none">
+          <div class="reveal" id="overview">
+            <h3>Project Overview</h3>
+            <p>DevFlow Dashboard was born from a real pain point: our engineering teams had no single place to see what everyone was working on. We had GitHub, Jira, Slack, and a dozen other tools — but no coherent picture of team health or velocity. I set out to build that unified view.</p>
+            <p>The goal wasn't to replace existing tools, but to <strong class="text-light">synthesize signals from them</strong> into a real-time, at-a-glance dashboard that engineering managers and developers alike could use without friction.</p>
+          </div>
+
+          <div class="reveal" id="problem" style="animation-delay:0.1s">
+            <h3>The Problem</h3>
+            <p>Before DevFlow, a typical engineering manager's morning looked like this: open GitHub to check open PRs, switch to Jira to check sprint progress, skim Slack for blockers, then manually compile a status update. This ritual consumed 45–90 minutes every day.</p>
+            <p>Developers also suffered — they'd lose context switching between tools trying to understand what was blocking their PRs from being reviewed. The information existed, it was just scattered.</p>
+          </div>
+
+          <div class="reveal" id="solution" style="animation-delay:0.15s">
+            <h3>The Solution</h3>
+            <p>I designed a three-layer architecture:</p>
+            <ul>
+              <li><strong class="text-light">Data Layer:</strong> A Node.js ingestion service that hooks into GitHub webhooks and Jira webhooks, normalizing events into a unified schema stored in PostgreSQL.</li>
+              <li><strong class="text-light">Real-time Layer:</strong> WebSocket connections powered by Socket.io push live updates to connected clients without polling.</li>
+              <li><strong class="text-light">Presentation Layer:</strong> A React app with a customizable drag-and-drop widget system, letting each team configure their own dashboard view.</li>
+            </ul>
+            <p>Redis was introduced as a pub/sub backbone to decouple webhook ingestion from WebSocket broadcasting, ensuring the system remained stable even under high event volumes during peak work hours.</p>
+          </div>
+
+          <div class="reveal" id="results" style="animation-delay:0.2s">
+            <h3>Results & Impact</h3>
+            <p>After rolling out to the first team of 12 engineers, the results exceeded expectations. The daily standup time dropped from 45 minutes to under 20. PR review turnaround improved by 38%. Engineering managers reported spending 60% less time compiling status reports.</p>
+            <p>Within six months, five additional teams had adopted the platform. The dashboard became a central part of our engineering culture — displayed on the office TV and referenced in daily syncs.</p>
+          </div>
+        </div>
+
+        <!-- Screenshot Gallery -->
+        <div class="reveal mt-14">
+          <p class="font-mono text-accent text-xs tracking-widest mb-6">// SCREENSHOTS</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="gallery-img rounded-2xl overflow-hidden border cursor-pointer" style="border-color:var(--border)">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80" alt="Dashboard Overview" class="w-full h-52 object-cover"/>
+            </div>
+            <div class="gallery-img rounded-2xl overflow-hidden border cursor-pointer" style="border-color:var(--border)">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=80" alt="Analytics View" class="w-full h-52 object-cover"/>
+            </div>
+            <div class="gallery-img rounded-2xl overflow-hidden border cursor-pointer" style="border-color:var(--border)">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=700&q=80" alt="Settings Panel" class="w-full h-52 object-cover"/>
+            </div>
+            <div class="gallery-img rounded-2xl overflow-hidden border cursor-pointer" style="border-color:var(--border)">
+              <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&q=80" alt="Mobile View" class="w-full h-52 object-cover"/>
+            </div>
+          </div>
+        </div>
+
+      </article>
+
+      <!-- Sidebar TOC + Meta -->
+      <aside class="lg:w-72 flex-shrink-0">
+        <div class="lg:sticky lg:top-28 space-y-6">
+
+          <!-- Table of Contents -->
+          <div class="border rounded-2xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+            <h4 class="font-mono text-accent text-xs tracking-widest mb-4">// TABLE OF CONTENTS</h4>
+            <nav class="space-y-2">
+              <a href="#overview" class="toc-link block text-sm transition-all" style="color:var(--text-muted)">Overview</a>
+              <a href="#problem" class="toc-link block text-sm transition-all" style="color:var(--text-muted)">The Problem</a>
+              <a href="#solution" class="toc-link block text-sm transition-all" style="color:var(--text-muted)">The Solution</a>
+              <a href="#results" class="toc-link block text-sm transition-all" style="color:var(--text-muted)">Results &amp; Impact</a>
+            </nav>
+          </div>
+
+          <!-- Project Meta -->
+          <div class="border rounded-2xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+            <h4 class="font-mono text-accent text-xs tracking-widest mb-4">// PROJECT INFO</h4>
+            <div class="space-y-3 text-sm">
+              <div>
+                <p class="text-xs mb-0.5" style="color:var(--text-muted)">Role</p>
+                <p>Lead Developer &amp; Architect</p>
+              </div>
+              <div>
+                <p class="text-xs mb-0.5" style="color:var(--text-muted)">Timeline</p>
+                <p>Jan 2023 – Mar 2023</p>
+              </div>
+              <div>
+                <p class="text-xs mb-0.5" style="color:var(--text-muted)">Team Size</p>
+                <p>4 Engineers</p>
+              </div>
+              <div>
+                <p class="text-xs mb-0.5" style="color:var(--text-muted)">Status</p>
+                <p class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span>
+                  <span class="text-green-400">Live in Production</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share -->
+          <div class="border rounded-2xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+            <h4 class="font-mono text-accent text-xs tracking-widest mb-3">// SHARE</h4>
+            <div class="flex gap-2">
+              <button class="flex-1 text-xs border hover:border-accent/30 hover:text-accent rounded-xl py-2 transition-all" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Twitter</button>
+              <button class="flex-1 text-xs border hover:border-accent/30 hover:text-accent rounded-xl py-2 transition-all" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">LinkedIn</button>
+              <button class="flex-1 text-xs border hover:border-accent/30 hover:text-accent rounded-xl py-2 transition-all" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Copy Link</button>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+    </div>
+
+    <!-- Prev / Next Navigation -->
+    <div class="reveal mt-20 pt-10 border-t grid grid-cols-1 sm:grid-cols-2 gap-4" style="border-color:var(--border)">
+      <a href="projects.html" class="group flex items-center gap-4 border hover:border-accent/30 rounded-2xl p-5 transition-all" style="background-color:var(--bg-card);border-color:var(--border)">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:text-accent transition-colors flex-shrink-0" style="background-color:var(--bg);color:var(--text-muted)">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <div>
+          <p class="text-xs font-mono mb-0.5" style="color:var(--text-muted)">PREVIOUS</p>
+          <p class="text-sm font-semibold group-hover:text-accent transition-colors">Nebula Design System</p>
+        </div>
+      </a>
+      <a href="projects.html" class="group flex items-center justify-end gap-4 border hover:border-accent/30 rounded-2xl p-5 transition-all text-right" style="background-color:var(--bg-card);border-color:var(--border)">
+        <div>
+          <p class="text-xs font-mono mb-0.5" style="color:var(--text-muted)">NEXT</p>
+          <p class="text-sm font-semibold group-hover:text-accent transition-colors">FinanceKit App</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:text-accent transition-colors flex-shrink-0" style="background-color:var(--bg);color:var(--text-muted)">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t py-10 mt-10" style="background-color:var(--bg-card);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+      <p class="text-xs" style="color:var(--text-muted)">© 2026 Alex Kurniawan. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">GitHub</a>
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode
+    const html = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+    document.getElementById('darkToggle').addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Active TOC highlight on scroll
+    const sections = document.querySelectorAll('[id]');
+    const tocLinks = document.querySelectorAll('.toc-link');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+      tocLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog — Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#222831', secondary:'#393E46', accent:'#00ADB5', light:'#EEEEEE' },
+          fontFamily: {
+            display:['"Playfair Display"','serif'],
+            body:['"DM Sans"','sans-serif'],
+            mono:['"JetBrains Mono"','monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"/>
+  <style>
+    :root {
+      --bg:        #EEEEEE;
+      --bg-card:   #FFFFFF;
+      --bg-nav:    rgba(238,238,238,0.85);
+      --border:    #d0d0d0;
+      --text:      #222831;
+      --text-muted:#555e6a;
+    }
+    html.dark {
+      --bg:        #222831;
+      --bg-card:   #393E46;
+      --bg-nav:    rgba(34,40,49,0.85);
+      --border:    #393E46;
+      --text:      #EEEEEE;
+      --text-muted:rgba(238,238,238,0.6);
+    }
+    body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
+    #iconMoon { display: block; }
+    #iconSun  { display: none; }
+    html.dark #iconMoon { display: none; }
+    html.dark #iconSun  { display: block; }
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+    .article-card{transition:all 0.25s ease}
+    .article-card:hover{transform:translateY(-4px)}
+    .article-card:hover .card-body{border-color:rgba(0,173,181,0.35);box-shadow:0 16px 40px rgba(0,0,0,0.12)}
+    html.dark .article-card:hover .card-body{box-shadow:0 16px 40px rgba(0,0,0,0.35)}
+    .cat-btn.active{background:#00ADB5;color:#222831;border-color:#00ADB5}
+  </style>
+</head>
+<body class="font-body overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b" style="background-color:var(--bg-nav);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="font-mono text-accent font-medium tracking-widest text-sm">&lt;PORTFOLIO /&gt;</a>
+      <ul class="hidden md:flex gap-8 text-sm font-medium" style="color:var(--text-muted)">
+        <li><a href="index.html" class="hover:text-accent transition-colors">Home</a></li>
+        <li><a href="about.html" class="hover:text-accent transition-colors">About</a></li>
+        <li><a href="projects.html" class="hover:text-accent transition-colors">Projects</a></li>
+        <li><a href="blog.html" class="text-accent">Blog</a></li>
+        <li><a href="contact.html" class="hover:text-accent transition-colors">Contact</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <button id="darkToggle" class="w-9 h-9 rounded-full border border-secondary hover:border-accent flex items-center justify-center transition-all hover:text-accent" style="color:var(--text-muted)" title="Toggle dark mode">
+          <svg id="iconMoon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg id="iconSun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="contact.html" class="bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all">Hire Me</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-6 pt-28 pb-20">
+
+    <!-- Hero / Search Header -->
+    <div class="reveal mb-10">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <p class="font-mono text-accent text-xs tracking-widest mb-2">// THOUGHTS & LEARNINGS</p>
+          <h1 class="font-display text-5xl md:text-6xl font-black">Blog</h1>
+        </div>
+        <!-- RSS Link -->
+        <a href="#" title="Subscribe via RSS" class="flex items-center gap-2 border hover:border-accent/50 hover:text-accent rounded-xl px-4 py-2.5 text-xs font-mono transition-all" style="border-color:var(--border);color:var(--text-muted)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.18 15.64a2.18 2.18 0 010 4.36 2.18 2.18 0 010-4.36M4 4.44A15.56 15.56 0 0119.56 20h-2.83A12.73 12.73 0 004 7.27V4.44m0 5.66a9.9 9.9 0 019.9 9.9h-2.83A7.07 7.07 0 004 12.93V10.1z"/></svg>
+          RSS Feed
+        </a>
+      </div>
+      <!-- Search -->
+      <div class="relative max-w-md">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-light/30" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="searchInput" type="text" placeholder="Search articles..."
+          class="w-full border focus:border-accent/60 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all focus:ring-1 focus:ring-accent/30"
+          style="background-color:var(--bg-card);border-color:var(--border);color:var(--text)"/>
+      </div>
+    </div>
+
+    <!-- Category Selector (scrollable) -->
+    <div class="reveal mb-10 -mx-6 px-6 overflow-x-auto">
+      <div class="flex gap-2 min-w-max">
+        <button class="cat-btn active font-mono text-xs px-4 py-1.5 rounded-full border transition-all" data-cat="all">All</button>
+        <button class="cat-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-cat="general">General</button>
+        <button class="cat-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-cat="tutorial">Tutorial</button>
+        <button class="cat-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-cat="career">Career</button>
+        <button class="cat-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-cat="engineering">Engineering</button>
+        <button class="cat-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-cat="design">Design</button>
+      </div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Featured Article (md:col-span-2) -->
+      <div class="article-card reveal md:col-span-2" data-cat="engineering" data-title="building high-performance react applications at scale" style="animation-delay:0.05s">
+        <a href="#" class="block">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="relative h-64 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80" alt="Featured" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-[color-mix(in_srgb,var(--bg-card)_30%,transparent)] to-transparent"></div>
+              <div class="absolute top-4 left-4 flex gap-2">
+                <span class="bg-accent text-primary text-xs font-bold px-3 py-1 rounded-full">⭐ Featured</span>
+                <span class="backdrop-blur text-xs px-3 py-1 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Engineering</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <h2 class="font-display text-2xl font-bold mb-3 leading-snug">Building High-Performance React Applications at Scale</h2>
+              <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">Dive deep into advanced React patterns that help your apps scale to millions of users without sacrificing developer experience or maintainability.</p>
+              <div class="flex items-center gap-3 text-xs font-mono" style="color:var(--text-muted)">
+                <span>14 Apr 2026</span><span>•</span><span>12 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Article 2 -->
+      <div class="article-card reveal" data-cat="career" data-title="5 lessons from my first senior role" style="animation-delay:0.1s">
+        <a href="#" class="block h-full">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="relative h-44 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+              <span class="absolute top-3 left-3 backdrop-blur text-xs px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Career</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-display text-lg font-bold mb-2 leading-snug">5 Hard Lessons from My First Senior Developer Role</h3>
+              <p class="text-xs leading-relaxed mb-3" style="color:var(--text-muted)">What I wish someone told me before stepping into technical leadership for the first time.</p>
+              <div class="flex items-center gap-2 text-xs font-mono" style="color:var(--text-muted)">
+                <span>08 Apr 2026</span><span>•</span><span>7 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Article 3 -->
+      <div class="article-card reveal" data-cat="tutorial" data-title="mastering typescript generics a practical guide" style="animation-delay:0.15s">
+        <a href="#" class="block h-full">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="relative h-44 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1527427337751-fdca2f128ce5?w=600&q=80" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+              <span class="absolute top-3 left-3 backdrop-blur text-xs px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Tutorial</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-display text-lg font-bold mb-2 leading-snug">Mastering TypeScript Generics: A Practical Guide</h3>
+              <p class="text-xs leading-relaxed mb-3" style="color:var(--text-muted)">Stop writing any. Start writing smart, type-safe, reusable code with TypeScript's most powerful feature.</p>
+              <div class="flex items-center gap-2 text-xs font-mono" style="color:var(--text-muted)">
+                <span>01 Apr 2026</span><span>•</span><span>9 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Article 4 -->
+      <div class="article-card reveal" data-cat="design" data-title="the hidden rules of dark mode design" style="animation-delay:0.2s">
+        <a href="#" class="block h-full">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="relative h-44 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+              <span class="absolute top-3 left-3 backdrop-blur text-xs px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Design</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-display text-lg font-bold mb-2 leading-snug">The Hidden Rules of Dark Mode Design</h3>
+              <p class="text-xs leading-relaxed mb-3" style="color:var(--text-muted)">Dark mode is more than inverting colors. Here's how to design dark interfaces that feel truly native.</p>
+              <div class="flex items-center gap-2 text-xs font-mono" style="color:var(--text-muted)">
+                <span>25 Mar 2026</span><span>•</span><span>6 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Article 5 -->
+      <div class="article-card reveal" data-cat="general" data-title="why i stopped chasing frameworks" style="animation-delay:0.25s">
+        <a href="#" class="block h-full">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="p-6">
+              <span class="text-xs text-accent font-mono mb-3 block">General</span>
+              <h3 class="font-display text-xl font-bold mb-3 leading-snug">Why I Stopped Chasing the Latest Frameworks</h3>
+              <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">After 5 years of keeping up with every JS trend, I learned to focus on fundamentals. Here's what changed.</p>
+              <div class="flex items-center gap-2 text-xs font-mono" style="color:var(--text-muted)">
+                <span>18 Mar 2026</span><span>•</span><span>5 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Article 6 -->
+      <div class="article-card reveal" data-cat="engineering" data-title="go vs node.js for apis which to choose" style="animation-delay:0.3s">
+        <a href="#" class="block h-full">
+          <div class="card-body border rounded-2xl overflow-hidden transition-all duration-300 h-full" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="relative h-44 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+              <span class="absolute top-3 left-3 backdrop-blur text-xs px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Engineering</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-display text-lg font-bold mb-2 leading-snug">Go vs Node.js for APIs: Which Should You Choose?</h3>
+              <p class="text-xs leading-relaxed mb-3" style="color:var(--text-muted)">A hands-on comparison with real benchmarks. Spoiler: the answer depends on your team, not just performance.</p>
+              <div class="flex items-center gap-2 text-xs font-mono" style="color:var(--text-muted)">
+                <span>12 Mar 2026</span><span>•</span><span>10 min read</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-24">
+      <div class="text-5xl mb-4">📭</div>
+      <h3 class="font-display text-xl font-bold mb-2">No articles found</h3>
+      <p class="text-sm" style="color:var(--text-muted)">Try a different keyword or category.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="reveal flex items-center justify-center gap-2 mt-14">
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl border hover:border-accent/40 hover:text-accent transition-all text-sm" style="border-color:var(--border);color:var(--text-muted)">←</button>
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl bg-accent text-primary font-bold text-sm">1</button>
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl border hover:border-accent/40 hover:text-accent transition-all text-sm" style="border-color:var(--border);color:var(--text-muted)">2</button>
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl border hover:border-accent/40 hover:text-accent transition-all text-sm" style="border-color:var(--border);color:var(--text-muted)">3</button>
+      <span class="text-sm" style="color:var(--text-muted)">...</span>
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl border hover:border-accent/40 hover:text-accent transition-all text-sm" style="border-color:var(--border);color:var(--text-muted)">8</button>
+      <button class="w-9 h-9 flex items-center justify-center rounded-xl border hover:border-accent/40 hover:text-accent transition-all text-sm" style="border-color:var(--border);color:var(--text-muted)">→</button>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t py-10" style="background-color:var(--bg-card);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+      <p class="text-xs" style="color:var(--text-muted)">© 2026 Alex Kurniawan. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">GitHub</a>
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode
+    const html = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+    document.getElementById('darkToggle').addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    let activeCat = 'all', searchQ = '';
+
+    function applyFilters() {
+      const cards = document.querySelectorAll('.article-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const matchCat = activeCat === 'all' || card.dataset.cat === activeCat;
+        const matchSearch = card.dataset.title.includes(searchQ);
+        const show = matchCat && matchSearch;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+      document.getElementById('articlesGrid').classList.toggle('hidden', visible === 0);
+    }
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.cat;
+        applyFilters();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchQ = e.target.value.toLowerCase();
+      applyFilters();
+    });
+  </script>
+</body>
+</html>

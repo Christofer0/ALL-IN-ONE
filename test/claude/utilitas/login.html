@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001C30",
+              secondary: "#176B87",
+              accent: "#64CCC5",
+              light: "#DAFFFB",
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', "serif"],
+              body: ['"DM Sans"', "sans-serif"],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+            animation: {
+              "fade-up": "fadeUp 0.6s ease forwards",
+              "pulse-slow": "pulse 2.5s cubic-bezier(0.4,0,0.6,1) infinite",
+              shake: "shake 0.4s ease",
+            },
+            keyframes: {
+              fadeUp: {
+                "0%": { opacity: "0", transform: "translateY(20px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+              shake: {
+                "0%,100%": { transform: "translateX(0)" },
+                "20%": { transform: "translateX(-6px)" },
+                "40%": { transform: "translateX(6px)" },
+                "60%": { transform: "translateX(-4px)" },
+                "80%": { transform: "translateX(4px)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+      /* Form input */
+      .form-input {
+        background: rgba(0, 28, 48, 0.6);
+        border: 1px solid rgba(23, 107, 135, 0.6);
+        color: #dafffb;
+        width: 100%;
+        padding: 12px 44px 12px 16px;
+        border-radius: 12px;
+        outline: none;
+        transition: all 0.2s;
+        font-family: inherit;
+        font-size: 0.875rem;
+      }
+      .form-input::placeholder {
+        color: rgba(218, 255, 251, 0.3);
+      }
+      .form-input:focus {
+        border-color: rgba(100, 204, 197, 0.7);
+        box-shadow: 0 0 0 3px rgba(100, 204, 197, 0.1);
+      }
+      /* Left panel gradient */
+      .left-panel {
+        background: linear-gradient(
+          135deg,
+          #001c30 0%,
+          #176b87 60%,
+          #001c30 100%
+        );
+      }
+      /* Floating code card */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-1deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(-1deg);
+        }
+      }
+      .float {
+        animation: float 6s ease-in-out infinite;
+      }
+      /* Shake on error */
+      .shake {
+        animation: shake 0.4s ease;
+      }
+      /* Toggle password visibility */
+      .eye-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(218, 255, 251, 0.4);
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      .eye-btn:hover {
+        color: #64ccc5;
+      }
+      /* Rate limit banner */
+      #rateLimitBanner {
+        transition: all 0.3s ease;
+      }
+      /* Grid bg on left */
+      .grid-bg {
+        background-image:
+          linear-gradient(rgba(100, 204, 197, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(100, 204, 197, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      /* Checkbox custom */
+      input[type="checkbox"]:checked {
+        accent-color: #64ccc5;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-primary font-body text-light min-h-screen flex overflow-hidden"
+  >
+    <!-- ══════════════ LEFT PANEL (Illustration) ══════════════ -->
+    <div
+      class="hidden lg:flex lg:w-1/2 left-panel grid-bg flex-col items-center justify-center relative overflow-hidden p-12"
+    >
+      <!-- Background rings -->
+      <div
+        class="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div
+          class="w-[480px] h-[480px] rounded-full border border-accent/10"
+        ></div>
+      </div>
+      <div
+        class="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div
+          class="w-[680px] h-[680px] rounded-full border border-secondary/20"
+        ></div>
+      </div>
+
+      <!-- Brand -->
+      <a
+        href="index.html"
+        class="absolute top-8 left-10 font-mono text-accent font-medium tracking-widest text-sm z-10"
+        >&lt;PORTFOLIO /&gt;</a
+      >
+
+      <!-- Floating code card -->
+      <div class="float relative z-10 mb-10">
+        <div
+          class="bg-primary/80 backdrop-blur border border-secondary/60 rounded-2xl p-6 font-mono text-xs w-72 shadow-2xl"
+        >
+          <div class="flex gap-1.5 mb-4">
+            <span class="w-3 h-3 rounded-full bg-red-400/60"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400/60"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400/60"></span>
+          </div>
+          <div class="space-y-1.5 leading-relaxed">
+            <p><span class="text-secondary">// Authenticating...</span></p>
+            <p>
+              <span class="text-purple-400">const</span>
+              <span class="text-accent">session</span> =
+              <span class="text-light/50">await</span>
+            </p>
+            <p class="pl-4">
+              <span class="text-yellow-300">auth</span>.<span
+                class="text-accent"
+                >signIn</span
+              >({
+            </p>
+            <p class="pl-8"><span class="text-light/50">email,</span></p>
+            <p class="pl-8"><span class="text-light/50">password,</span></p>
+            <p class="pl-8">
+              <span class="text-light/50"
+                >remember: <span class="text-green-400">true</span></span
+              >
+            </p>
+            <p class="pl-4">});</p>
+            <p class="text-green-400 mt-2">✓ Session created</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div class="relative z-10 text-center">
+        <h2 class="font-display text-4xl font-black mb-3 leading-tight">
+          Welcome<br /><span class="text-accent italic">Back</span>
+        </h2>
+        <p class="text-light/40 text-sm leading-relaxed max-w-xs">
+          Sign in to access your dashboard, manage your portfolio, and track
+          your projects.
+        </p>
+      </div>
+
+      <!-- Bottom stats -->
+      <div class="absolute bottom-10 left-10 right-10 flex justify-between">
+        <div class="text-center">
+          <p class="font-display text-2xl font-black text-accent">40+</p>
+          <p class="text-light/30 text-xs">Projects</p>
+        </div>
+        <div class="text-center">
+          <p class="font-display text-2xl font-black text-accent">5+</p>
+          <p class="text-light/30 text-xs">Years Exp</p>
+        </div>
+        <div class="text-center">
+          <p class="font-display text-2xl font-black text-accent">12+</p>
+          <p class="text-light/30 text-xs">Clients</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ RIGHT PANEL (Form) ══════════════ -->
+    <div
+      class="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 relative z-10 overflow-y-auto"
+    >
+      <!-- Mobile brand -->
+      <a
+        href="index.html"
+        class="lg:hidden font-mono text-accent font-medium tracking-widest text-sm mb-10"
+        >&lt;PORTFOLIO /&gt;</a
+      >
+
+      <div class="w-full max-w-md">
+        <!-- Header -->
+        <div class="mb-8 animate-fade-up" style="animation-delay: 0.05s">
+          <h1 class="font-display text-3xl font-black mb-1">Sign In</h1>
+          <p class="text-light/40 text-sm">
+            Enter your credentials to access the dashboard.
+          </p>
+        </div>
+
+        <!-- Rate Limit Banner -->
+        <div
+          id="rateLimitBanner"
+          class="hidden mb-5 bg-red-900/30 border border-red-500/50 rounded-xl px-4 py-3 text-sm"
+        >
+          <div class="flex items-start gap-3">
+            <svg
+              class="text-red-400 flex-shrink-0 mt-0.5"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <p class="text-red-300 font-semibold mb-0.5">
+                Too many failed attempts
+              </p>
+              <p class="text-red-400/70 text-xs">
+                Account temporarily locked. Please wait
+                <span id="countdown" class="font-mono font-bold text-red-300"
+                  >30s</span
+                >
+                before trying again.
+              </p>
+            </div>
+          </div>
+          <div class="mt-3 h-1 bg-red-900/50 rounded-full overflow-hidden">
+            <div
+              id="lockBar"
+              class="h-full bg-red-400/60 rounded-full transition-all duration-1000"
+              style="width: 100%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div
+          id="errorAlert"
+          class="hidden mb-5 bg-red-900/20 border border-red-500/40 rounded-xl px-4 py-3 text-sm text-red-300 flex items-center gap-2"
+        >
+          <svg
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span id="errorMsg">Invalid email or password.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form
+          id="loginForm"
+          novalidate
+          class="space-y-5 animate-fade-up"
+          style="animation-delay: 0.1s"
+        >
+          <!-- Email -->
+          <div>
+            <label
+              for="email"
+              class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+              >EMAIL ADDRESS</label
+            >
+            <div class="relative">
+              <svg
+                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-light/30 pointer-events-none"
+                width="15"
+                height="15"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="you@example.com"
+                style="padding-left: 2.75rem"
+                class="form-input"
+                autocomplete="email"
+              />
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label
+                for="password"
+                class="block text-xs font-mono text-light/40 tracking-wider"
+                >PASSWORD</label
+              >
+              <button
+                type="button"
+                onclick="showForgotPassword()"
+                class="text-xs text-accent hover:text-accent/70 transition-colors font-medium"
+              >
+                Lupa password?
+              </button>
+            </div>
+            <div class="relative">
+              <svg
+                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-light/30 pointer-events-none"
+                width="15"
+                height="15"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                placeholder="••••••••"
+                style="padding-left: 2.75rem; padding-right: 2.75rem"
+                class="form-input"
+                autocomplete="current-password"
+              />
+              <button type="button" class="eye-btn" onclick="togglePassword()">
+                <svg
+                  id="eyeIcon"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me -->
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="remember"
+              name="remember"
+              class="w-4 h-4 rounded border border-secondary cursor-pointer"
+            />
+            <label
+              for="remember"
+              class="text-sm text-light/50 cursor-pointer select-none hover:text-light/80 transition-colors"
+            >
+              Remember me for 30 days
+            </label>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="submitBtn"
+            class="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed text-primary font-bold py-3.5 rounded-xl transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-accent/20 text-sm"
+          >
+            <svg
+              id="submitIcon"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"
+              />
+            </svg>
+            <span id="submitText">Sign In to Dashboard</span>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div
+          class="flex items-center gap-4 my-6 animate-fade-up"
+          style="animation-delay: 0.2s"
+        >
+          <div class="flex-1 h-px bg-secondary/50"></div>
+          <span class="text-light/30 text-xs font-mono">OR</span>
+          <div class="flex-1 h-px bg-secondary/50"></div>
+        </div>
+
+        <!-- Magic Link -->
+        <button
+          onclick="sendMagicLink()"
+          class="animate-fade-up w-full flex items-center justify-center gap-2 border border-secondary/60 hover:border-accent/50 text-light/60 hover:text-accent font-medium py-3 rounded-xl transition-all text-sm"
+          style="animation-delay: 0.25s"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          Send Magic Link
+        </button>
+
+        <!-- Magic link success -->
+        <div
+          id="magicMsg"
+          class="hidden mt-3 bg-accent/10 border border-accent/30 rounded-xl px-4 py-3 text-xs text-accent font-mono text-center"
+        >
+          ✓ Magic link sent to your email! Check your inbox.
+        </div>
+
+        <!-- Forgot password modal hint -->
+        <div
+          id="forgotMsg"
+          class="hidden mt-3 bg-secondary/30 border border-secondary/60 rounded-xl px-4 py-3 text-xs text-light/60 text-center"
+        >
+          🔑 Enter your email above and we'll send a reset link shortly.
+          <button
+            onclick="
+              document.getElementById('forgotMsg').classList.add('hidden')
+            "
+            class="ml-2 text-accent hover:underline"
+          >
+            Close
+          </button>
+        </div>
+
+        <!-- Success Redirect -->
+        <div
+          id="successPanel"
+          class="hidden mt-6 bg-green-900/20 border border-green-500/40 rounded-xl px-5 py-5 text-center"
+        >
+          <div
+            class="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mx-auto mb-3"
+          >
+            <svg
+              class="text-green-400"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <p class="text-green-400 font-semibold mb-1">Login Successful!</p>
+          <p class="text-light/40 text-xs mb-3">
+            Redirecting to dashboard<span id="dots">...</span>
+          </p>
+          <div class="h-1 bg-secondary/30 rounded-full overflow-hidden">
+            <div
+              id="progressBar"
+              class="h-full bg-green-400/60 rounded-full transition-all duration-2000"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <p
+          class="text-center text-light/30 text-xs mt-8 animate-fade-up"
+          style="animation-delay: 0.3s"
+        >
+          Don't have an account?
+          <a href="contact.html" class="text-accent hover:underline"
+            >Get in touch</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <script>
+      let failedAttempts = 0;
+      const MAX_ATTEMPTS = 3;
+      let isLocked = false;
+
+      // Toggle password visibility
+      function togglePassword() {
+        const pw = document.getElementById("password");
+        const icon = document.getElementById("eyeIcon");
+        if (pw.type === "password") {
+          pw.type = "text";
+          icon.innerHTML =
+            '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+          pw.type = "password";
+          icon.innerHTML =
+            '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+      }
+
+      // Forgot password
+      function showForgotPassword() {
+        document.getElementById("forgotMsg").classList.remove("hidden");
+        document.getElementById("email").focus();
+      }
+
+      // Magic link
+      function sendMagicLink() {
+        const email = document.getElementById("email").value;
+        if (!email) {
+          document.getElementById("email").focus();
+          return;
+        }
+        const btn = event.currentTarget;
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+        setTimeout(() => {
+          document.getElementById("magicMsg").classList.remove("hidden");
+          btn.textContent = "✓ Link Sent!";
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Send Magic Link`;
+          }, 3000);
+        }, 1200);
+      }
+
+      // Rate limit lock UI
+      function activateRateLimit() {
+        isLocked = true;
+        const banner = document.getElementById("rateLimitBanner");
+        banner.classList.remove("hidden");
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = true;
+        let secs = 30;
+        const bar = document.getElementById("lockBar");
+        const cd = document.getElementById("countdown");
+        const iv = setInterval(() => {
+          secs--;
+          cd.textContent = secs + "s";
+          bar.style.width = (secs / 30) * 100 + "%";
+          if (secs <= 0) {
+            clearInterval(iv);
+            banner.classList.add("hidden");
+            submitBtn.disabled = false;
+            isLocked = false;
+            failedAttempts = 0;
+          }
+        }, 1000);
+      }
+
+      // Show error
+      function showError(msg) {
+        const alert = document.getElementById("errorAlert");
+        document.getElementById("errorMsg").textContent = msg;
+        alert.classList.remove("hidden");
+        document.getElementById("loginForm").classList.add("shake");
+        setTimeout(
+          () => document.getElementById("loginForm").classList.remove("shake"),
+          500,
+        );
+      }
+
+      // Show success redirect
+      function showSuccess() {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("successPanel").classList.remove("hidden");
+        const bar = document.getElementById("progressBar");
+        setTimeout(() => (bar.style.width = "100%"), 50);
+        let dots = 0;
+        setInterval(() => {
+          dots = (dots + 1) % 4;
+          document.getElementById("dots").textContent = ".".repeat(dots + 1);
+        }, 400);
+        setTimeout(() => {
+          alert("Mock: Redirecting to /dashboard (demo only)");
+        }, 2200);
+      }
+
+      // Form submit
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (isLocked) return;
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          const btn = document.getElementById("submitBtn");
+
+          document.getElementById("errorAlert").classList.add("hidden");
+
+          // Validation
+          if (!email || !password) {
+            showError("Please fill in all fields.");
+            return;
+          }
+
+          // Loading state
+          btn.disabled = true;
+          document.getElementById("submitText").textContent = "Signing in...";
+          document.getElementById("submitIcon").innerHTML =
+            '<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke-linecap="round"/>';
+
+          setTimeout(() => {
+            // Demo: only "admin@portfolio.dev" / "password123" works
+            if (email === "admin@portfolio.dev" && password === "password123") {
+              showSuccess();
+            } else {
+              failedAttempts++;
+              btn.disabled = false;
+              document.getElementById("submitText").textContent =
+                "Sign In to Dashboard";
+              document.getElementById("submitIcon").innerHTML =
+                '<path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>';
+              if (failedAttempts >= MAX_ATTEMPTS) {
+                activateRateLimit();
+                showError(
+                  `Too many failed attempts. Account locked for 30 seconds.`,
+                );
+              } else {
+                showError(
+                  `Invalid email or password. (${MAX_ATTEMPTS - failedAttempts} attempt${MAX_ATTEMPTS - failedAttempts === 1 ? "" : "s"} remaining)`,
+                );
+              }
+            }
+          }, 1000);
+        });
+    </script>
+  </body>
+</html>

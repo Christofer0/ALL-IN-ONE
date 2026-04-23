@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cashflow — BCW Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#000000",
+              secondary: "#4A70A9",
+              accent: "#8FABD4",
+              light: "#EFECE3",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: #000;
+        color: #efece3;
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4a70a9;
+        border-radius: 2px;
+      }
+      .sidebar {
+        width: 240px;
+        background: #0a0a0a;
+        border-right: 1px solid #1e1e1e;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        margin: 2px 8px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background: #161616;
+        color: #efece3;
+      }
+      .nav-item.active {
+        background: rgba(74, 112, 169, 0.15);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+      }
+      .nav-section {
+        padding: 16px 24px 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #374151;
+      }
+      .topbar {
+        height: 60px;
+        background: #000;
+        border-bottom: 1px solid #1e1e1e;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+      .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .page-content {
+        flex: 1;
+        padding: 28px;
+      }
+      .card {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+      }
+      .btn-primary {
+        background: #4a70a9;
+        color: #efece3;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 16px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary:hover {
+        background: #5a80b9;
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-ghost:hover {
+        border-color: #4a70a9;
+        color: #8fabd4;
+      }
+      .form-input {
+        width: 100%;
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        color: #efece3;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: "Inter", sans-serif;
+      }
+      .form-input::placeholder {
+        color: #374151;
+      }
+      .form-input:focus {
+        border-color: rgba(74, 112, 169, 0.5);
+        box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.06);
+      }
+      select.form-input option {
+        background: #161616;
+      }
+      .form-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 6px;
+        display: block;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 480px;
+        padding: 28px;
+        transform: translateY(16px);
+        transition: transform 0.2s;
+      }
+      .modal-overlay.open .modal {
+        transform: translateY(0);
+      }
+      .badge-green {
+        background: rgba(34, 197, 94, 0.08);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-red {
+        background: rgba(239, 68, 68, 0.08);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-blue {
+        background: rgba(74, 112, 169, 0.12);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      /* Chart */
+      .chart-bar-wrap {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        height: 140px;
+        padding-bottom: 4px;
+      }
+      .chart-bar-group {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        flex: 1;
+        position: relative;
+      }
+      .chart-bar {
+        border-radius: 3px 3px 0 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        min-height: 4px;
+      }
+      .chart-bar:hover {
+        opacity: 0.75;
+      }
+      /* Donut */
+      .donut-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Tab */
+      .tab-btn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
+        color: #6b7280;
+      }
+      .tab-btn.active {
+        background: rgba(74, 112, 169, 0.12);
+        color: #8fabd4;
+        border-color: rgba(74, 112, 169, 0.2);
+      }
+      .tab-btn:hover:not(.active) {
+        color: #efece3;
+      }
+      /* Type toggle */
+      .type-toggle {
+        display: flex;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #1e1e1e;
+      }
+      .type-btn {
+        flex: 1;
+        padding: 10px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        font-family: "Inter", sans-serif;
+      }
+      .type-btn.income {
+        background: #161616;
+        color: #6b7280;
+      }
+      .type-btn.income.active {
+        background: rgba(34, 197, 94, 0.12);
+        color: #4ade80;
+      }
+      .type-btn.expense {
+        background: #161616;
+        color: #6b7280;
+      }
+      .type-btn.expense.active {
+        background: rgba(239, 68, 68, 0.12);
+        color: #f87171;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #374151;
+        padding: 10px 16px;
+        text-align: left;
+        border-bottom: 1px solid #1e1e1e;
+      }
+      td {
+        padding: 11px 16px;
+        border-bottom: 1px solid #0d0d0d;
+        font-size: 0.83rem;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.015);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      .cat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div style="padding: 20px 24px; border-bottom: 1px solid #1e1e1e">
+        <div
+          style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em"
+        >
+          BCW<span style="color: #4a70a9">.</span>
+        </div>
+        <div
+          style="
+            font-size: 0.65rem;
+            color: #374151;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            margin-top: 2px;
+          "
+        >
+          Personal OS v1.0
+        </div>
+      </div>
+      <nav style="flex: 1; overflow-y: auto; padding: 8px 0">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" /></svg
+          >Dashboard</a
+        >
+        <div class="nav-section">Tools</div>
+        <a href="projects-cms.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            /></svg
+          >Projects CMS</a
+        >
+        <a href="email-scheduler.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            />
+            <polyline points="22,6 12,13 2,6" /></svg
+          >Email Scheduler</a
+        >
+        <a href="notes.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" /></svg
+          >Notes</a
+        >
+        <a href="cashflow.html" class="nav-item active"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg
+          >Cashflow</a
+        >
+        <div class="nav-section">Growth</div>
+        <a href="habits.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" /></svg
+          >Habit Tracker</a
+        >
+        <a href="goals.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" /></svg
+          >Goals / OKR</a
+        >
+        <a href="ai-chat.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            /></svg
+          >AI Assistant</a
+        >
+      </nav>
+      <div style="padding: 16px; border-top: 1px solid #1e1e1e">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: rgba(74, 112, 169, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 700;
+              font-size: 0.75rem;
+              color: #8fabd4;
+              flex-shrink: 0;
+            "
+          >
+            BCW
+          </div>
+          <div>
+            <div style="font-size: 0.78rem; font-weight: 600">Brillian CW</div>
+            <div style="font-size: 0.65rem; color: #374151">Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 600">Cashflow</div>
+          <div
+            style="
+              font-size: 0.65rem;
+              color: #374151;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+            "
+          >
+            /dashboard/cashflow · Track income & expenses
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px">
+          <select
+            class="form-input"
+            style="width: auto; padding: 8px 14px"
+            id="month-filter"
+            onchange="applyFilters()"
+          >
+            <option value="4">April 2025</option>
+            <option value="3">March 2025</option>
+            <option value="2">February 2025</option>
+            <option value="1">January 2025</option>
+          </select>
+          <button class="btn-ghost" onclick="exportCSV()">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" /></svg
+            >Export CSV
+          </button>
+          <button class="btn-primary" onclick="openModal()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" /></svg
+            >Add Transaction
+          </button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <!-- Summary cards -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+          "
+        >
+          <div class="card" style="padding: 20px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #6b7280;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Total Income
+            </div>
+            <div
+              style="font-size: 1.4rem; font-weight: 800; color: #4ade80"
+              id="total-income"
+            >
+              Rp 0
+            </div>
+            <div
+              style="font-size: 0.68rem; color: #374151; margin-top: 4px"
+              id="income-count"
+            >
+              0 transactions
+            </div>
+          </div>
+          <div class="card" style="padding: 20px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #6b7280;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Total Expenses
+            </div>
+            <div
+              style="font-size: 1.4rem; font-weight: 800; color: #f87171"
+              id="total-expense"
+            >
+              Rp 0
+            </div>
+            <div
+              style="font-size: 0.68rem; color: #374151; margin-top: 4px"
+              id="expense-count"
+            >
+              0 transactions
+            </div>
+          </div>
+          <div
+            class="card"
+            style="padding: 20px; border-color: rgba(74, 112, 169, 0.25)"
+          >
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #8fabd4;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Net Balance
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 800" id="net-balance">
+              Rp 0
+            </div>
+            <div
+              style="font-size: 0.68rem; color: #374151; margin-top: 4px"
+              id="balance-note"
+            >
+              This month
+            </div>
+          </div>
+          <div class="card" style="padding: 20px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #6b7280;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Savings Rate
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 800" id="savings-rate">
+              0%
+            </div>
+            <div
+              style="
+                height: 4px;
+                background: #1e1e1e;
+                border-radius: 2px;
+                margin-top: 10px;
+              "
+            >
+              <div
+                id="savings-bar"
+                style="
+                  height: 100%;
+                  background: linear-gradient(90deg, #4a70a9, #8fabd4);
+                  border-radius: 2px;
+                  transition: width 0.5s;
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            margin-bottom: 24px;
+          "
+        >
+          <!-- Bar chart -->
+          <div class="card" style="padding: 20px">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 20px;
+              "
+            >
+              <div style="font-size: 0.88rem; font-weight: 600">
+                Income vs Expenses
+              </div>
+              <div style="display: flex; gap: 12px">
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 0.68rem;
+                    color: #6b7280;
+                  "
+                  ><span
+                    style="
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 2px;
+                      background: #4a70a9;
+                      display: inline-block;
+                    "
+                  ></span
+                  >Income</span
+                >
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 0.68rem;
+                    color: #6b7280;
+                  "
+                  ><span
+                    style="
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 2px;
+                      background: #f87171;
+                      display: inline-block;
+                    "
+                  ></span
+                  >Expense</span
+                >
+              </div>
+            </div>
+            <div class="chart-bar-wrap" id="bar-chart">
+              <!-- rendered by JS -->
+            </div>
+            <div
+              style="display: flex; gap: 8px; margin-top: 6px"
+              id="bar-labels"
+            ></div>
+          </div>
+
+          <!-- Category donut -->
+          <div class="card" style="padding: 20px">
+            <div
+              style="font-size: 0.88rem; font-weight: 600; margin-bottom: 16px"
+            >
+              By Category
+            </div>
+            <svg
+              viewBox="0 0 120 120"
+              width="120"
+              height="120"
+              style="display: block; margin: 0 auto 16px"
+              id="donut-svg"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="45"
+                fill="none"
+                stroke="#1E1E1E"
+                stroke-width="18"
+              />
+            </svg>
+            <div
+              style="display: flex; flex-direction: column; gap: 7px"
+              id="cat-legend"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Transaction table -->
+        <div class="card">
+          <div
+            style="
+              padding: 16px 20px;
+              border-bottom: 1px solid #1e1e1e;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              flex-wrap: wrap;
+            "
+          >
+            <div style="font-size: 0.88rem; font-weight: 600; flex: 1">
+              Transactions
+            </div>
+            <div style="display: flex; gap: 6px">
+              <button
+                class="tab-btn active"
+                data-type="all"
+                onclick="setTypeFilter('all', this)"
+              >
+                All
+              </button>
+              <button
+                class="tab-btn"
+                data-type="income"
+                onclick="setTypeFilter('income', this)"
+              >
+                Income
+              </button>
+              <button
+                class="tab-btn"
+                data-type="expense"
+                onclick="setTypeFilter('expense', this)"
+              >
+                Expense
+              </button>
+            </div>
+            <select
+              class="form-input"
+              style="width: auto; padding: 8px 12px"
+              id="cat-filter2"
+              onchange="applyFilters()"
+            >
+              <option value="">All Categories</option>
+              <option value="Freelance">Freelance</option>
+              <option value="Project">Project</option>
+              <option value="Investment">Investment</option>
+              <option value="Food">Food & Drinks</option>
+              <option value="Transport">Transport</option>
+              <option value="Software">Software</option>
+              <option value="Personal">Personal</option>
+            </select>
+          </div>
+          <div style="overflow-x: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th style="text-align: right">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tx-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ADD MODAL -->
+    <div
+      class="modal-overlay"
+      id="modal-overlay"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+          "
+        >
+          <div style="font-size: 1rem; font-weight: 700">Add Transaction</div>
+          <button
+            onclick="closeModal()"
+            style="
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              color: #6b7280;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form
+          onsubmit="saveTransaction(event)"
+          style="display: flex; flex-direction: column; gap: 14px"
+        >
+          <!-- Type toggle -->
+          <div>
+            <label class="form-label">Type</label>
+            <div class="type-toggle">
+              <button
+                type="button"
+                class="type-btn income active"
+                id="btn-income"
+                onclick="setType('income')"
+              >
+                ⬆ Income
+              </button>
+              <button
+                type="button"
+                class="type-btn expense"
+                id="btn-expense"
+                onclick="setType('expense')"
+              >
+                ⬇ Expense
+              </button>
+            </div>
+            <input type="hidden" id="f-type" value="income" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div>
+              <label class="form-label">Date *</label
+              ><input type="date" class="form-input" id="f-date" required />
+            </div>
+            <div>
+              <label class="form-label">Category *</label>
+              <select class="form-input" id="f-cat" required>
+                <option value="">Select...</option>
+                <optgroup label="Income">
+                  <option value="Freelance">Freelance</option>
+                  <option value="Project">Project</option>
+                  <option value="Investment">Investment</option>
+                  <option value="Other Income">Other Income</option>
+                </optgroup>
+                <optgroup label="Expense">
+                  <option value="Food">Food & Drinks</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Software">Software</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Description *</label
+            ><input
+              type="text"
+              class="form-input"
+              id="f-desc"
+              placeholder="e.g. Client payment – AutoFlow"
+              required
+            />
+          </div>
+          <div>
+            <label class="form-label">Amount (Rp) *</label>
+            <div style="position: relative">
+              <span
+                style="
+                  position: absolute;
+                  left: 14px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  font-size: 0.82rem;
+                  color: #6b7280;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+                >Rp</span
+              >
+              <input
+                type="number"
+                class="form-input"
+                id="f-amount"
+                placeholder="0"
+                style="padding-left: 38px"
+                required
+                min="0"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Notes (optional)</label
+            ><input
+              type="text"
+              class="form-input"
+              id="f-notes"
+              placeholder="Additional notes..."
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+              margin-top: 4px;
+            "
+          >
+            <button type="button" class="btn-ghost" onclick="closeModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12" /></svg
+              >Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const catColors = {
+        Freelance: "#4A70A9",
+        Project: "#8FABD4",
+        Investment: "#60a5fa",
+        "Other Income": "#93c5fd",
+        Food: "#f87171",
+        Transport: "#fb923c",
+        Software: "#a78bfa",
+        Personal: "#f472b6",
+        Bills: "#fbbf24",
+        Other: "#6B7280",
+      };
+      let transactions = [
+        {
+          id: 1,
+          date: "2025-04-14",
+          desc: "Client payment – AutoFlow AI",
+          cat: "Freelance",
+          type: "income",
+          amount: 3500000,
+          notes: "",
+        },
+        {
+          id: 2,
+          date: "2025-04-13",
+          desc: "Makan siang & kopi",
+          cat: "Food",
+          type: "expense",
+          amount: 85000,
+          notes: "",
+        },
+        {
+          id: 3,
+          date: "2025-04-12",
+          desc: "Project DocuSense milestone",
+          cat: "Project",
+          type: "income",
+          amount: 2000000,
+          notes: "50% payment",
+        },
+        {
+          id: 4,
+          date: "2025-04-11",
+          desc: "Grab / ojek bulan ini",
+          cat: "Transport",
+          type: "expense",
+          amount: 320000,
+          notes: "",
+        },
+        {
+          id: 5,
+          date: "2025-04-10",
+          desc: "Vercel Pro + Railway",
+          cat: "Software",
+          type: "expense",
+          amount: 280000,
+          notes: "Monthly subscription",
+        },
+        {
+          id: 6,
+          date: "2025-04-09",
+          desc: "Dividen investasi reksadana",
+          cat: "Investment",
+          type: "income",
+          amount: 750000,
+          notes: "",
+        },
+        {
+          id: 7,
+          date: "2025-04-08",
+          desc: "Groceries Alfamart",
+          cat: "Food",
+          type: "expense",
+          amount: 215000,
+          notes: "",
+        },
+        {
+          id: 8,
+          date: "2025-04-07",
+          desc: "Freelance website landing page",
+          cat: "Freelance",
+          type: "income",
+          amount: 1500000,
+          notes: "",
+        },
+        {
+          id: 9,
+          date: "2025-04-06",
+          desc: "Listrik + internet",
+          cat: "Bills",
+          type: "expense",
+          amount: 480000,
+          notes: "",
+        },
+        {
+          id: 10,
+          date: "2025-04-05",
+          desc: "Personal care & toiletries",
+          cat: "Personal",
+          type: "expense",
+          amount: 190000,
+          notes: "",
+        },
+        {
+          id: 11,
+          date: "2025-04-04",
+          desc: "OpenAI API credit",
+          cat: "Software",
+          type: "expense",
+          amount: 160000,
+          notes: "",
+        },
+        {
+          id: 12,
+          date: "2025-04-03",
+          desc: "Project consultation fee",
+          cat: "Project",
+          type: "income",
+          amount: 800000,
+          notes: "2hr consultation",
+        },
+      ];
+      let nextId = 13;
+      let currentType = "income";
+      let filterType = "all";
+
+      function fmt(n) {
+        return "Rp " + Number(n).toLocaleString("id-ID");
+      }
+      function getSummary(list) {
+        const inc = list
+          .filter((x) => x.type === "income")
+          .reduce((a, b) => a + b.amount, 0);
+        const exp = list
+          .filter((x) => x.type === "expense")
+          .reduce((a, b) => a + b.amount, 0);
+        return { inc, exp, net: inc - exp };
+      }
+
+      function renderAll() {
+        const catF = document.getElementById("cat-filter2").value;
+        let data = transactions.filter((x) => {
+          if (filterType !== "all" && x.type !== filterType) return false;
+          if (catF && x.cat !== catF) return false;
+          return true;
+        });
+        const { inc, exp, net } = getSummary(transactions);
+        document.getElementById("total-income").textContent = fmt(inc);
+        document.getElementById("income-count").textContent =
+          transactions.filter((x) => x.type === "income").length +
+          " transactions";
+        document.getElementById("total-expense").textContent = fmt(exp);
+        document.getElementById("expense-count").textContent =
+          transactions.filter((x) => x.type === "expense").length +
+          " transactions";
+        document.getElementById("net-balance").textContent = fmt(net);
+        document.getElementById("net-balance").style.color =
+          net >= 0 ? "#4ade80" : "#f87171";
+        const sr = inc > 0 ? Math.round((net / inc) * 100) : 0;
+        document.getElementById("savings-rate").textContent = sr + "%";
+        document.getElementById("savings-bar").style.width =
+          Math.max(0, Math.min(100, sr)) + "%";
+
+        // Table
+        const tb = document.getElementById("tx-table");
+        tb.innerHTML = data.length
+          ? data
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .map(
+                (t) => `
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#6B7280">${t.date}</td>
+      <td><div style="font-weight:500">${t.desc}</div>${t.notes ? `<div style="font-size:0.68rem;color:#374151">${t.notes}</div>` : ""}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;color:#6B7280"><span class="cat-dot" style="background:${catColors[t.cat] || "#6B7280"}"></span>${t.cat}</span></td>
+      <td>${t.type === "income" ? '<span class="badge-green">Income</span>' : '<span class="badge-red">Expense</span>'}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:${t.type === "income" ? "#4ade80" : "#f87171"}">${t.type === "income" ? "+" : "-"}${fmt(t.amount)}</td>
+      <td style="text-align:right"><button onclick="deleteTransaction(${t.id})" style="background:transparent;border:none;cursor:pointer;color:#374151;padding:4px;transition:color 0.2s" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#374151'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+    </tr>
+  `,
+              )
+              .join("")
+          : `<tr><td colspan="6" style="text-align:center;padding:32px;color:#374151;font-family:'JetBrains Mono',monospace;font-size:0.78rem">No transactions</td></tr>`;
+
+        // Bar chart (weekly mock)
+        const weeks = ["W1", "W2", "W3", "W4"];
+        const wInc = [3500000, 2750000, 1500000, 800000];
+        const wExp = [570000, 640000, 320000, 190000];
+        const mx = Math.max(...wInc, ...wExp);
+        const bc = document.getElementById("bar-chart");
+        const bl = document.getElementById("bar-labels");
+        bc.innerHTML = weeks
+          .map(
+            (_, i) => `
+    <div style="flex:1;display:flex;align-items:flex-end;gap:3px">
+      <div class="chart-bar" style="flex:1;height:${Math.round((wInc[i] / mx) * 100)}%;background:#4A70A9;opacity:0.85" title="${weeks[i]} Income: ${fmt(wInc[i])}"></div>
+      <div class="chart-bar" style="flex:1;height:${Math.round((wExp[i] / mx) * 100)}%;background:#f87171;opacity:0.75" title="${weeks[i]} Expense: ${fmt(wExp[i])}"></div>
+    </div>
+  `,
+          )
+          .join("");
+        bl.innerHTML = weeks
+          .map(
+            (w) =>
+              `<div style="flex:1;text-align:center;font-size:0.6rem;font-family:'JetBrains Mono',monospace;color:#374151">${w}</div>`,
+          )
+          .join("");
+
+        // Donut chart
+        const expByCat = {};
+        transactions
+          .filter((x) => x.type === "expense")
+          .forEach(
+            (x) => (expByCat[x.cat] = (expByCat[x.cat] || 0) + x.amount),
+          );
+        const totalExp =
+          Object.values(expByCat).reduce((a, b) => a + b, 0) || 1;
+        const cats = Object.entries(expByCat).sort((a, b) => b[1] - a[1]);
+        const circumference = 2 * Math.PI * 45;
+        let offset = 0;
+        const segments = cats.map(([cat, amt]) => {
+          const pct = amt / totalExp;
+          const dash = circumference * pct;
+          const seg = `<circle cx="60" cy="60" r="45" fill="none" stroke="${catColors[cat] || "#6B7280"}" stroke-width="18" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 60 60)" />`;
+          offset += dash;
+          return seg;
+        });
+        document.getElementById("donut-svg").innerHTML =
+          `<circle cx="60" cy="60" r="45" fill="none" stroke="#1E1E1E" stroke-width="18"/>${segments.join("")}<text x="60" y="55" text-anchor="middle" fill="#EFECE3" font-size="9" font-family="JetBrains Mono">Total</text><text x="60" y="68" text-anchor="middle" fill="#8FABD4" font-size="8" font-family="JetBrains Mono" font-weight="600">${fmt(totalExp).replace("Rp ", "Rp")}</text>`;
+        document.getElementById("cat-legend").innerHTML = cats
+          .slice(0, 5)
+          .map(
+            ([cat, amt]) =>
+              `<div style="display:flex;align-items:center;justify-content:space-between"><span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#AAAAAA"><span class="cat-dot" style="background:${catColors[cat] || "#6B7280"}"></span>${cat}</span><span style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:#6B7280">${Math.round((amt / totalExp) * 100)}%</span></div>`,
+          )
+          .join("");
+      }
+
+      function setTypeFilter(t, btn) {
+        filterType = t;
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderAll();
+      }
+      function applyFilters() {
+        renderAll();
+      }
+      function deleteTransaction(id) {
+        transactions = transactions.filter((x) => x.id !== id);
+        renderAll();
+      }
+      function openModal() {
+        document.getElementById("modal-overlay").classList.add("open");
+        document.getElementById("f-date").value = new Date()
+          .toISOString()
+          .split("T")[0];
+      }
+      function closeModal() {
+        document.getElementById("modal-overlay").classList.remove("open");
+      }
+      function setType(t) {
+        currentType = t;
+        document.getElementById("f-type").value = t;
+        document
+          .getElementById("btn-income")
+          .classList.toggle("active", t === "income");
+        document
+          .getElementById("btn-expense")
+          .classList.toggle("active", t === "expense");
+      }
+      function saveTransaction(e) {
+        e.preventDefault();
+        transactions.unshift({
+          id: nextId++,
+          date: document.getElementById("f-date").value,
+          desc: document.getElementById("f-desc").value,
+          cat: document.getElementById("f-cat").value,
+          type: document.getElementById("f-type").value,
+          amount: parseInt(document.getElementById("f-amount").value) || 0,
+          notes: document.getElementById("f-notes").value,
+        });
+        closeModal();
+        e.target.reset();
+        setType("income");
+        renderAll();
+      }
+      function exportCSV() {
+        const h = ["Date", "Description", "Category", "Type", "Amount"];
+        const rows = transactions.map((t) => [
+          t.date,
+          t.desc,
+          t.cat,
+          t.type,
+          t.amount,
+        ]);
+        const csv = [h, ...rows]
+          .map((r) => r.map((v) => `"${v}"`).join(","))
+          .join("\n");
+        const a = document.createElement("a");
+        a.href = "data:text/csv," + encodeURIComponent(csv);
+        a.download = "cashflow.csv";
+        a.click();
+      }
+      renderAll();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings — Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#001C30",
+              secondary: "#176B87",
+              accent: "#64CCC5",
+              light: "#DAFFFB",
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', "serif"],
+              body: ['"DM Sans"', "sans-serif"],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+            animation: {
+              "fade-up": "fadeUp 0.5s ease forwards",
+              "pulse-slow": "pulse 2.5s cubic-bezier(0.4,0,0.6,1) infinite",
+            },
+            keyframes: {
+              fadeUp: {
+                "0%": { opacity: "0", transform: "translateY(16px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+      /* Form inputs */
+      .form-input {
+        background: rgba(0, 28, 48, 0.7);
+        border: 1px solid rgba(23, 107, 135, 0.5);
+        color: #dafffb;
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        outline: none;
+        transition: all 0.2s;
+        font-family: inherit;
+        font-size: 0.875rem;
+      }
+      .form-input::placeholder {
+        color: rgba(218, 255, 251, 0.25);
+      }
+      .form-input:focus {
+        border-color: rgba(100, 204, 197, 0.6);
+        box-shadow: 0 0 0 3px rgba(100, 204, 197, 0.08);
+      }
+      .form-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      /* Toggle switch */
+      .toggle-wrap {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+      .toggle-wrap input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #176b87;
+        border-radius: 24px;
+        transition: 0.3s;
+      }
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: #dafffb;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+      input:checked + .toggle-slider {
+        background: #64ccc5;
+      }
+      input:checked + .toggle-slider::before {
+        transform: translateX(20px);
+        background: #001c30;
+      }
+      /* API key masking */
+      .api-key-field {
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 0.05em;
+      }
+      /* Sidebar nav active */
+      .nav-item {
+        transition: all 0.15s ease;
+      }
+      .nav-item.active {
+        background: rgba(100, 204, 197, 0.12);
+        color: #64ccc5;
+        border-left: 2px solid #64ccc5;
+      }
+      .nav-item:not(.active):hover {
+        background: rgba(23, 107, 135, 0.2);
+        color: #dafffb;
+      }
+      /* Section card */
+      .settings-card {
+        background: rgba(23, 107, 135, 0.12);
+        border: 1px solid rgba(23, 107, 135, 0.4);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      /* Avatar upload area */
+      .avatar-drop {
+        border: 2px dashed rgba(100, 204, 197, 0.3);
+        transition: all 0.2s;
+      }
+      .avatar-drop:hover {
+        border-color: rgba(100, 204, 197, 0.6);
+        background: rgba(100, 204, 197, 0.05);
+      }
+      /* Toast */
+      #toast {
+        transition: all 0.4s ease;
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      #toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      /* Danger zone */
+      .danger-card {
+        background: rgba(127, 29, 29, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+      }
+      /* Mobile sidebar overlay */
+      #sidebarOverlay {
+        display: none;
+      }
+      @media (max-width: 1023px) {
+        #dashSidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          position: fixed;
+          z-index: 40;
+          height: 100%;
+        }
+        #dashSidebar.open {
+          transform: translateX(0);
+        }
+        #sidebarOverlay.show {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-primary font-body text-light min-h-screen flex overflow-x-hidden"
+  >
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <!-- Mobile overlay -->
+    <div
+      id="sidebarOverlay"
+      class="fixed inset-0 bg-black/50 z-30 lg:hidden"
+      onclick="closeSidebar()"
+    ></div>
+
+    <aside
+      id="dashSidebar"
+      class="w-64 bg-primary border-r border-secondary/30 flex flex-col min-h-screen lg:relative lg:transform-none pt-0"
+    >
+      <!-- Brand -->
+      <div class="px-5 py-5 border-b border-secondary/30">
+        <a
+          href="index.html"
+          class="font-mono text-accent font-medium tracking-widest text-sm"
+          >&lt;PORTFOLIO /&gt;</a
+        >
+        <p class="text-light/30 text-xs mt-1 font-mono">Dashboard v1.0</p>
+      </div>
+
+      <!-- Profile preview -->
+      <div
+        class="px-5 py-4 border-b border-secondary/30 flex items-center gap-3"
+      >
+        <div class="relative">
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80"
+            alt="Avatar"
+            class="w-10 h-10 rounded-xl object-cover border border-secondary/60"
+          />
+          <div
+            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-primary animate-pulse-slow"
+          ></div>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold truncate">Alex Kurniawan</p>
+          <p class="text-xs text-light/40 truncate">admin@portfolio.dev</p>
+        </div>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 px-3 py-4 space-y-1">
+        <p class="text-light/25 text-xs font-mono px-2 mb-2 tracking-widest">
+          MAIN
+        </p>
+        <a
+          href="#"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-light/50 border-l-2 border-transparent"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          Overview
+        </a>
+        <a
+          href="projects.html"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-light/50 border-l-2 border-transparent"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+          Projects
+        </a>
+        <a
+          href="blog.html"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-light/50 border-l-2 border-transparent"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          Blog Posts
+        </a>
+        <a
+          href="#"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-light/50 border-l-2 border-transparent"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+            />
+          </svg>
+          Messages
+          <span
+            class="ml-auto bg-accent text-primary text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+            >3</span
+          >
+        </a>
+
+        <p
+          class="text-light/25 text-xs font-mono px-2 mb-2 mt-4 tracking-widest"
+        >
+          CONFIG
+        </p>
+        <a
+          href="#"
+          class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium border-l-2"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"
+            />
+          </svg>
+          Settings
+        </a>
+        <a
+          href="about.html"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-light/50 border-l-2 border-transparent"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          Profile
+        </a>
+      </nav>
+
+      <!-- Logout -->
+      <div class="px-3 pb-5">
+        <a
+          href="login.html"
+          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400/70 hover:text-red-400 hover:bg-red-900/20 border-l-2 border-transparent transition-all"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
+            />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </aside>
+
+    <!-- ══════════════ MAIN CONTENT ══════════════ -->
+    <main class="flex-1 min-w-0 overflow-y-auto relative z-10">
+      <!-- Top Bar -->
+      <div
+        class="sticky top-0 z-20 bg-primary/90 backdrop-blur border-b border-secondary/30 px-6 py-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <!-- Mobile menu btn -->
+          <button
+            class="lg:hidden text-light/50 hover:text-accent transition-colors"
+            onclick="openSidebar()"
+          >
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold">Settings</h1>
+            <p class="text-light/30 text-xs font-mono">dashboard/settings</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            class="w-8 h-8 flex items-center justify-center rounded-xl border border-secondary/50 hover:border-accent/40 text-light/40 hover:text-accent transition-all"
+          >
+            <svg
+              width="15"
+              height="15"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"
+              />
+            </svg>
+          </button>
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80"
+            alt="Avatar"
+            class="w-8 h-8 rounded-lg object-cover border border-secondary/60"
+          />
+        </div>
+      </div>
+
+      <div class="px-6 py-8 max-w-3xl mx-auto space-y-0">
+        <!-- ── Tabs ── -->
+        <div
+          class="flex gap-1 bg-secondary/20 border border-secondary/30 rounded-xl p-1 mb-8 overflow-x-auto"
+        >
+          <button
+            onclick="switchTab('profile')"
+            id="tab-profile"
+            class="tab-btn flex-1 min-w-max text-xs font-mono py-2 px-3 rounded-lg transition-all bg-secondary/60 text-accent font-semibold"
+          >
+            Profile
+          </button>
+          <button
+            onclick="switchTab('security')"
+            id="tab-security"
+            class="tab-btn flex-1 min-w-max text-xs font-mono py-2 px-3 rounded-lg transition-all text-light/40 hover:text-light/70"
+          >
+            Security
+          </button>
+          <button
+            onclick="switchTab('api')"
+            id="tab-api"
+            class="tab-btn flex-1 min-w-max text-xs font-mono py-2 px-3 rounded-lg transition-all text-light/40 hover:text-light/70"
+          >
+            API Keys
+          </button>
+          <button
+            onclick="switchTab('prefs')"
+            id="tab-prefs"
+            class="tab-btn flex-1 min-w-max text-xs font-mono py-2 px-3 rounded-lg transition-all text-light/40 hover:text-light/70"
+          >
+            Preferences
+          </button>
+          <button
+            onclick="switchTab('danger')"
+            id="tab-danger"
+            class="tab-btn flex-1 min-w-max text-xs font-mono py-2 px-3 rounded-lg transition-all text-red-400/60 hover:text-red-400"
+          >
+            Danger
+          </button>
+        </div>
+
+        <!-- ══ TAB: PROFILE ══ -->
+        <div id="section-profile" class="tab-section space-y-5">
+          <div class="settings-card">
+            <h2 class="font-display text-lg font-bold mb-1">Update Profile</h2>
+            <p class="text-light/40 text-xs mb-5">
+              Your public-facing information on the portfolio.
+            </p>
+
+            <!-- Avatar Upload -->
+            <div class="flex items-start gap-5 mb-6">
+              <div class="relative flex-shrink-0">
+                <img
+                  id="avatarPreview"
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&q=80"
+                  alt="Avatar"
+                  class="w-20 h-20 rounded-2xl object-cover border-2 border-secondary/60"
+                />
+              </div>
+              <div class="flex-1">
+                <label
+                  class="avatar-drop rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer gap-2 text-center"
+                  for="avatarInput"
+                >
+                  <svg
+                    class="text-accent/50"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
+                    />
+                  </svg>
+                  <p class="text-xs text-light/40">
+                    Click to upload or drag &amp; drop
+                  </p>
+                  <p class="text-xs text-light/20 font-mono">
+                    PNG, JPG up to 2MB
+                  </p>
+                </label>
+                <input
+                  type="file"
+                  id="avatarInput"
+                  accept="image/*"
+                  class="hidden"
+                  onchange="previewAvatar(event)"
+                />
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label
+                  class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                  >FULL NAME</label
+                >
+                <input
+                  type="text"
+                  value="Alex Kurniawan"
+                  class="form-input"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                  >USERNAME</label
+                >
+                <input
+                  type="text"
+                  value="alexkurniawan"
+                  class="form-input"
+                  placeholder="username"
+                />
+              </div>
+            </div>
+            <div class="mb-4">
+              <label
+                class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                >EMAIL</label
+              >
+              <input
+                type="email"
+                value="admin@portfolio.dev"
+                class="form-input"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div class="mb-5">
+              <label
+                class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                >BIO SINGKAT</label
+              >
+              <textarea
+                rows="3"
+                class="form-input resize-none"
+                placeholder="Tell visitors a bit about yourself..."
+              >
+Full-Stack Developer & UI/UX enthusiast based in Jakarta, Indonesia. 5+ years crafting beautiful, scalable web apps.</textarea
+              >
+            </div>
+            <div class="flex justify-end">
+              <button
+                onclick="saveToast('Profile updated successfully!')"
+                class="bg-accent hover:bg-accent/80 text-primary font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
+              >
+                Save Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: SECURITY ══ -->
+        <div id="section-security" class="tab-section hidden space-y-5">
+          <div class="settings-card">
+            <h2 class="font-display text-lg font-bold mb-1">Change Password</h2>
+            <p class="text-light/40 text-xs mb-5">
+              Use a strong, unique password to keep your account secure.
+            </p>
+            <div class="space-y-4 mb-5">
+              <div>
+                <label
+                  class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                  >CURRENT PASSWORD</label
+                >
+                <div class="relative">
+                  <input
+                    type="password"
+                    placeholder="••••••••••"
+                    class="form-input"
+                    style="padding-right: 2.75rem"
+                  />
+                  <button
+                    type="button"
+                    onclick="togglePw(this)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-light/30 hover:text-accent transition-colors"
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                  >NEW PASSWORD</label
+                >
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="newPw"
+                    placeholder="Min. 8 characters"
+                    class="form-input"
+                    style="padding-right: 2.75rem"
+                    oninput="checkStrength(this.value)"
+                  />
+                  <button
+                    type="button"
+                    onclick="togglePw(this)"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-light/30 hover:text-accent transition-colors"
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+                <!-- Strength indicator -->
+                <div class="mt-2 flex gap-1">
+                  <div
+                    class="strength-bar flex-1 h-1 rounded-full bg-secondary/40"
+                    id="s1"
+                  ></div>
+                  <div
+                    class="strength-bar flex-1 h-1 rounded-full bg-secondary/40"
+                    id="s2"
+                  ></div>
+                  <div
+                    class="strength-bar flex-1 h-1 rounded-full bg-secondary/40"
+                    id="s3"
+                  ></div>
+                  <div
+                    class="strength-bar flex-1 h-1 rounded-full bg-secondary/40"
+                    id="s4"
+                  ></div>
+                </div>
+                <p
+                  id="strengthLabel"
+                  class="text-xs text-light/30 mt-1 font-mono"
+                ></p>
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-mono text-light/40 tracking-wider mb-2"
+                  >CONFIRM NEW PASSWORD</label
+                >
+                <input
+                  type="password"
+                  placeholder="Repeat new password"
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button
+                onclick="saveToast('Password changed successfully!')"
+                class="bg-accent hover:bg-accent/80 text-primary font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Active sessions -->
+          <div class="settings-card">
+            <h2 class="font-display text-base font-bold mb-4">
+              Active Sessions
+            </h2>
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between py-2 border-b border-secondary/20"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center"
+                  >
+                    <svg
+                      class="text-accent"
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <rect x="2" y="3" width="20" height="14" rx="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm">Chrome · macOS</p>
+                    <p class="text-xs text-light/30 font-mono">
+                      Jakarta · Current session
+                    </p>
+                  </div>
+                </div>
+                <span
+                  class="text-xs bg-green-900/30 text-green-400 border border-green-500/30 rounded-full px-2 py-0.5"
+                  >Active</span
+                >
+              </div>
+              <div class="flex items-center justify-between py-2">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-secondary/30 flex items-center justify-center"
+                  >
+                    <svg
+                      class="text-light/30"
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm text-light/60">Safari · iPhone 14</p>
+                    <p class="text-xs text-light/30 font-mono">2 days ago</p>
+                  </div>
+                </div>
+                <button
+                  class="text-xs text-red-400/70 hover:text-red-400 transition-colors"
+                >
+                  Revoke
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: API KEYS ══ -->
+        <div id="section-api" class="tab-section hidden space-y-5">
+          <div class="settings-card">
+            <h2 class="font-display text-lg font-bold mb-1">API Keys</h2>
+            <p class="text-light/40 text-xs mb-5">
+              These keys are stored encrypted. Never share them publicly.
+            </p>
+
+            <div class="space-y-4">
+              <!-- OpenAI -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-mono text-light/40 tracking-wider"
+                    >OPENAI API KEY</label
+                  >
+                  <span
+                    class="text-xs bg-green-900/20 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5"
+                    >Connected</span
+                  >
+                </div>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="openaiKey"
+                    class="form-input api-key-field"
+                    value="sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    style="padding-right: 5.5rem"
+                  />
+                  <div
+                    class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1"
+                  >
+                    <button
+                      onclick="toggleApiKey('openaiKey')"
+                      class="text-[10px] bg-secondary/40 hover:bg-secondary/80 text-light/50 hover:text-accent px-2 py-1 rounded-lg transition-all font-mono"
+                    >
+                      Show
+                    </button>
+                    <button
+                      onclick="copyApiKey('openaiKey')"
+                      class="text-[10px] bg-secondary/40 hover:bg-secondary/80 text-light/50 hover:text-accent px-2 py-1 rounded-lg transition-all font-mono"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Anthropic -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-mono text-light/40 tracking-wider"
+                    >ANTHROPIC API KEY</label
+                  >
+                  <span
+                    class="text-xs bg-secondary/30 text-light/40 border border-secondary/50 rounded-full px-2 py-0.5"
+                    >Not set</span
+                  >
+                </div>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="anthropicKey"
+                    class="form-input api-key-field"
+                    placeholder="sk-ant-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    style="padding-right: 3rem"
+                  />
+                  <button
+                    onclick="toggleApiKey('anthropicKey')"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] bg-secondary/40 hover:bg-secondary/80 text-light/50 hover:text-accent px-2 py-1 rounded-lg transition-all font-mono"
+                  >
+                    Show
+                  </button>
+                </div>
+              </div>
+
+              <!-- GitHub -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-mono text-light/40 tracking-wider"
+                    >GITHUB TOKEN</label
+                  >
+                  <span
+                    class="text-xs bg-green-900/20 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5"
+                    >Connected</span
+                  >
+                </div>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="githubKey"
+                    class="form-input api-key-field"
+                    value="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    style="padding-right: 5.5rem"
+                  />
+                  <div
+                    class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1"
+                  >
+                    <button
+                      onclick="toggleApiKey('githubKey')"
+                      class="text-[10px] bg-secondary/40 hover:bg-secondary/80 text-light/50 hover:text-accent px-2 py-1 rounded-lg transition-all font-mono"
+                    >
+                      Show
+                    </button>
+                    <button
+                      onclick="copyApiKey('githubKey')"
+                      class="text-[10px] bg-secondary/40 hover:bg-secondary/80 text-light/50 hover:text-accent px-2 py-1 rounded-lg transition-all font-mono"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end mt-5">
+              <button
+                onclick="saveToast('API keys saved securely!')"
+                class="bg-accent hover:bg-accent/80 text-primary font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
+              >
+                Save Keys
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: PREFERENCES ══ -->
+        <div id="section-prefs" class="tab-section hidden space-y-5">
+          <!-- Theme -->
+          <div class="settings-card">
+            <h2 class="font-display text-lg font-bold mb-4">Appearance</h2>
+            <p class="text-light/40 text-xs mb-4">
+              Choose how the dashboard looks.
+            </p>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+              <button
+                onclick="setTheme(this, 'dark')"
+                class="theme-btn border-2 border-accent rounded-xl p-3 text-center transition-all"
+              >
+                <div
+                  class="w-full h-10 bg-primary rounded-lg mb-2 flex items-center justify-center"
+                >
+                  <div class="w-5 h-5 rounded-full bg-accent/60"></div>
+                </div>
+                <p class="text-xs text-accent font-semibold">Dark</p>
+              </button>
+              <button
+                onclick="setTheme(this, 'light')"
+                class="theme-btn border-2 border-secondary/40 rounded-xl p-3 text-center transition-all hover:border-accent/40"
+              >
+                <div
+                  class="w-full h-10 bg-gray-100 rounded-lg mb-2 flex items-center justify-center"
+                >
+                  <div class="w-5 h-5 rounded-full bg-secondary/60"></div>
+                </div>
+                <p class="text-xs text-light/40">Light</p>
+              </button>
+              <button
+                onclick="setTheme(this, 'system')"
+                class="theme-btn border-2 border-secondary/40 rounded-xl p-3 text-center transition-all hover:border-accent/40"
+              >
+                <div class="w-full h-10 rounded-lg mb-2 flex overflow-hidden">
+                  <div class="flex-1 bg-primary"></div>
+                  <div class="flex-1 bg-gray-100"></div>
+                </div>
+                <p class="text-xs text-light/40">System</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="settings-card">
+            <h2 class="font-display text-lg font-bold mb-4">
+              Email Notifications
+            </h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium">New contact messages</p>
+                  <p class="text-xs text-light/40">
+                    Get notified when someone sends you a message
+                  </p>
+                </div>
+                <label class="toggle-wrap">
+                  <input
+                    type="checkbox"
+                    checked
+                    onchange="saveToast('Notification preference saved!')"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="border-t border-secondary/20 pt-4 flex items-center justify-between"
+              >
+                <div>
+                  <p class="text-sm font-medium">Project deployment alerts</p>
+                  <p class="text-xs text-light/40">
+                    Email alerts when deployments succeed or fail
+                  </p>
+                </div>
+                <label class="toggle-wrap">
+                  <input
+                    type="checkbox"
+                    checked
+                    onchange="saveToast('Notification preference saved!')"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="border-t border-secondary/20 pt-4 flex items-center justify-between"
+              >
+                <div>
+                  <p class="text-sm font-medium">Weekly analytics digest</p>
+                  <p class="text-xs text-light/40">
+                    Summary of your portfolio visits and engagement
+                  </p>
+                </div>
+                <label class="toggle-wrap">
+                  <input
+                    type="checkbox"
+                    onchange="saveToast('Notification preference saved!')"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="border-t border-secondary/20 pt-4 flex items-center justify-between"
+              >
+                <div>
+                  <p class="text-sm font-medium">
+                    Marketing &amp; product updates
+                  </p>
+                  <p class="text-xs text-light/40">
+                    Occasional tips and new feature announcements
+                  </p>
+                </div>
+                <label class="toggle-wrap">
+                  <input
+                    type="checkbox"
+                    onchange="saveToast('Notification preference saved!')"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ TAB: DANGER ZONE ══ -->
+        <div id="section-danger" class="tab-section hidden space-y-5">
+          <div class="danger-card">
+            <div class="flex items-start gap-3 mb-5">
+              <svg
+                class="text-red-400 flex-shrink-0 mt-0.5"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <div>
+                <h2 class="font-display text-lg font-bold text-red-300 mb-1">
+                  Danger Zone
+                </h2>
+                <p class="text-red-400/60 text-sm">
+                  These actions are permanent and cannot be undone. Proceed with
+                  extreme caution.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <!-- Export data -->
+              <div
+                class="flex items-center justify-between p-4 bg-red-900/10 border border-red-500/20 rounded-xl"
+              >
+                <div>
+                  <p class="text-sm font-semibold text-light/80">
+                    Export all data
+                  </p>
+                  <p class="text-xs text-light/40">
+                    Download a copy of all your portfolio data as JSON.
+                  </p>
+                </div>
+                <button
+                  onclick="
+                    saveToast(
+                      'Preparing export... You will receive an email shortly.',
+                    )
+                  "
+                  class="text-xs border border-red-500/40 text-red-300 hover:bg-red-900/30 px-4 py-2 rounded-lg transition-all font-medium"
+                >
+                  Export
+                </button>
+              </div>
+
+              <!-- Reset settings -->
+              <div
+                class="flex items-center justify-between p-4 bg-red-900/10 border border-red-500/20 rounded-xl"
+              >
+                <div>
+                  <p class="text-sm font-semibold text-light/80">
+                    Reset all settings
+                  </p>
+                  <p class="text-xs text-light/40">
+                    Restore all settings to their default values.
+                  </p>
+                </div>
+                <button
+                  onclick="confirmReset()"
+                  class="text-xs border border-red-500/40 text-red-300 hover:bg-red-900/30 px-4 py-2 rounded-lg transition-all font-medium"
+                >
+                  Reset
+                </button>
+              </div>
+
+              <!-- Delete account -->
+              <div
+                class="p-4 bg-red-900/20 border-2 border-red-500/40 rounded-xl"
+              >
+                <p class="text-sm font-bold text-red-300 mb-1">
+                  Delete Account &amp; All Data
+                </p>
+                <p class="text-xs text-red-400/60 mb-4">
+                  This will permanently delete your account, all projects, blog
+                  posts, and associated data. This action
+                  <strong class="text-red-300">cannot be undone</strong>.
+                </p>
+                <div class="mb-3">
+                  <label
+                    class="block text-xs font-mono text-red-400/60 tracking-wider mb-2"
+                    >TYPE "DELETE" TO CONFIRM</label
+                  >
+                  <input
+                    type="text"
+                    id="deleteConfirm"
+                    placeholder='Type "DELETE" here...'
+                    class="form-input border-red-500/30 focus:border-red-500/60"
+                    style="box-shadow: none"
+                  />
+                </div>
+                <button
+                  onclick="confirmDelete()"
+                  class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2"
+                  id="deleteBtn"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                  </svg>
+                  Delete My Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast notification -->
+    <div
+      id="toast"
+      class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-secondary/90 backdrop-blur border border-accent/30 rounded-xl px-4 py-3 shadow-xl max-w-xs"
+    >
+      <svg
+        class="text-accent flex-shrink-0"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        viewBox="0 0 24 24"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <p id="toastMsg" class="text-sm font-medium"></p>
+    </div>
+
+    <!-- Delete confirm modal -->
+    <div
+      id="deleteModal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+    >
+      <div
+        class="bg-primary border border-red-500/40 rounded-2xl p-6 max-w-sm w-full"
+      >
+        <h3 class="font-display text-xl font-bold text-red-300 mb-2">
+          Final Confirmation
+        </h3>
+        <p class="text-light/50 text-sm mb-5">
+          Are you absolutely sure? This will permanently delete your account and
+          all associated data.
+        </p>
+        <div class="flex gap-3">
+          <button
+            onclick="
+              document.getElementById('deleteModal').classList.add('hidden')
+            "
+            class="flex-1 border border-secondary/60 text-light/60 font-medium py-2.5 rounded-xl text-sm hover:border-light/30 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onclick="
+              document.getElementById('deleteModal').classList.add('hidden');
+              saveToast('Mock: Account deletion request submitted.');
+            "
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-all"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Sidebar mobile
+      function openSidebar() {
+        document.getElementById("dashSidebar").classList.add("open");
+        document.getElementById("sidebarOverlay").classList.add("show");
+      }
+      function closeSidebar() {
+        document.getElementById("dashSidebar").classList.remove("open");
+        document.getElementById("sidebarOverlay").classList.remove("show");
+      }
+
+      // Tab switching
+      function switchTab(name) {
+        document
+          .querySelectorAll(".tab-section")
+          .forEach((s) => s.classList.add("hidden"));
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          b.classList.remove("bg-secondary/60", "text-accent", "font-semibold");
+          if (!b.id.includes("danger")) b.classList.add("text-light/40");
+        });
+        document.getElementById("section-" + name).classList.remove("hidden");
+        const btn = document.getElementById("tab-" + name);
+        btn.classList.add("bg-secondary/60", "font-semibold");
+        btn.classList.remove("text-light/40", "text-red-400/60");
+        if (name === "danger") btn.classList.add("text-red-400");
+        else btn.classList.add("text-accent");
+      }
+
+      // Toast
+      let toastTimer;
+      function saveToast(msg) {
+        clearTimeout(toastTimer);
+        const toast = document.getElementById("toast");
+        document.getElementById("toastMsg").textContent = msg;
+        toast.classList.add("show");
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+      }
+
+      // Toggle password
+      function togglePw(btn) {
+        const inp =
+          btn.previousElementSibling ||
+          btn.parentElement.querySelector("input");
+        const input = btn.closest(".relative").querySelector("input");
+        input.type = input.type === "password" ? "text" : "password";
+      }
+
+      // Password strength
+      function checkStrength(val) {
+        const bars = [
+          document.getElementById("s1"),
+          document.getElementById("s2"),
+          document.getElementById("s3"),
+          document.getElementById("s4"),
+        ];
+        const label = document.getElementById("strengthLabel");
+        bars.forEach((b) => {
+          b.style.background = "";
+          b.className = "strength-bar flex-1 h-1 rounded-full bg-secondary/40";
+        });
+        if (!val) {
+          label.textContent = "";
+          return;
+        }
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const colors = [
+          "bg-red-500",
+          "bg-orange-400",
+          "bg-yellow-400",
+          "bg-green-400",
+        ];
+        const labels = ["Weak", "Fair", "Good", "Strong"];
+        for (let i = 0; i < score; i++)
+          bars[i].classList.add(colors[score - 1]);
+        label.textContent = labels[score - 1] || "";
+        label.className = `text-xs mt-1 font-mono ${score === 4 ? "text-green-400" : score === 3 ? "text-yellow-400" : score === 2 ? "text-orange-400" : "text-red-400"}`;
+      }
+
+      // API key toggle
+      function toggleApiKey(id) {
+        const inp = document.getElementById(id);
+        inp.type = inp.type === "password" ? "text" : "password";
+      }
+      function copyApiKey(id) {
+        const val = document.getElementById(id).value;
+        navigator.clipboard
+          .writeText(val)
+          .then(() => saveToast("API key copied to clipboard!"));
+      }
+
+      // Avatar preview
+      function previewAvatar(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (r) =>
+            (document.getElementById("avatarPreview").src = r.target.result);
+          reader.readAsDataURL(file);
+          saveToast("Avatar selected! Click Save Profile to apply.");
+        }
+      }
+
+      // Theme selection
+      function setTheme(btn, theme) {
+        document.querySelectorAll(".theme-btn").forEach((b) => {
+          b.classList.remove("border-accent");
+          b.classList.add("border-secondary/40");
+          b.querySelector("p").classList.remove("text-accent", "font-semibold");
+          b.querySelector("p").classList.add("text-light/40");
+        });
+        btn.classList.add("border-accent");
+        btn.classList.remove("border-secondary/40");
+        btn.querySelector("p").classList.add("text-accent", "font-semibold");
+        btn.querySelector("p").classList.remove("text-light/40");
+        saveToast(`Theme set to "${theme}" mode!`);
+      }
+
+      // Reset confirm
+      function confirmReset() {
+        if (confirm("Reset all settings to defaults?"))
+          saveToast("Settings have been reset to defaults.");
+      }
+
+      // Delete confirm
+      function confirmDelete() {
+        const val = document.getElementById("deleteConfirm").value;
+        if (val !== "DELETE") {
+          document.getElementById("deleteConfirm").style.borderColor =
+            "rgba(239,68,68,0.7)";
+          saveToast('Please type "DELETE" exactly to confirm.');
+          return;
+        }
+        document.getElementById("deleteModal").classList.remove("hidden");
+      }
+    </script>
+  </body>
+</html>

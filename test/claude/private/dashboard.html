@@ -1,0 +1,1884 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — BCW Personal OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#000000",
+              secondary: "#4A70A9",
+              accent: "#8FABD4",
+              light: "#EFECE3",
+              "sidebar-bg": "#0A0A0A",
+              "card-bg": "#111111",
+              "card-border": "#1E1E1E",
+              surface: "#161616",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: #000;
+        color: #efece3;
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4a70a9;
+        border-radius: 2px;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 240px;
+        background: #0a0a0a;
+        border-right: 1px solid #1e1e1e;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s;
+      }
+      .sidebar-logo {
+        padding: 20px 24px;
+        border-bottom: 1px solid #1e1e1e;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        margin: 2px 8px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background: #161616;
+        color: #efece3;
+      }
+      .nav-item.active {
+        background: rgba(74, 112, 169, 0.15);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+      }
+      .nav-section {
+        padding: 16px 24px 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #374151;
+      }
+      .nav-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      /* Topbar */
+      .topbar {
+        height: 60px;
+        background: #000;
+        border-bottom: 1px solid #1e1e1e;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+
+      /* Main */
+      .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .page-content {
+        flex: 1;
+        padding: 28px;
+      }
+
+      /* Cards */
+      .card {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+      }
+      .card-sm {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 10px;
+      }
+
+      /* Stat cards */
+      .stat-card {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+        padding: 20px;
+        transition: border-color 0.2s;
+      }
+      .stat-card:hover {
+        border-color: rgba(74, 112, 169, 0.3);
+      }
+
+      /* Badge */
+      .badge-blue {
+        background: rgba(74, 112, 169, 0.12);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 0.06em;
+      }
+      .badge-green {
+        background: rgba(34, 197, 94, 0.08);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-red {
+        background: rgba(239, 68, 68, 0.08);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Btn */
+      .btn-primary {
+        background: #4a70a9;
+        color: #efece3;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary:hover {
+        background: #5a80b9;
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-ghost:hover {
+        border-color: #4a70a9;
+        color: #8fabd4;
+      }
+
+      /* Quick action */
+      .quick-action {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 10px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .quick-action:hover {
+        border-color: rgba(74, 112, 169, 0.35);
+        background: rgba(74, 112, 169, 0.05);
+        transform: translateY(-1px);
+      }
+      .quick-action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(74, 112, 169, 0.12);
+        flex-shrink: 0;
+      }
+
+      /* Chart bars */
+      .bar-wrap {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 80px;
+      }
+      .bar {
+        border-radius: 3px 3px 0 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+      }
+      .bar:hover {
+        opacity: 0.8;
+      }
+
+      /* AI suggestion */
+      .ai-card {
+        background: linear-gradient(
+          135deg,
+          rgba(74, 112, 169, 0.1),
+          rgba(74, 112, 169, 0.04)
+        );
+        border: 1px solid rgba(74, 112, 169, 0.2);
+        border-radius: 12px;
+      }
+
+      /* Pulse dot */
+      .pulse {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4ade80;
+        animation: pulse-anim 2s infinite;
+      }
+      @keyframes pulse-anim {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* Mini bar chart */
+      .mini-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 40px;
+      }
+      .mini-bar {
+        border-radius: 2px 2px 0 0;
+        flex: 1;
+      }
+
+      /* Timeline dot */
+      .tl-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div
+          style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em"
+        >
+          BCW<span style="color: #4a70a9">.</span>
+        </div>
+        <div
+          style="
+            font-size: 0.65rem;
+            color: #374151;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            margin-top: 2px;
+          "
+        >
+          Personal OS v1.0
+        </div>
+      </div>
+
+      <nav style="flex: 1; overflow-y: auto; padding: 8px 0">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html" class="nav-item active">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="../projects.html" class="nav-item" target="_blank">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          </svg>
+          Portfolio
+          <span class="badge-blue ml-auto">Public</span>
+        </a>
+
+        <div class="nav-section">Tools</div>
+        <a href="projects-cms.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          Projects CMS
+        </a>
+        <a href="email-scheduler.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          Email Scheduler
+        </a>
+        <a href="notes.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Notes
+        </a>
+        <a href="cashflow.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          Cashflow
+        </a>
+
+        <div class="nav-section">Growth</div>
+        <a href="habits.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          Habit Tracker
+        </a>
+        <a href="goals.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Goals / OKR
+        </a>
+        <a href="ai-chat.html" class="nav-item">
+          <svg
+            class="nav-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+          AI Assistant
+        </a>
+      </nav>
+
+      <!-- Sidebar footer -->
+      <div style="padding: 16px; border-top: 1px solid #1e1e1e">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: rgba(74, 112, 169, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 700;
+              font-size: 0.75rem;
+              color: #8fabd4;
+              flex-shrink: 0;
+            "
+          >
+            BCW
+          </div>
+          <div>
+            <div style="font-size: 0.78rem; font-weight: 600">Brillian CW</div>
+            <div style="font-size: 0.65rem; color: #374151">Admin</div>
+          </div>
+          <button
+            style="
+              margin-left: auto;
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              color: #374151;
+              padding: 4px;
+            "
+            title="Logout"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div>
+            <div
+              style="font-size: 0.82rem; font-weight: 600"
+              id="greeting-text"
+            >
+              Good Morning, Brillian 👋
+            </div>
+            <div
+              style="
+                font-size: 0.65rem;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                color: #374151;
+              "
+              id="date-text"
+            >
+              —
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              padding: 6px 12px;
+              background: #111;
+              border: 1px solid #1e1e1e;
+              border-radius: 8px;
+            "
+          >
+            <div class="pulse"></div>
+            <span
+              style="
+                font-size: 0.72rem;
+                color: #4ade80;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+              >All systems up</span
+            >
+          </div>
+          <button class="btn-ghost" style="padding: 6px 10px">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <main class="page-content">
+        <!-- AI Suggestion Banner -->
+        <div class="ai-card p-4 mb-6 flex items-center gap-4">
+          <div
+            style="
+              width: 36px;
+              height: 36px;
+              border-radius: 10px;
+              background: rgba(74, 112, 169, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-shrink: 0;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#8FABD4"
+              stroke-width="2"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
+            </svg>
+          </div>
+          <div style="flex: 1">
+            <div
+              style="
+                font-size: 0.7rem;
+                color: #4a70a9;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                letter-spacing: 0.1em;
+                margin-bottom: 2px;
+              "
+            >
+              AI SUGGESTION · TODAY
+            </div>
+            <div style="font-size: 0.85rem; color: #efece3" id="ai-suggestion">
+              Pengeluaran bulan ini naik 18% dibanding bulan lalu. Pertimbangkan
+              untuk review kategori "Food & Drinks". Juga ada 3 habit yang
+              streak-nya hampir putus hari ini.
+            </div>
+          </div>
+          <button
+            class="btn-ghost"
+            style="font-size: 0.75rem; white-space: nowrap"
+          >
+            Ask AI →
+          </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+          "
+        >
+          <!-- Cashflow -->
+          <div class="stat-card">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.72rem;
+                  color: #6b7280;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  text-transform: uppercase;
+                  letter-spacing: 0.08em;
+                "
+                >Net Balance</span
+              >
+              <span class="badge-green">+18%</span>
+            </div>
+            <div
+              style="
+                font-size: 1.6rem;
+                font-weight: 800;
+                color: #efece3;
+                line-height: 1;
+              "
+            >
+              Rp 4.2M
+            </div>
+            <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+              This month
+            </div>
+            <div class="mini-chart" style="margin-top: 12px">
+              <div
+                class="mini-bar"
+                style="height: 40%; background: rgba(74, 112, 169, 0.4)"
+              ></div>
+              <div
+                class="mini-bar"
+                style="height: 60%; background: rgba(74, 112, 169, 0.5)"
+              ></div>
+              <div
+                class="mini-bar"
+                style="height: 45%; background: rgba(74, 112, 169, 0.4)"
+              ></div>
+              <div
+                class="mini-bar"
+                style="height: 80%; background: rgba(74, 112, 169, 0.6)"
+              ></div>
+              <div
+                class="mini-bar"
+                style="height: 55%; background: rgba(74, 112, 169, 0.5)"
+              ></div>
+              <div
+                class="mini-bar"
+                style="height: 70%; background: #4a70a9"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="stat-card">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.72rem;
+                  color: #6b7280;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  text-transform: uppercase;
+                  letter-spacing: 0.08em;
+                "
+                >Projects</span
+              >
+              <span class="badge-blue">Published</span>
+            </div>
+            <div
+              style="
+                font-size: 1.6rem;
+                font-weight: 800;
+                color: #efece3;
+                line-height: 1;
+              "
+            >
+              6 / 9
+            </div>
+            <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+              3 in draft
+            </div>
+            <div
+              style="
+                height: 4px;
+                background: #1e1e1e;
+                border-radius: 2px;
+                margin-top: 14px;
+              "
+            >
+              <div
+                style="
+                  height: 100%;
+                  width: 66%;
+                  background: #4a70a9;
+                  border-radius: 2px;
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- Habits -->
+          <div class="stat-card">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.72rem;
+                  color: #6b7280;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  text-transform: uppercase;
+                  letter-spacing: 0.08em;
+                "
+                >Habits Today</span
+              >
+              <span class="badge-blue">3/5</span>
+            </div>
+            <div
+              style="
+                font-size: 1.6rem;
+                font-weight: 800;
+                color: #efece3;
+                line-height: 1;
+              "
+            >
+              60%
+            </div>
+            <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+              completion rate
+            </div>
+            <div style="display: flex; gap: 4px; margin-top: 12px">
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  border-radius: 2px;
+                  background: #4ade80;
+                  opacity: 0.8;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  border-radius: 2px;
+                  background: #4ade80;
+                  opacity: 0.8;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  border-radius: 2px;
+                  background: #4ade80;
+                  opacity: 0.8;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  border-radius: 2px;
+                  background: #1e1e1e;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 6px;
+                  border-radius: 2px;
+                  background: #1e1e1e;
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- Goals -->
+          <div class="stat-card">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.72rem;
+                  color: #6b7280;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  text-transform: uppercase;
+                  letter-spacing: 0.08em;
+                "
+                >Goals Progress</span
+              >
+              <span class="badge-blue">Q2 2025</span>
+            </div>
+            <div
+              style="
+                font-size: 1.6rem;
+                font-weight: 800;
+                color: #efece3;
+                line-height: 1;
+              "
+            >
+              72%
+            </div>
+            <div style="font-size: 0.72rem; color: #6b7280; margin-top: 4px">
+              avg. completion
+            </div>
+            <div
+              style="
+                height: 4px;
+                background: #1e1e1e;
+                border-radius: 2px;
+                margin-top: 14px;
+              "
+            >
+              <div
+                style="
+                  height: 100%;
+                  width: 72%;
+                  background: linear-gradient(90deg, #4a70a9, #8fabd4);
+                  border-radius: 2px;
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Row -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr 300px;
+            gap: 16px;
+            margin-bottom: 24px;
+          "
+        >
+          <!-- Cashflow chart -->
+          <div class="card p-5">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+              "
+            >
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 600">
+                  Cashflow Overview
+                </div>
+                <div style="font-size: 0.7rem; color: #6b7280; margin-top: 2px">
+                  Apr 2025
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px">
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 0.65rem;
+                    color: #6b7280;
+                  "
+                  ><span
+                    style="
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 2px;
+                      background: #4a70a9;
+                      display: inline-block;
+                    "
+                  ></span
+                  >In</span
+                >
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 0.65rem;
+                    color: #6b7280;
+                  "
+                  ><span
+                    style="
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 2px;
+                      background: #f87171;
+                      display: inline-block;
+                    "
+                  ></span
+                  >Out</span
+                >
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: flex-end;
+                gap: 6px;
+                height: 100px;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #4a70a9;
+                    border-radius: 3px 3px 0 0;
+                    height: 80%;
+                    opacity: 0.7;
+                  "
+                ></div>
+                <div
+                  style="
+                    font-size: 0.55rem;
+                    color: #374151;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  W1
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                  transform: translateY(20px);
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #f87171;
+                    border-radius: 3px 3px 0 0;
+                    height: 70%;
+                    opacity: 0.7;
+                  "
+                ></div>
+                <div
+                  style="
+                    font-size: 0.55rem;
+                    color: #374151;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  W1
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #4a70a9;
+                    border-radius: 3px 3px 0 0;
+                    height: 60%;
+                    opacity: 0.7;
+                  "
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                  transform: translateY(30px);
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #f87171;
+                    border-radius: 3px 3px 0 0;
+                    height: 85%;
+                    opacity: 0.7;
+                  "
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #4a70a9;
+                    border-radius: 3px 3px 0 0;
+                    height: 90%;
+                  "
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                  transform: translateY(15px);
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #f87171;
+                    border-radius: 3px 3px 0 0;
+                    height: 55%;
+                    opacity: 0.7;
+                  "
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #4a70a9;
+                    border-radius: 3px 3px 0 0;
+                    height: 75%;
+                    opacity: 0.9;
+                  "
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 2px;
+                  flex: 1;
+                  transform: translateY(25px);
+                "
+              >
+                <div
+                  style="
+                    width: 100%;
+                    background: #f87171;
+                    border-radius: 3px 3px 0 0;
+                    height: 60%;
+                    opacity: 0.7;
+                  "
+                ></div>
+              </div>
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 16px">
+              <div>
+                <div style="font-size: 0.7rem; color: #6b7280">Total In</div>
+                <div
+                  style="font-size: 0.9rem; font-weight: 700; color: #4ade80"
+                >
+                  Rp 8.5M
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; color: #6b7280">Total Out</div>
+                <div
+                  style="font-size: 0.9rem; font-weight: 700; color: #f87171"
+                >
+                  Rp 4.3M
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; color: #6b7280">Net</div>
+                <div
+                  style="font-size: 0.9rem; font-weight: 700; color: #8fabd4"
+                >
+                  Rp 4.2M
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email Schedule Today -->
+          <div class="card p-5">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+              "
+            >
+              <div style="font-size: 0.85rem; font-weight: 600">
+                Email Schedule Today
+              </div>
+              <a
+                href="email-scheduler.html"
+                style="
+                  font-size: 0.72rem;
+                  color: #4a70a9;
+                  text-decoration: none;
+                "
+                >View all →</a
+              >
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  padding: 10px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                "
+              >
+                <div
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
+                    background: rgba(74, 112, 169, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+                <div style="flex: 1; min-width: 0">
+                  <div
+                    style="
+                      font-size: 0.8rem;
+                      font-weight: 500;
+                      white-space: nowrap;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                    "
+                  >
+                    Weekly Digest ke tim
+                  </div>
+                  <div
+                    style="
+                      font-size: 0.68rem;
+                      color: #6b7280;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                  >
+                    08:00 · 3 recipients
+                  </div>
+                </div>
+                <span class="badge-green">Pending</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  padding: 10px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                "
+              >
+                <div
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
+                    background: rgba(74, 112, 169, 0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+                <div style="flex: 1; min-width: 0">
+                  <div
+                    style="
+                      font-size: 0.8rem;
+                      font-weight: 500;
+                      white-space: nowrap;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                    "
+                  >
+                    Follow-up client Pak Budi
+                  </div>
+                  <div
+                    style="
+                      font-size: 0.68rem;
+                      color: #6b7280;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                  >
+                    14:00 · 1 recipient
+                  </div>
+                </div>
+                <span class="badge-blue">Queued</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  padding: 10px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                "
+              >
+                <div
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
+                    background: rgba(34, 197, 94, 0.08);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                  "
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#4ade80"
+                    stroke-width="2"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div style="flex: 1; min-width: 0">
+                  <div
+                    style="
+                      font-size: 0.8rem;
+                      font-weight: 500;
+                      white-space: nowrap;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      color: #6b7280;
+                    "
+                  >
+                    Morning Report
+                  </div>
+                  <div
+                    style="
+                      font-size: 0.68rem;
+                      color: #374151;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                  >
+                    07:00 · Sent
+                  </div>
+                </div>
+                <span
+                  style="
+                    font-size: 0.65rem;
+                    color: #4ade80;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                  >✓ Sent</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card p-5">
+            <div
+              style="font-size: 0.85rem; font-weight: 600; margin-bottom: 14px"
+            >
+              Quick Actions
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <button
+                class="quick-action"
+                onclick="window.location.href = 'projects-cms.html'"
+              >
+                <div class="quick-action-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 500">
+                    Add Project
+                  </div>
+                  <div style="font-size: 0.65rem; color: #6b7280">
+                    Portfolio CMS
+                  </div>
+                </div>
+              </button>
+              <button
+                class="quick-action"
+                onclick="window.location.href = 'notes.html'"
+              >
+                <div class="quick-action-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                    />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 500">
+                    New Note
+                  </div>
+                  <div style="font-size: 0.65rem; color: #6b7280">
+                    Markdown editor
+                  </div>
+                </div>
+              </button>
+              <button
+                class="quick-action"
+                onclick="window.location.href = 'cashflow.html'"
+              >
+                <div class="quick-action-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <path
+                      d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 500">
+                    Log Transaction
+                  </div>
+                  <div style="font-size: 0.65rem; color: #6b7280">
+                    Cashflow tracker
+                  </div>
+                </div>
+              </button>
+              <button
+                class="quick-action"
+                onclick="window.location.href = 'email-scheduler.html'"
+              >
+                <div class="quick-action-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 500">
+                    Schedule Email
+                  </div>
+                  <div style="font-size: 0.65rem; color: #6b7280">
+                    Email scheduler
+                  </div>
+                </div>
+              </button>
+              <button
+                class="quick-action"
+                onclick="window.location.href = 'ai-chat.html'"
+              >
+                <div class="quick-action-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#8FABD4"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 0.8rem; font-weight: 500">Ask AI</div>
+                  <div style="font-size: 0.65rem; color: #6b7280">
+                    GPT-4o assistant
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <!-- Recent Notes -->
+          <div class="card p-5">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px;
+              "
+            >
+              <div style="font-size: 0.85rem; font-weight: 600">
+                Recent Notes
+              </div>
+              <a
+                href="notes.html"
+                style="
+                  font-size: 0.72rem;
+                  color: #4a70a9;
+                  text-decoration: none;
+                "
+                >View all →</a
+              >
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div
+                style="
+                  padding: 10px 12px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                  cursor: pointer;
+                "
+                onclick="window.location.href = 'notes.html'"
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-bottom: 4px;
+                  "
+                >
+                  <span style="font-size: 0.8rem; font-weight: 500"
+                    >🔖 AutoFlow AI – System Design</span
+                  >
+                  <span class="badge-blue" style="margin-left: auto"
+                    >pinned</span
+                  >
+                </div>
+                <div
+                  style="
+                    font-size: 0.72rem;
+                    color: #6b7280;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  2h ago · #project #architecture
+                </div>
+              </div>
+              <div
+                style="
+                  padding: 10px 12px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                  cursor: pointer;
+                "
+                onclick="window.location.href = 'notes.html'"
+              >
+                <div
+                  style="
+                    margin-bottom: 4px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                  "
+                >
+                  Meeting notes – Client XYZ
+                </div>
+                <div
+                  style="
+                    font-size: 0.72rem;
+                    color: #6b7280;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  Yesterday · #client #meeting
+                </div>
+              </div>
+              <div
+                style="
+                  padding: 10px 12px;
+                  background: #161616;
+                  border-radius: 8px;
+                  border: 1px solid #1e1e1e;
+                  cursor: pointer;
+                "
+                onclick="window.location.href = 'notes.html'"
+              >
+                <div
+                  style="
+                    margin-bottom: 4px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                  "
+                >
+                  Ideas dump – Weekend side project
+                </div>
+                <div
+                  style="
+                    font-size: 0.72rem;
+                    color: #6b7280;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  3 days ago · #ideas #personal
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Goals Snapshot -->
+          <div class="card p-5">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px;
+              "
+            >
+              <div style="font-size: 0.85rem; font-weight: 600">
+                Goals Snapshot
+              </div>
+              <a
+                href="goals.html"
+                style="
+                  font-size: 0.72rem;
+                  color: #4a70a9;
+                  text-decoration: none;
+                "
+                >View all →</a
+              >
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                  "
+                >
+                  <span style="font-size: 0.8rem; font-weight: 500"
+                    >Launch Personal OS v1.0</span
+                  >
+                  <span
+                    style="
+                      font-size: 0.72rem;
+                      color: #4a70a9;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                    >85%</span
+                  >
+                </div>
+                <div
+                  style="height: 4px; background: #1e1e1e; border-radius: 2px"
+                >
+                  <div
+                    style="
+                      height: 100%;
+                      width: 85%;
+                      background: #4a70a9;
+                      border-radius: 2px;
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    font-size: 0.65rem;
+                    color: #374151;
+                    margin-top: 3px;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  Due: Jun 30, 2025
+                </div>
+              </div>
+              <div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                  "
+                >
+                  <span style="font-size: 0.8rem; font-weight: 500"
+                    >Revenue Rp 20M/bulan</span
+                  >
+                  <span
+                    style="
+                      font-size: 0.72rem;
+                      color: #4a70a9;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                    >42%</span
+                  >
+                </div>
+                <div
+                  style="height: 4px; background: #1e1e1e; border-radius: 2px"
+                >
+                  <div
+                    style="
+                      height: 100%;
+                      width: 42%;
+                      background: #4a70a9;
+                      border-radius: 2px;
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    font-size: 0.65rem;
+                    color: #374151;
+                    margin-top: 3px;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  Due: Dec 31, 2025
+                </div>
+              </div>
+              <div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                  "
+                >
+                  <span style="font-size: 0.8rem; font-weight: 500"
+                    >Publish 12 blog articles</span
+                  >
+                  <span
+                    style="
+                      font-size: 0.72rem;
+                      color: #4a70a9;
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                    "
+                    >33%</span
+                  >
+                </div>
+                <div
+                  style="height: 4px; background: #1e1e1e; border-radius: 2px"
+                >
+                  <div
+                    style="
+                      height: 100%;
+                      width: 33%;
+                      background: #8fabd4;
+                      border-radius: 2px;
+                    "
+                  ></div>
+                </div>
+                <div
+                  style="
+                    font-size: 0.65rem;
+                    color: #374151;
+                    margin-top: 3px;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                  "
+                >
+                  4/12 done · Due: Dec 31
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Greeting & date
+      const now = new Date();
+      const h = now.getHours();
+      const greeting =
+        h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
+      document.getElementById("greeting-text").textContent =
+        `${greeting}, Brillian 👋`;
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      document.getElementById("date-text").textContent =
+        `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+      // AI suggestions rotation
+      const suggestions = [
+        'Pengeluaran bulan ini naik 18% dibanding bulan lalu. Pertimbangkan review kategori "Food & Drinks". Juga ada 3 habit yang streak-nya hampir putus hari ini.',
+        "Kamu belum log transaksi sejak 2 hari lalu. Pastikan data cashflow tetap update untuk akurasi laporan bulanan.",
+        'Goal "Launch Personal OS" sudah 85%. Dengan pace saat ini, estimasi selesai 15 hari lebih awal dari deadline.',
+        "5 email terjadwal minggu ini. Cek preview sebelum jam 8 pagi untuk memastikan konten masih relevan.",
+      ];
+      let si = 0;
+      setInterval(() => {
+        si = (si + 1) % suggestions.length;
+        document.getElementById("ai-suggestion").style.opacity = "0";
+        setTimeout(() => {
+          document.getElementById("ai-suggestion").textContent =
+            suggestions[si];
+          document.getElementById("ai-suggestion").style.opacity = "1";
+        }, 300);
+      }, 8000);
+      document.getElementById("ai-suggestion").style.transition =
+        "opacity 0.3s";
+    </script>
+  </body>
+</html>

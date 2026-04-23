@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Email Scheduler — BCW Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#000000",
+              secondary: "#4A70A9",
+              accent: "#8FABD4",
+              light: "#EFECE3",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: #000;
+        color: #efece3;
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4a70a9;
+        border-radius: 2px;
+      }
+      .sidebar {
+        width: 240px;
+        background: #0a0a0a;
+        border-right: 1px solid #1e1e1e;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        margin: 2px 8px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background: #161616;
+        color: #efece3;
+      }
+      .nav-item.active {
+        background: rgba(74, 112, 169, 0.15);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+      }
+      .nav-section {
+        padding: 16px 24px 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #374151;
+      }
+      .topbar {
+        height: 60px;
+        background: #000;
+        border-bottom: 1px solid #1e1e1e;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+      .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .page-content {
+        flex: 1;
+        padding: 28px;
+      }
+      .card {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+      }
+      .btn-primary {
+        background: #4a70a9;
+        color: #efece3;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 16px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary:hover {
+        background: #5a80b9;
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-ghost:hover {
+        border-color: #4a70a9;
+        color: #8fabd4;
+      }
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.08);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
+      .form-input {
+        width: 100%;
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        color: #efece3;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: "Inter", sans-serif;
+      }
+      .form-input::placeholder {
+        color: #374151;
+      }
+      .form-input:focus {
+        border-color: rgba(74, 112, 169, 0.5);
+        box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.06);
+      }
+      select.form-input option {
+        background: #161616;
+      }
+      .form-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 6px;
+        display: block;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: #111;
+        border: 1px solid #1e1e1e;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 620px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 28px;
+        transform: translateY(16px);
+        transition: transform 0.2s;
+      }
+      .modal-overlay.open .modal {
+        transform: translateY(0);
+      }
+      .badge-green {
+        background: rgba(34, 197, 94, 0.08);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-radius: 4px;
+        padding: 3px 9px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-blue {
+        background: rgba(74, 112, 169, 0.12);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+        border-radius: 4px;
+        padding: 3px 9px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-amber {
+        background: rgba(251, 191, 36, 0.08);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.15);
+        border-radius: 4px;
+        padding: 3px 9px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .badge-gray {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+        border: 1px solid rgba(107, 114, 128, 0.15);
+        border-radius: 4px;
+        padding: 3px 9px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      /* Email card */
+      .email-card {
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        border-radius: 10px;
+        padding: 16px;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .email-card:hover {
+        border-color: rgba(74, 112, 169, 0.25);
+        background: #111;
+      }
+      /* Tabs */
+      .tab-btn {
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 7px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
+        color: #6b7280;
+      }
+      .tab-btn.active {
+        background: #161616;
+        color: #efece3;
+        border: 1px solid #1e1e1e;
+      }
+      /* Template card */
+      .template-card {
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        border-radius: 10px;
+        padding: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .template-card:hover {
+        border-color: rgba(74, 112, 169, 0.3);
+        background: rgba(74, 112, 169, 0.04);
+      }
+      /* Preview panel */
+      .preview-panel {
+        background: #0a0a0a;
+        border: 1px solid #1e1e1e;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .preview-topbar {
+        background: #161616;
+        border-bottom: 1px solid #1e1e1e;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .preview-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .preview-body {
+        padding: 20px;
+        font-size: 0.83rem;
+        line-height: 1.7;
+        color: #aaaaaa;
+      }
+      .preview-body .preview-from {
+        color: #8fabd4;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div style="padding: 20px 24px; border-bottom: 1px solid #1e1e1e">
+        <div
+          style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em"
+        >
+          BCW<span style="color: #4a70a9">.</span>
+        </div>
+        <div
+          style="
+            font-size: 0.65rem;
+            color: #374151;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            margin-top: 2px;
+          "
+        >
+          Personal OS v1.0
+        </div>
+      </div>
+      <nav style="flex: 1; overflow-y: auto; padding: 8px 0">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" /></svg
+          >Dashboard</a
+        >
+        <div class="nav-section">Tools</div>
+        <a href="projects-cms.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            /></svg
+          >Projects CMS</a
+        >
+        <a href="email-scheduler.html" class="nav-item active"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            />
+            <polyline points="22,6 12,13 2,6" /></svg
+          >Email Scheduler</a
+        >
+        <a href="notes.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" /></svg
+          >Notes</a
+        >
+        <a href="cashflow.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg
+          >Cashflow</a
+        >
+        <div class="nav-section">Growth</div>
+        <a href="habits.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" /></svg
+          >Habit Tracker</a
+        >
+        <a href="goals.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" /></svg
+          >Goals / OKR</a
+        >
+        <a href="ai-chat.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            /></svg
+          >AI Assistant</a
+        >
+      </nav>
+      <div style="padding: 16px; border-top: 1px solid #1e1e1e">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: rgba(74, 112, 169, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 700;
+              font-size: 0.75rem;
+              color: #8fabd4;
+              flex-shrink: 0;
+            "
+          >
+            BCW
+          </div>
+          <div>
+            <div style="font-size: 0.78rem; font-weight: 600">Brillian CW</div>
+            <div style="font-size: 0.65rem; color: #374151">Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="topbar">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 600">
+            Email Scheduler
+          </div>
+          <div
+            style="
+              font-size: 0.65rem;
+              color: #374151;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+            "
+          >
+            /dashboard/schedule · Schedule & manage emails
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px">
+          <button class="btn-ghost" onclick="showTab('templates')">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" /></svg
+            >Templates
+          </button>
+          <button class="btn-primary" onclick="openModal()">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" /></svg
+            >New Email
+          </button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        <!-- Stats -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+          "
+        >
+          <div class="card" style="padding: 18px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #fbbf24;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Pending
+            </div>
+            <div
+              style="font-size: 1.4rem; font-weight: 800; color: #fbbf24"
+              id="stat-pending"
+            >
+              0
+            </div>
+          </div>
+          <div class="card" style="padding: 18px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #4ade80;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Sent Today
+            </div>
+            <div
+              style="font-size: 1.4rem; font-weight: 800; color: #4ade80"
+              id="stat-sent"
+            >
+              0
+            </div>
+          </div>
+          <div class="card" style="padding: 18px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #8fabd4;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              This Week
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 800" id="stat-week">
+              0
+            </div>
+          </div>
+          <div class="card" style="padding: 18px">
+            <div
+              style="
+                font-size: 0.68rem;
+                color: #6b7280;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+              "
+            >
+              Templates
+            </div>
+            <div
+              style="font-size: 1.4rem; font-weight: 800"
+              id="stat-templates"
+            >
+              0
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div
+          style="
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: #111;
+            border: 1px solid #1e1e1e;
+            border-radius: 9px;
+            padding: 4px;
+            width: fit-content;
+          "
+        >
+          <button
+            class="tab-btn active"
+            id="tab-pending"
+            onclick="showTab('pending')"
+          >
+            Pending
+          </button>
+          <button class="tab-btn" id="tab-history" onclick="showTab('history')">
+            History
+          </button>
+          <button
+            class="tab-btn"
+            id="tab-templates"
+            onclick="showTab('templates')"
+          >
+            Templates
+          </button>
+        </div>
+
+        <!-- PENDING TAB -->
+        <div id="view-pending">
+          <div
+            style="display: flex; flex-direction: column; gap: 12px"
+            id="pending-list"
+          ></div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="view-history" style="display: none">
+          <div class="card">
+            <table style="width: 100%; border-collapse: collapse">
+              <thead>
+                <tr>
+                  <th
+                    style="
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                      font-size: 0.6rem;
+                      letter-spacing: 0.12em;
+                      text-transform: uppercase;
+                      color: #374151;
+                      padding: 10px 16px;
+                      text-align: left;
+                      border-bottom: 1px solid #1e1e1e;
+                    "
+                  >
+                    Date Sent
+                  </th>
+                  <th
+                    style="
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                      font-size: 0.6rem;
+                      letter-spacing: 0.12em;
+                      text-transform: uppercase;
+                      color: #374151;
+                      padding: 10px 16px;
+                      text-align: left;
+                      border-bottom: 1px solid #1e1e1e;
+                    "
+                  >
+                    Subject
+                  </th>
+                  <th
+                    style="
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                      font-size: 0.6rem;
+                      letter-spacing: 0.12em;
+                      text-transform: uppercase;
+                      color: #374151;
+                      padding: 10px 16px;
+                      text-align: left;
+                      border-bottom: 1px solid #1e1e1e;
+                    "
+                  >
+                    Recipients
+                  </th>
+                  <th
+                    style="
+                      font-family: &quot;JetBrains Mono&quot;, monospace;
+                      font-size: 0.6rem;
+                      letter-spacing: 0.12em;
+                      text-transform: uppercase;
+                      color: #374151;
+                      padding: 10px 16px;
+                      text-align: left;
+                      border-bottom: 1px solid #1e1e1e;
+                    "
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="history-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TEMPLATES TAB -->
+        <div id="view-templates" style="display: none">
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 12px;
+            "
+            id="templates-grid"
+          ></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- COMPOSE MODAL -->
+    <div
+      class="modal-overlay"
+      id="modal-overlay"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+          "
+        >
+          <div>
+            <div style="font-size: 1rem; font-weight: 700">
+              Compose New Email
+            </div>
+            <div style="font-size: 0.72rem; color: #6b7280; margin-top: 2px">
+              Schedule an email to be sent automatically
+            </div>
+          </div>
+          <button
+            onclick="closeModal()"
+            style="
+              background: transparent;
+              border: none;
+              cursor: pointer;
+              color: #6b7280;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Template quick-use -->
+        <div style="margin-bottom: 16px">
+          <label class="form-label">Use Template (optional)</label>
+          <div
+            style="display: flex; gap: 6px; flex-wrap: wrap"
+            id="modal-templates"
+          ></div>
+        </div>
+
+        <form
+          onsubmit="saveEmail(event)"
+          style="display: flex; flex-direction: column; gap: 14px"
+        >
+          <div>
+            <label class="form-label">To (recipients) *</label
+            ><input
+              type="text"
+              class="form-input"
+              id="f-to"
+              placeholder="email@example.com, another@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label class="form-label">Subject *</label
+            ><input
+              type="text"
+              class="form-input"
+              id="f-subject"
+              placeholder="Email subject..."
+              required
+            />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div>
+              <label class="form-label">Schedule Date *</label
+              ><input type="date" class="form-input" id="f-date" required />
+            </div>
+            <div>
+              <label class="form-label">Schedule Time *</label
+              ><input type="time" class="form-input" id="f-time" required />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Repeat</label
+            ><select class="form-input" id="f-repeat">
+              <option value="none">No repeat (once)</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Body *</label>
+            <textarea
+              class="form-input"
+              id="f-body"
+              rows="6"
+              placeholder="Write your email body here..."
+              style="resize: vertical"
+              required
+            ></textarea>
+          </div>
+          <!-- Preview btn -->
+          <div
+            style="
+              background: #0a0a0a;
+              border: 1px solid #1e1e1e;
+              border-radius: 10px;
+              overflow: hidden;
+            "
+            id="email-preview-box"
+            style="display: none"
+          >
+            <div
+              style="
+                background: #161616;
+                padding: 10px 14px;
+                border-bottom: 1px solid #1e1e1e;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              <div
+                style="
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  background: #ff5f57;
+                "
+              ></div>
+              <div
+                style="
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  background: #febc2e;
+                "
+              ></div>
+              <div
+                style="
+                  width: 10px;
+                  height: 10px;
+                  border-radius: 50%;
+                  background: #28c840;
+                "
+              ></div>
+              <span
+                style="
+                  flex: 1;
+                  text-align: center;
+                  font-size: 0.7rem;
+                  color: #374151;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+                id="preview-subject-bar"
+                >Preview</span
+              >
+            </div>
+            <div style="padding: 16px" id="email-preview-content">
+              <div
+                style="font-size: 0.72rem; color: #6b7280; margin-bottom: 4px"
+              >
+                To: <span id="pv-to" style="color: #8fabd4"></span>
+              </div>
+              <div
+                style="
+                  font-size: 0.82rem;
+                  font-weight: 600;
+                  margin-bottom: 10px;
+                "
+                id="pv-subject"
+              ></div>
+              <div
+                style="
+                  font-size: 0.82rem;
+                  color: #aaaaaa;
+                  line-height: 1.7;
+                  white-space: pre-line;
+                "
+                id="pv-body"
+              ></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button
+              type="button"
+              class="btn-ghost"
+              onclick="togglePreview()"
+              style="flex: 1"
+            >
+              👁 Preview
+            </button>
+            <button type="button" class="btn-ghost" onclick="closeModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" /></svg
+              >Schedule
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let emails = [
+        {
+          id: 1,
+          to: "tim@example.com",
+          subject: "Weekly Team Digest",
+          body: "Hi Tim,\n\nHere is your weekly digest summary...\n\nBest,\nBrillian",
+          date: "2025-04-15",
+          time: "08:00",
+          repeat: "weekly",
+          status: "pending",
+          sentAt: null,
+        },
+        {
+          id: 2,
+          to: "budi@client.com",
+          subject: "Follow-up: Project AutoFlow",
+          body: "Hi Pak Budi,\n\nJust following up on our last meeting...\n\nBest regards,\nBrillian",
+          date: "2025-04-15",
+          time: "14:00",
+          repeat: "none",
+          status: "pending",
+          sentAt: null,
+        },
+        {
+          id: 3,
+          to: "brillian@personal.com",
+          subject: "Morning Self Report",
+          body: "Morning Report:\n\n- 3 tasks completed yesterday\n- Cash balance: Rp 4.2M\n- Habits: 3/5 done\n\nHave a great day!",
+          date: "2025-04-15",
+          time: "07:00",
+          repeat: "daily",
+          status: "sent",
+          sentAt: "2025-04-15 07:00",
+        },
+        {
+          id: 4,
+          to: "newsletter@list.com",
+          subject: "April Newsletter Draft",
+          body: "Hello Subscribers,\n\nWelcome to the April edition...",
+          date: "2025-04-20",
+          time: "09:00",
+          repeat: "monthly",
+          status: "pending",
+          sentAt: null,
+        },
+        {
+          id: 5,
+          to: "clients@example.com",
+          subject: "Invoice Reminder",
+          body: "Dear Client,\n\nThis is a friendly reminder that invoice #2025-04 is due in 3 days.",
+          date: "2025-04-13",
+          time: "10:00",
+          repeat: "none",
+          status: "sent",
+          sentAt: "2025-04-13 10:00",
+        },
+        {
+          id: 6,
+          to: "partner@agency.com",
+          subject: "Collaboration Proposal",
+          body: "Hi,\n\nI would love to discuss a potential collaboration...",
+          date: "2025-04-12",
+          time: "15:00",
+          repeat: "none",
+          status: "sent",
+          sentAt: "2025-04-12 15:00",
+        },
+      ];
+      let templates = [
+        {
+          id: 1,
+          name: "Weekly Digest",
+          icon: "📊",
+          subject: "Weekly Summary – {{date}}",
+          body: "Hi {{name}},\n\nHere is your weekly summary for the week of {{date}}.\n\n[Add content here]\n\nBest regards,\nBrillian",
+        },
+        {
+          id: 2,
+          name: "Follow-up",
+          icon: "🔄",
+          subject: "Follow-up: {{topic}}",
+          body: "Hi {{name}},\n\nI wanted to follow up on {{topic}} from our last interaction.\n\n[Add context]\n\nLooking forward to hearing from you.\n\nBest,\nBrillian",
+        },
+        {
+          id: 3,
+          name: "Invoice Reminder",
+          icon: "💰",
+          subject: "Invoice Reminder – Due {{date}}",
+          body: "Dear {{name}},\n\nThis is a friendly reminder that your invoice #{{invoice}} is due on {{date}}.\n\nPlease process payment at your earliest convenience.\n\nThank you,\nBrillian",
+        },
+        {
+          id: 4,
+          name: "Morning Report",
+          icon: "☀️",
+          subject: "Daily Morning Report – {{date}}",
+          body: "Good morning!\n\nYour daily report for {{date}}:\n\n📊 Cashflow: [balance]\n✅ Habits: [count]\n📌 Top priority: [task]\n\nHave a productive day!",
+        },
+        {
+          id: 5,
+          name: "Project Update",
+          icon: "🚀",
+          subject: "Project Update: {{project}} – {{date}}",
+          body: "Hi {{name}},\n\nHere is the latest update on {{project}}:\n\n✅ Completed: [list]\n🔄 In Progress: [list]\n⏭ Next: [list]\n\nBest,\nBrillian",
+        },
+      ];
+      let nextId = 7;
+      let currentTab = "pending";
+      let showPreview = false;
+
+      function updateStats() {
+        const pending = emails.filter((x) => x.status === "pending").length;
+        const sentToday = emails.filter(
+          (x) =>
+            x.status === "sent" &&
+            x.sentAt &&
+            x.sentAt.startsWith("2025-04-15"),
+        ).length;
+        const week = emails.filter((x) => x.date >= "2025-04-14").length;
+        document.getElementById("stat-pending").textContent = pending;
+        document.getElementById("stat-sent").textContent = sentToday;
+        document.getElementById("stat-week").textContent = week;
+        document.getElementById("stat-templates").textContent =
+          templates.length;
+      }
+
+      function renderPending() {
+        const list = emails
+          .filter((x) => x.status === "pending")
+          .sort(
+            (a, b) =>
+              a.date.localeCompare(b.date) || a.time.localeCompare(b.time),
+          );
+        document.getElementById("pending-list").innerHTML = list.length
+          ? list
+              .map(
+                (e) => `
+    <div class="email-card">
+      <div style="display:flex;align-items:start;gap:14px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(74,112,169,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FABD4" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-weight:600;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${e.subject}</div>
+            ${e.repeat !== "none" ? `<span class="badge-blue" style="flex-shrink:0">🔁 ${e.repeat}</span>` : ""}
+          </div>
+          <div style="font-size:0.75rem;color:#6B7280;margin-bottom:8px">To: ${e.to}</div>
+          <div style="font-size:0.78rem;color:#AAAAAA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px">${e.body.split("\n")[0]}</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:5px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4A70A9" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8FABD4">${e.date} · ${e.time}</span>
+            </div>
+            <span class="badge-amber">Scheduled</span>
+            <div style="margin-left:auto;display:flex;gap:6px">
+              <button onclick="previewEmail(${e.id})" class="btn-ghost" style="padding:5px 10px;font-size:0.72rem">Preview</button>
+              <button onclick="cancelEmail(${e.id})" class="btn-danger" style="padding:5px 10px;font-size:0.72rem">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+              )
+              .join("")
+          : `<div class="card" style="padding:40px;text-align:center;color:#374151;font-family:'JetBrains Mono',monospace;font-size:0.78rem">No pending emails scheduled.<br><button class="btn-primary" style="margin-top:14px" onclick="openModal()">Schedule your first email</button></div>`;
+      }
+
+      function renderHistory() {
+        const list = emails
+          .filter((x) => x.status === "sent")
+          .sort((a, b) => b.sentAt.localeCompare(a.sentAt));
+        document.getElementById("history-table").innerHTML = list
+          .map(
+            (e) => `
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#6B7280;padding:11px 16px;border-bottom:1px solid #0D0D0D">${e.sentAt}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #0D0D0D;font-size:0.83rem;font-weight:500">${e.subject}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #0D0D0D;font-size:0.78rem;color:#6B7280">${e.to}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #0D0D0D"><span class="badge-green">✓ Sent</span></td>
+    </tr>
+  `,
+          )
+          .join("");
+      }
+
+      function renderTemplates() {
+        document.getElementById("templates-grid").innerHTML = templates
+          .map(
+            (t) => `
+    <div class="template-card" onclick="useTemplate(${t.id})">
+      <div style="font-size:1.5rem;margin-bottom:8px">${t.icon}</div>
+      <div style="font-size:0.85rem;font-weight:600;margin-bottom:4px">${t.name}</div>
+      <div style="font-size:0.72rem;color:#6B7280;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</div>
+      <button onclick="event.stopPropagation();useTemplate(${t.id})" class="btn-ghost" style="margin-top:10px;padding:5px 12px;font-size:0.72rem;width:100%;justify-content:center">Use Template</button>
+    </div>
+  `,
+          )
+          .join("");
+        document.getElementById("modal-templates").innerHTML = templates
+          .map(
+            (t) => `
+    <button type="button" onclick="useTemplate(${t.id})" style="background:#161616;border:1px solid #1E1E1E;border-radius:6px;padding:4px 10px;font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:#6B7280;cursor:pointer;transition:all 0.15s" onmouseover="this.style.color='#8FABD4'" onmouseout="this.style.color='#6B7280'">${t.icon} ${t.name}</button>
+  `,
+          )
+          .join("");
+      }
+
+      function showTab(tab) {
+        currentTab = tab;
+        ["pending", "history", "templates"].forEach((t) => {
+          document.getElementById("view-" + t).style.display =
+            t === tab ? "" : "none";
+          document
+            .getElementById("tab-" + t)
+            ?.classList.toggle("active", t === tab);
+        });
+        if (tab === "pending") renderPending();
+        if (tab === "history") renderHistory();
+        if (tab === "templates") renderTemplates();
+      }
+
+      function openModal() {
+        document.getElementById("modal-overlay").classList.add("open");
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("f-date").value = today;
+        document.getElementById("f-time").value = "08:00";
+        showPreview = false;
+        document.getElementById("email-preview-box").style.display = "none";
+      }
+      function closeModal() {
+        document.getElementById("modal-overlay").classList.remove("open");
+      }
+
+      function useTemplate(id) {
+        const t = templates.find((x) => x.id === id);
+        if (!t) return;
+        if (
+          !document.getElementById("modal-overlay").classList.contains("open")
+        )
+          openModal();
+        const d = new Date();
+        const dStr = d.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+        document.getElementById("f-subject").value = t.subject
+          .replace("{{date}}", dStr)
+          .replace("{{topic}}", "[Topic]")
+          .replace("{{name}}", "[Name]")
+          .replace("{{project}}", "[Project]")
+          .replace("{{invoice}}", "#XXX");
+        document.getElementById("f-body").value = t.body
+          .replace(/{{date}}/g, dStr)
+          .replace(/{{name}}/g, "[Name]")
+          .replace(/{{topic}}/g, "[Topic]")
+          .replace(/{{project}}/g, "[Project]")
+          .replace(/{{invoice}}/g, "#XXX");
+      }
+
+      function saveEmail(e) {
+        e.preventDefault();
+        const em = {
+          id: nextId++,
+          to: document.getElementById("f-to").value,
+          subject: document.getElementById("f-subject").value,
+          body: document.getElementById("f-body").value,
+          date: document.getElementById("f-date").value,
+          time: document.getElementById("f-time").value,
+          repeat: document.getElementById("f-repeat").value,
+          status: "pending",
+          sentAt: null,
+        };
+        emails.unshift(em);
+        closeModal();
+        e.target.reset();
+        updateStats();
+        showTab("pending");
+      }
+
+      function cancelEmail(id) {
+        if (confirm("Cancel this scheduled email?")) {
+          emails = emails.filter((x) => x.id !== id);
+          updateStats();
+          renderPending();
+        }
+      }
+
+      function previewEmail(id) {
+        const e = emails.find((x) => x.id === id);
+        if (!e) return;
+        openModal();
+        document.getElementById("f-to").value = e.to;
+        document.getElementById("f-subject").value = e.subject;
+        document.getElementById("f-body").value = e.body;
+        document.getElementById("f-date").value = e.date;
+        document.getElementById("f-time").value = e.time;
+        document.getElementById("f-repeat").value = e.repeat;
+        showPreview = true;
+        document.getElementById("email-preview-box").style.display = "";
+        document.getElementById("preview-subject-bar").textContent = e.subject;
+        document.getElementById("pv-to").textContent = e.to;
+        document.getElementById("pv-subject").textContent = e.subject;
+        document.getElementById("pv-body").textContent = e.body;
+      }
+
+      function togglePreview() {
+        showPreview = !showPreview;
+        const box = document.getElementById("email-preview-box");
+        box.style.display = showPreview ? "" : "none";
+        if (showPreview) {
+          const subj =
+            document.getElementById("f-subject").value || "(No subject)";
+          document.getElementById("preview-subject-bar").textContent = subj;
+          document.getElementById("pv-to").textContent =
+            document.getElementById("f-to").value || "–";
+          document.getElementById("pv-subject").textContent = subj;
+          document.getElementById("pv-body").textContent =
+            document.getElementById("f-body").value || "(Empty body)";
+        }
+      }
+
+      updateStats();
+      showTab("pending");
+      renderTemplates();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+# --- ROOT GITIGNORE ---
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Secrets & Environment Variables (MANDATORY)
+# Jangan pernah commit file .env karena berisi API Key, Password, dan Secret
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- SERVICE: AI (Python) ---
+# Jangan publish environment virtual dan cache python (ukuran besar & lokal)
+services/ai/venv/
+services/ai/.venv/
+services/ai/__pycache__/
+services/ai/*.py[cod]
+services/ai/.ipynb_checkpoints/
+
+# --- SERVICE: CORE (Node.js) ---
+# Jangan publish dependensi (bisa di-install lewat npm) dan hasil build
+services/core/node_modules/
+services/core/dist/
+services/core/build/
+services/core/*.log
+
+# --- SERVICE: WORKER (Go) ---
+# Jangan publish binary hasil kompilasi
+services/worker/bin/
+services/worker/scheduler-worker
+services/worker/vendor/
+
+# --- FRONTEND (Vue.js) ---
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.log

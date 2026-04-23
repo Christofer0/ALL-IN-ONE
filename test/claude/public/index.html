@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio — Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#222831",
+              secondary: "#393E46",
+              accent: "#00ADB5",
+              light: "#EEEEEE",
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', "serif"],
+              body: ['"DM Sans"', "sans-serif"],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+            animation: {
+              "fade-up": "fadeUp 0.7s ease forwards",
+              "fade-in": "fadeIn 0.6s ease forwards",
+              "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
+              float: "float 6s ease-in-out infinite",
+              glow: "glow 2s ease-in-out infinite alternate",
+            },
+            keyframes: {
+              fadeUp: {
+                "0%": { opacity: "0", transform: "translateY(30px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+              fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+              float: {
+                "0%,100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-12px)" },
+              },
+              glow: {
+                from: { boxShadow: "0 0 10px #00ADB5" },
+                to: { boxShadow: "0 0 30px #00ADB5, 0 0 60px #00ADB544" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      /* ── Theme Variables ── */
+      :root {
+        --bg: #eeeeee;
+        --bg-card: #ffffff;
+        --bg-nav: rgba(238, 238, 238, 0.85);
+        --border: #d0d0d0;
+        --text: #222831;
+        --text-muted: #555e6a;
+      }
+      html.dark {
+        --bg: #222831;
+        --bg-card: #393e46;
+        --bg-nav: rgba(34, 40, 49, 0.85);
+        --border: #393e46;
+        --text: #eeeeee;
+        --text-muted: rgba(238, 238, 238, 0.6);
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        transition:
+          background-color 0.3s,
+          color 0.3s;
+      }
+
+      /* Toggle icon */
+      #iconMoon {
+        display: block;
+      }
+      #iconSun {
+        display: none;
+      }
+      html.dark #iconMoon {
+        display: none;
+      }
+      html.dark #iconSun {
+        display: block;
+      }
+
+      /* Scroll-triggered reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* Noise overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+      /* Mesh gradient */
+      .mesh {
+        background:
+          radial-gradient(ellipse at 20% 50%, #00adb522 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 20%, #00adb511 0%, transparent 50%);
+      }
+      /* Card hover glow */
+      .card-glow:hover {
+        box-shadow:
+          0 0 0 1px #00adb544,
+          0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+      html.dark .card-glow:hover {
+        box-shadow:
+          0 0 0 1px #00adb544,
+          0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+      /* Skill bar */
+      .skill-fill {
+        transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      /* Cursor blink */
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor {
+        animation: blink 1s step-end infinite;
+      }
+      /* Grid lines bg */
+      .grid-bg {
+        background-image:
+          linear-gradient(rgba(0, 173, 181, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 173, 181, 0.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+    </style>
+  </head>
+  <body class="font-body relative overflow-x-hidden">
+    <!-- ═══════════════════════════════ NAVBAR ═══════════════════════════════ -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b"
+      style="background-color: var(--bg-nav); border-color: var(--border)"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
+        <a
+          href="index.html"
+          class="font-mono text-accent font-medium tracking-widest text-sm"
+        >
+          &lt;PORTFOLIO /&gt;
+        </a>
+        <ul
+          class="hidden md:flex gap-8 text-sm font-medium"
+          style="color: var(--text-muted)"
+        >
+          <li>
+            <a href="index.html" class="hover:text-accent transition-colors"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a href="about.html" class="hover:text-accent transition-colors"
+              >About</a
+            >
+          </li>
+          <li>
+            <a href="projects.html" class="hover:text-accent transition-colors"
+              >Projects</a
+            >
+          </li>
+          <li>
+            <a href="blog.html" class="hover:text-accent transition-colors"
+              >Blog</a
+            >
+          </li>
+          <li>
+            <a href="contact.html" class="hover:text-accent transition-colors"
+              >Contact</a
+            >
+          </li>
+        </ul>
+        <div class="flex items-center gap-3">
+          <!-- Dark Mode Toggle -->
+          <button
+            id="darkToggle"
+            class="w-9 h-9 rounded-full border border-secondary hover:border-accent flex items-center justify-center transition-all hover:text-accent"
+            style="color: var(--text-muted)"
+            title="Toggle dark mode"
+          >
+            <svg
+              id="iconMoon"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+            <svg
+              id="iconSun"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              />
+            </svg>
+          </button>
+          <a
+            href="contact.html"
+            class="hidden md:block bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all hover:scale-105"
+          >
+            Hire Me
+          </a>
+          <!-- Mobile menu btn -->
+          <button
+            id="mobileMenuBtn"
+            class="md:hidden hover:text-accent transition-colors"
+            style="color: var(--text-muted)"
+          >
+            <svg
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Menu -->
+      <div
+        id="mobileMenu"
+        class="hidden md:hidden backdrop-blur px-6 py-4 border-t"
+        style="background-color: var(--bg-card); border-color: var(--border)"
+      >
+        <ul
+          class="flex flex-col gap-4 text-sm font-medium"
+          style="color: var(--text-muted)"
+        >
+          <li>
+            <a
+              href="index.html"
+              class="hover:text-accent transition-colors block"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="about.html"
+              class="hover:text-accent transition-colors block"
+              >About</a
+            >
+          </li>
+          <li>
+            <a
+              href="projects.html"
+              class="hover:text-accent transition-colors block"
+              >Projects</a
+            >
+          </li>
+          <li>
+            <a
+              href="blog.html"
+              class="hover:text-accent transition-colors block"
+              >Blog</a
+            >
+          </li>
+          <li>
+            <a
+              href="contact.html"
+              class="hover:text-accent transition-colors block"
+              >Contact</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+    <section class="relative min-h-screen flex items-center mesh grid-bg pt-20">
+      <div
+        class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center w-full"
+      >
+        <!-- Left -->
+        <div class="relative z-10">
+          <div
+            class="inline-flex items-center gap-2 border border-accent/30 rounded-full px-4 py-1.5 text-xs font-mono text-accent mb-8 animate-fade-in"
+            style="background-color: var(--bg-card)"
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-accent animate-pulse-slow"
+            ></span>
+            Available for opportunities
+          </div>
+          <h1
+            class="font-display text-5xl md:text-7xl font-black leading-[0.95] mb-6 animate-fade-up"
+            style="animation-delay: 0.1s"
+          >
+            Hi, I'm<br />
+            <span class="text-accent italic">Alex</span><br />
+            <span class="text-light/30">Kurniawan</span>
+          </h1>
+          <p
+            class="text-lg leading-relaxed mb-8 max-w-md animate-fade-up"
+            style="color: var(--text-muted); animation-delay: 0.2s"
+          >
+            Full-Stack Developer &amp; UI/UX Enthusiast crafting digital
+            experiences that live at the intersection of
+            <span class="text-accent font-medium">design</span> and
+            <span class="text-accent font-medium">function</span>.
+          </p>
+          <div class="flex gap-4 animate-fade-up" style="animation-delay: 0.3s">
+            <a
+              href="projects.html"
+              class="bg-accent hover:bg-accent/80 text-primary font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-accent/30"
+            >
+              View Projects
+            </a>
+            <a
+              href="about.html"
+              class="border hover:border-accent hover:text-accent font-medium px-6 py-3 rounded-full transition-all"
+              style="border-color: var(--border); color: var(--text-muted)"
+            >
+              About Me →
+            </a>
+          </div>
+          <!-- Scroll indicator -->
+          <div
+            class="mt-16 flex items-center gap-3 text-xs animate-fade-in"
+            style="color: var(--text-muted); animation-delay: 0.6s"
+          >
+            <div class="flex flex-col gap-0.5">
+              <div class="w-0.5 h-4 bg-light/20 rounded-full mx-auto"></div>
+              <div
+                class="w-0.5 h-4 bg-accent/60 rounded-full mx-auto animate-float"
+              ></div>
+            </div>
+            <span class="font-mono tracking-widest">SCROLL DOWN</span>
+          </div>
+        </div>
+        <!-- Right — floating code card -->
+        <div
+          class="relative flex justify-center items-center animate-fade-in"
+          style="animation-delay: 0.4s"
+        >
+          <div class="animate-float">
+            <div
+              class="backdrop-blur border border-accent/20 rounded-2xl p-6 font-mono text-sm w-80 shadow-2xl"
+              style="background-color: var(--bg-card)"
+            >
+              <div class="flex gap-1.5 mb-4">
+                <span class="w-3 h-3 rounded-full bg-red-400/70"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-400/70"></span>
+                <span class="w-3 h-3 rounded-full bg-green-400/70"></span>
+              </div>
+              <div class="space-y-1.5 text-xs leading-relaxed">
+                <p>
+                  <span class="text-purple-600 dark:text-purple-400"
+                    >const</span
+                  >
+                  <span class="text-accent">developer</span> = {
+                </p>
+
+                <p class="pl-4">
+                  <span class="text-gray-600 dark:text-gray-300">name:</span>
+                  <span class="text-yellow-600 dark:text-yellow-300"
+                    >"Alex Kurniawan"</span
+                  >,
+                </p>
+
+                <p class="pl-4">
+                  <span class="text-gray-600 dark:text-gray-300">role:</span>
+                  <span class="text-yellow-600 dark:text-yellow-300"
+                    >"Full-Stack Dev"</span
+                  >,
+                </p>
+
+                <p class="pl-4">
+                  <span class="text-gray-600 dark:text-gray-300">passion:</span>
+                  <span class="text-yellow-600 dark:text-yellow-300"
+                    >"Clean UI"</span
+                  >,
+                </p>
+
+                <p class="pl-4">
+                  <span class="text-gray-600 dark:text-gray-300">stack:</span> [
+                </p>
+
+                <p class="pl-8">
+                  <span class="text-green-600 dark:text-green-400">"React"</span
+                  >,
+                  <span class="text-green-600 dark:text-green-400">"Node"</span
+                  >,
+                </p>
+
+                <p class="pl-8">
+                  <span class="text-green-600 dark:text-green-400"
+                    >"TypeScript"</span
+                  >,
+                  <span class="text-green-600 dark:text-green-400">"Go"</span>,
+                </p>
+
+                <p class="pl-4">],</p>
+
+                <p>
+                  <span class="text-purple-600 dark:text-purple-400">}</span>
+                  <span class="cursor text-accent">|</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Decorative rings -->
+          <div
+            class="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <div
+              class="w-72 h-72 rounded-full border border-accent/10 animate-pulse-slow"
+            ></div>
+          </div>
+          <div
+            class="absolute inset-0 flex items-center justify-center pointer-events-none"
+            style="animation-delay: 1s"
+          >
+            <div class="w-96 h-96 rounded-full border border-accent/5"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ HIGHLIGHT PROJECTS ═══════════════════════ -->
+    <section class="py-24 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="reveal flex items-end justify-between mb-14">
+          <div>
+            <p class="font-mono text-accent text-xs tracking-widest mb-2">
+              // SELECTED WORKS
+            </p>
+            <h2 class="font-display text-4xl md:text-5xl font-bold">
+              Featured Projects
+            </h2>
+          </div>
+          <a
+            href="projects.html"
+            class="hidden md:flex items-center gap-2 text-accent/70 hover:text-accent text-sm font-medium transition-colors"
+          >
+            All Projects <span>→</span>
+          </a>
+        </div>
+
+        <!-- Data Dummy Start -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card 1 (Featured) -->
+          <div
+            class="reveal lg:col-span-2 group relative rounded-2xl overflow-hidden card-glow transition-all duration-300 cursor-pointer"
+            style="background-color: var(--bg-card); animation-delay: 0.1s"
+          >
+            <div class="relative h-64 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80"
+                alt="Project 1"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-[color-mix(in_srgb,var(--bg-card)_40%,transparent)] to-transparent"
+              ></div>
+              <div class="absolute top-4 left-4 flex gap-2">
+                <span
+                  class="bg-accent text-primary text-xs font-bold px-3 py-1 rounded-full"
+                  >Featured</span
+                >
+                <span
+                  class="bg-primary/60 backdrop-blur text-light/70 text-xs px-3 py-1 rounded-full"
+                  >Web App</span
+                >
+              </div>
+            </div>
+            <div class="p-6">
+              <h3
+                class="font-display text-2xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                DevFlow Dashboard
+              </h3>
+              <p
+                class="text-sm leading-relaxed mb-4"
+                style="color: var(--text-muted)"
+              >
+                Real-time developer productivity dashboard built with React and
+                WebSockets. Track commits, PR reviews, and team velocity in one
+                elegant interface.
+              </p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span
+                  class="text-xs rounded-full px-3 py-1 text-accent border border-accent/20"
+                  style="background-color: var(--bg)"
+                  >React</span
+                >
+                <span
+                  class="text-xs rounded-full px-3 py-1 border"
+                  style="
+                    background-color: var(--bg);
+                    color: var(--text-muted);
+                    border-color: var(--border);
+                  "
+                  >Node.js</span
+                >
+                <span
+                  class="text-xs rounded-full px-3 py-1 border"
+                  style="
+                    background-color: var(--bg);
+                    color: var(--text-muted);
+                    border-color: var(--border);
+                  "
+                  >WebSocket</span
+                >
+              </div>
+            </div>
+            <a href="project_detail.html" class="absolute inset-0"></a>
+          </div>
+
+          <!-- Card 2 -->
+          <div
+            class="reveal group relative rounded-2xl overflow-hidden card-glow transition-all duration-300 cursor-pointer"
+            style="background-color: var(--bg-card); animation-delay: 0.2s"
+          >
+            <div class="relative h-48 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+                alt="Project 2"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"
+              ></div>
+            </div>
+            <div class="p-5">
+              <span class="text-xs text-accent font-mono mb-1 block"
+                >Mobile</span
+              >
+              <h3
+                class="font-display text-xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                FinanceKit App
+              </h3>
+              <p
+                class="text-xs leading-relaxed mb-3"
+                style="color: var(--text-muted)"
+              >
+                Personal finance tracker with AI-powered spending insights and
+                budget alerts.
+              </p>
+              <div class="flex gap-2">
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 text-accent border border-accent/20"
+                  style="background-color: var(--bg)"
+                  >Flutter</span
+                >
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 border"
+                  style="
+                    background-color: var(--bg);
+                    color: var(--text-muted);
+                    border-color: var(--border);
+                  "
+                  >Dart</span
+                >
+              </div>
+            </div>
+            <a href="project_detail.html" class="absolute inset-0"></a>
+          </div>
+
+          <!-- Card 3 -->
+          <div
+            class="reveal group relative rounded-2xl overflow-hidden card-glow transition-all duration-300 cursor-pointer"
+            style="background-color: var(--bg-card); animation-delay: 0.3s"
+          >
+            <div class="relative h-48 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80"
+                alt="Project 3"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"
+              ></div>
+            </div>
+            <div class="p-5">
+              <span class="text-xs text-accent font-mono mb-1 block"
+                >UI/UX</span
+              >
+              <h3
+                class="font-display text-xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                Nebula Design System
+              </h3>
+              <p
+                class="text-xs leading-relaxed mb-3"
+                style="color: var(--text-muted)"
+              >
+                A scalable component library and design system used across
+                multiple enterprise products.
+              </p>
+              <div class="flex gap-2">
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 text-accent border border-accent/20"
+                  style="background-color: var(--bg)"
+                  >Figma</span
+                >
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 border"
+                  style="
+                    background-color: var(--bg);
+                    color: var(--text-muted);
+                    border-color: var(--border);
+                  "
+                  >Storybook</span
+                >
+              </div>
+            </div>
+            <a href="project_detail.html" class="absolute inset-0"></a>
+          </div>
+
+          <!-- Card 4 -->
+          <div
+            class="reveal group relative rounded-2xl overflow-hidden card-glow transition-all duration-300 cursor-pointer"
+            style="background-color: var(--bg-card); animation-delay: 0.4s"
+          >
+            <div class="relative h-48 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80"
+                alt="Project 4"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"
+              ></div>
+            </div>
+            <div class="p-5">
+              <span class="text-xs text-accent font-mono mb-1 block"
+                >Backend</span
+              >
+              <h3
+                class="font-display text-xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                DataStream API
+              </h3>
+              <p
+                class="text-xs leading-relaxed mb-3"
+                style="color: var(--text-muted)"
+              >
+                High-throughput REST API handling 50k+ req/s with intelligent
+                rate limiting and caching.
+              </p>
+              <div class="flex gap-2">
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 text-accent border border-accent/20"
+                  style="background-color: var(--bg)"
+                  >Go</span
+                >
+                <span
+                  class="text-xs rounded-full px-2.5 py-0.5 border"
+                  style="
+                    background-color: var(--bg);
+                    color: var(--text-muted);
+                    border-color: var(--border);
+                  "
+                  >Redis</span
+                >
+              </div>
+            </div>
+            <a href="project_detail.html" class="absolute inset-0"></a>
+          </div>
+        </div>
+        <!-- Data Dummy End -->
+
+        <div class="reveal text-center mt-8 md:hidden">
+          <a href="projects.html" class="text-accent text-sm font-medium"
+            >View All Projects →</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ SKILLS & TECH STACK ═══════════════════════ -->
+    <section
+      class="py-24 relative overflow-hidden"
+      style="
+        background-color: color-mix(in srgb, var(--bg-card) 60%, var(--bg));
+      "
+    >
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="reveal text-center mb-16">
+          <p class="font-mono text-accent text-xs tracking-widest mb-2">
+            // EXPERTISE
+          </p>
+          <h2 class="font-display text-4xl md:text-5xl font-bold">
+            Skills &amp; Tech Stack
+          </h2>
+        </div>
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+          <!-- Skill Bars -->
+          <div class="reveal space-y-6">
+            <h3
+              class="font-mono text-xs tracking-widest mb-4"
+              style="color: var(--text-muted)"
+            >
+              PROFICIENCY
+            </h3>
+            <div class="space-y-5" id="skillBars">
+              <div class="skill-item">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-medium">React / Next.js</span>
+                  <span class="text-accent font-mono text-xs">92%</span>
+                </div>
+                <div
+                  class="h-1.5 rounded-full overflow-hidden"
+                  style="background-color: var(--border)"
+                >
+                  <div
+                    class="skill-fill h-full bg-accent rounded-full w-0"
+                    data-width="92%"
+                  ></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-medium">TypeScript</span>
+                  <span class="text-accent font-mono text-xs">88%</span>
+                </div>
+                <div
+                  class="h-1.5 rounded-full overflow-hidden"
+                  style="background-color: var(--border)"
+                >
+                  <div
+                    class="skill-fill h-full bg-accent rounded-full w-0"
+                    data-width="88%"
+                  ></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-medium">Node.js / Go</span>
+                  <span class="text-accent font-mono text-xs">80%</span>
+                </div>
+                <div
+                  class="h-1.5 rounded-full overflow-hidden"
+                  style="background-color: var(--border)"
+                >
+                  <div
+                    class="skill-fill h-full bg-accent rounded-full w-0"
+                    data-width="80%"
+                  ></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-medium">UI/UX Design</span>
+                  <span class="text-accent font-mono text-xs">75%</span>
+                </div>
+                <div
+                  class="h-1.5 rounded-full overflow-hidden"
+                  style="background-color: var(--border)"
+                >
+                  <div
+                    class="skill-fill h-full bg-accent rounded-full w-0"
+                    data-width="75%"
+                  ></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-medium">DevOps / AWS</span>
+                  <span class="text-accent font-mono text-xs">70%</span>
+                </div>
+                <div
+                  class="h-1.5 rounded-full overflow-hidden"
+                  style="background-color: var(--border)"
+                >
+                  <div
+                    class="skill-fill h-full bg-accent rounded-full w-0"
+                    data-width="70%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tech Grid -->
+          <div class="reveal" style="animation-delay: 0.2s">
+            <h3
+              class="font-mono text-xs tracking-widest mb-4"
+              style="color: var(--text-muted)"
+            >
+              TOOLS &amp; TECH
+            </h3>
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">⚛️</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  React
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🔷</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  TypeScript
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🟢</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Node.js
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🐹</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Go
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🐘</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  PostgreSQL
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🏗️</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Next.js
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🐋</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Docker
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">☁️</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  AWS
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🎨</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Figma
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🔴</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Redis
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">🌿</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  MongoDB
+                </p>
+              </div>
+              <div
+                class="tech-item rounded-xl p-3 text-center transition-all duration-200 cursor-default group border hover:border-accent/40"
+                style="background-color: var(--bg); border-color: var(--border)"
+              >
+                <div class="text-2xl mb-1">📱</div>
+                <p
+                  class="text-xs transition-colors group-hover:text-accent"
+                  style="color: var(--text-muted)"
+                >
+                  Flutter
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ STATS ═══════════════════════════════ -->
+    <section class="py-16 border-y" style="border-color: var(--border)">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div class="reveal" style="animation-delay: 0s">
+            <p class="font-display text-5xl font-black text-accent mb-1">5+</p>
+            <p class="text-sm" style="color: var(--text-muted)">
+              Years Experience
+            </p>
+          </div>
+          <div class="reveal" style="animation-delay: 0.1s">
+            <p class="font-display text-5xl font-black text-accent mb-1">40+</p>
+            <p class="text-sm" style="color: var(--text-muted)">
+              Projects Shipped
+            </p>
+          </div>
+          <div class="reveal" style="animation-delay: 0.2s">
+            <p class="font-display text-5xl font-black text-accent mb-1">12+</p>
+            <p class="text-sm" style="color: var(--text-muted)">
+              Happy Clients
+            </p>
+          </div>
+          <div class="reveal" style="animation-delay: 0.3s">
+            <p class="font-display text-5xl font-black text-accent mb-1">∞</p>
+            <p class="text-sm" style="color: var(--text-muted)">
+              Cups of Coffee
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CTA ═══════════════════════════════ -->
+    <section class="py-28 relative overflow-hidden">
+      <div
+        class="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div
+          class="w-[600px] h-[600px] rounded-full bg-accent/5 blur-3xl"
+        ></div>
+      </div>
+      <div class="reveal max-w-3xl mx-auto px-6 text-center relative z-10">
+        <p class="font-mono text-accent text-xs tracking-widest mb-4">
+          // LET'S BUILD SOMETHING
+        </p>
+        <h2
+          class="font-display text-5xl md:text-6xl font-black mb-6 leading-tight"
+        >
+          Have an idea?<br />
+          <span class="text-accent italic">Let's talk.</span>
+        </h2>
+        <p
+          class="leading-relaxed mb-10 text-lg"
+          style="color: var(--text-muted)"
+        >
+          I'm currently available for freelance projects and full-time roles. If
+          you have a project in mind or just want to chat, I'd love to hear from
+          you.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="contact.html"
+            class="bg-accent hover:bg-accent/80 text-primary font-bold px-8 py-4 rounded-full transition-all hover:scale-105 hover:shadow-xl hover:shadow-accent/30 text-lg"
+          >
+            Get In Touch 👋
+          </a>
+          <a
+            href="about.html"
+            class="border hover:border-accent hover:text-accent font-medium px-8 py-4 rounded-full transition-all"
+            style="border-color: var(--border); color: var(--text-muted)"
+          >
+            Learn About Me
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ FOOTER ═══════════════════════════════ -->
+    <footer
+      class="border-t py-10"
+      style="background-color: var(--bg-card); border-color: var(--border)"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4"
+      >
+        <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+        <p class="text-xs" style="color: var(--text-muted)">
+          © 2026 Alex Kurniawan. Crafted with ❤️ &amp; lots of coffee.
+        </p>
+        <div class="flex gap-4">
+          <a
+            href="#"
+            class="hover:text-accent transition-colors text-xs"
+            style="color: var(--text-muted)"
+            >GitHub</a
+          >
+          <a
+            href="#"
+            class="hover:text-accent transition-colors text-xs"
+            style="color: var(--text-muted)"
+            >LinkedIn</a
+          >
+          <a
+            href="#"
+            class="hover:text-accent transition-colors text-xs"
+            style="color: var(--text-muted)"
+            >Twitter</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu
+      document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+      });
+
+      // Dark mode toggle
+      const html = document.documentElement;
+      const saved = localStorage.getItem("theme");
+      if (
+        saved === "dark" ||
+        (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        html.classList.add("dark");
+      }
+      document.getElementById("darkToggle").addEventListener("click", () => {
+        html.classList.toggle("dark");
+        localStorage.setItem(
+          "theme",
+          html.classList.contains("dark") ? "dark" : "light",
+        );
+      });
+
+      // Scroll reveal
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+              setTimeout(() => e.target.classList.add("visible"), 80);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // Skill bar animation
+      const skillObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.querySelectorAll(".skill-fill").forEach((bar) => {
+                bar.style.width = bar.dataset.width;
+              });
+              skillObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+      const skillSection = document.getElementById("skillBars");
+      if (skillSection) skillObserver.observe(skillSection);
+    </script>
+  </body>
+</html>

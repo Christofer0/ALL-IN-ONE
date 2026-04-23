@@ -1,0 +1,25 @@
+import { pgTable, uuid, varchar, text, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
+
+export const projects = pgTable("projects", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  content: text("content"),
+  overview: text("overview"),
+  problem: text("problem"),
+  solution: text("solution"),
+  results: text("results"),
+  duration: varchar("duration", { length: 100 }),
+  impact: varchar("impact", { length: 100 }),
+  teamSize: varchar("team_size", { length: 100 }),
+  coverImage: text("cover_image"),
+  demoUrl: text("demo_url"),
+  githubUrl: text("github_url"),
+  techStack: jsonb("tech_stack").$type<string[]>().default([]).notNull(),
+  isPublished: boolean("is_published").default(false).notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

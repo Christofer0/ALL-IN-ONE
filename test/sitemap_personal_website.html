@@ -1,0 +1,208 @@
+
+<style>
+  .pg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .pg-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; cursor: pointer; transition: border-color .15s, background .15s; }
+  .pg-card:hover { border-color: var(--color-border-secondary); background: var(--color-background-primary); }
+  .pg-card.active { border-color: var(--color-border-info); background: var(--color-background-info); }
+  .pg-label { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  .label-pub { background: #E1F5EE; color: #0F6E56; }
+  .label-priv { background: #EEEDFE; color: #534AB7; }
+  .label-both { background: #FAEEDA; color: #854F0B; }
+  .pg-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .pg-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .section-title { font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: .06em; margin: 20px 0 8px; text-transform: uppercase; }
+  .detail-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 20px; margin-top: 16px; }
+  .feat-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+  .feat-item { font-size: 13px; color: var(--color-text-secondary); padding: 6px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .feat-item::before { content: "→ "; color: var(--color-text-tertiary); }
+  .priority-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; display: inline-block; }
+  .p-must { background: #FCEBEB; color: #A32D2D; }
+  .p-should { background: #FAEEDA; color: #854F0B; }
+  .p-nice { background: #EAF3DE; color: #3B6D11; }
+</style>
+
+<div class="section-title">Halaman publik</div>
+<div class="pg-grid" id="pub-grid"></div>
+
+<div class="section-title">Halaman private (setelah login)</div>
+<div class="pg-grid" id="priv-grid"></div>
+
+<div class="section-title">Halaman utilitas</div>
+<div class="pg-grid" id="util-grid"></div>
+
+<div class="detail-box" id="detail-box" style="display:none"></div>
+
+<script>
+const pages = {
+  pub: [
+    {
+      name: "Home / Landing",
+      route: "/",
+      priority: "must",
+      desc: "First impression kamu",
+      features: ["Hero section dengan nama & tagline", "Highlight 3 project terbaik", "Skills & tech stack", "CTA ke halaman kontak", "Animasi halus saat scroll", "Dark mode toggle"]
+    },
+    {
+      name: "Projects",
+      route: "/projects",
+      priority: "must",
+      desc: "Galeri semua karya",
+      features: ["Grid card semua project", "Filter by kategori / tag", "Search project", "Klik masuk ke detail", "Admin: tombol + Tambah (saat login)", "Admin: edit / hapus per card"]
+    },
+    {
+      name: "Project detail",
+      route: "/projects/[slug]",
+      priority: "must",
+      desc: "Satu project, detail penuh",
+      features: ["Cover image", "Deskripsi panjang", "Tech stack yang dipakai", "Link demo & GitHub", "Screenshot / video", "Navigasi prev / next project"]
+    },
+    {
+      name: "About",
+      route: "/about",
+      priority: "must",
+      desc: "Siapa kamu sebenarnya",
+      features: ["Foto & bio singkat", "Timeline pengalaman kerja", "Pendidikan", "Soft skills & hobi", "Download CV button", "Nilai-nilai / cara kerja"]
+    },
+    {
+      name: "Blog",
+      route: "/blog",
+      priority: "should",
+      desc: "Artikel & tulisan kamu",
+      features: ["List artikel dengan thumbnail", "Kategori & tag", "Estimasi waktu baca", "Search artikel", "RSS feed", "Admin: buat / edit / hapus artikel"]
+    },
+    {
+      name: "Contact",
+      route: "/contact",
+      priority: "must",
+      desc: "Cara orang menghubungimu",
+      features: ["Form nama, email, pesan", "Email dikirim ke inbox kamu", "Social media links", "Availability status", "Anti-spam (reCAPTCHA)", "Auto-reply ke pengirim"]
+    },
+  ],
+  priv: [
+    {
+      name: "Dashboard home",
+      route: "/dashboard",
+      priority: "must",
+      desc: "Ringkasan semua fitur",
+      features: ["Greeting + tanggal hari ini", "Ringkasan cashflow bulan ini", "Jadwal email hari ini", "Notes terbaru", "Quick actions", "AI suggestion harian"]
+    },
+    {
+      name: "Projects CMS",
+      route: "/dashboard/projects",
+      priority: "must",
+      desc: "CRUD semua project portfolio",
+      features: ["Tabel semua project", "Tambah project baru (form)", "Edit project existing", "Hapus project", "Toggle published / draft", "Upload gambar cover"]
+    },
+    {
+      name: "Email scheduler",
+      route: "/dashboard/schedule",
+      priority: "must",
+      desc: "Atur & kirim email terjadwal",
+      features: ["Buat email baru + jadwal waktu", "List email yang pending", "Preview sebelum kirim", "Riwayat email terkirim", "Batalkan jadwal", "Template email tersimpan"]
+    },
+    {
+      name: "Notes",
+      route: "/dashboard/notes",
+      priority: "must",
+      desc: "Catatan pribadi kamu",
+      features: ["Editor markdown", "Folder / kategori", "Search full-text", "Pin note penting", "Tag notes", "Export ke PDF / MD"]
+    },
+    {
+      name: "Cashflow",
+      route: "/dashboard/cashflow",
+      priority: "must",
+      desc: "Tracking pemasukan & pengeluaran",
+      features: ["Input transaksi baru", "Grafik pemasukan vs pengeluaran", "Kategori pengeluaran", "Filter by bulan / tahun", "Summary saldo", "Export CSV"]
+    },
+    {
+      name: "AI Chat",
+      route: "/dashboard/ai",
+      priority: "should",
+      desc: "Asisten pribadi berbasis AI",
+      features: ["Chat interface (OpenAI GPT-4o)", "Context dari data kamu", "Saran cashflow & notes", "Riwayat percakapan", "Prompt tersimpan", "Mode: brainstorm / review / plan"]
+    },
+    {
+      name: "Habit tracker",
+      route: "/dashboard/habits",
+      priority: "nice",
+      desc: "Pantau kebiasaan harian",
+      features: ["List habit yang ditrack", "Check-in harian", "Streak counter", "Grafik konsistensi per minggu", "Tambah / hapus habit", "Reminder notifikasi"]
+    },
+    {
+      name: "Goals / OKR",
+      route: "/dashboard/goals",
+      priority: "nice",
+      desc: "Target & pencapaian kamu",
+      features: ["Buat goal dengan deadline", "Key results per goal", "Progress bar", "Catatan per goal", "Arsip goal selesai", "Koneksi ke AI untuk saran"]
+    },
+  ],
+  util: [
+    {
+      name: "Login",
+      route: "/login",
+      priority: "must",
+      desc: "Pintu masuk ke dashboard",
+      features: ["Email + password", "Magic link (opsional)", "Redirect ke dashboard", "Lupa password flow", "Rate limiting anti-brute force", "Remember me"]
+    },
+    {
+      name: "Settings",
+      route: "/dashboard/settings",
+      priority: "should",
+      desc: "Pengaturan akun & tampilan",
+      features: ["Ganti password", "Update profil", "Preferensi tema (light/dark)", "API keys (OpenAI dsb)", "Notifikasi email on/off", "Danger zone: hapus data"]
+    },
+    {
+      name: "404 / Error",
+      route: "/404",
+      priority: "should",
+      desc: "Halaman tidak ditemukan",
+      features: ["Pesan error yang ramah", "Tombol kembali ke Home", "Ilustrasi / visual menarik", "Search bar (opsional)", "Link ke halaman populer", "Konsisten dengan desain"]
+    },
+  ]
+};
+
+const priorityLabel = { must: ["Wajib", "p-must"], should: ["Disarankan", "p-should"], nice: ["Nice to have", "p-nice"] };
+
+function renderGrid(data, containerId, labelClass) {
+  const el = document.getElementById(containerId);
+  data.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pg-card';
+    card.dataset.key = containerId + i;
+    const [pl, pc] = priorityLabel[p.priority];
+    card.innerHTML = `<span class="pg-label ${labelClass}">${labelClass === 'label-pub' ? 'Publik' : labelClass === 'label-priv' ? 'Private' : 'Utilitas'}</span>
+      <span class="priority-badge ${pc}" style="margin-left:4px">${pl}</span>
+      <div class="pg-name" style="margin-top:6px">${p.name}</div>
+      <div class="pg-desc">${p.desc}</div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:6px;font-family:var(--font-mono)">${p.route}</div>`;
+    card.onclick = () => showDetail(p, card, containerId + i);
+    el.appendChild(card);
+  });
+}
+
+function showDetail(p, card, key) {
+  document.querySelectorAll('.pg-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  const box = document.getElementById('detail-box');
+  const [pl, pc] = priorityLabel[p.priority];
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.name}</span>
+      <span class="priority-badge ${pc}">${pl}</span>
+    </div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:4px">${p.desc}</div>
+    <div style="font-size:12px;color:var(--color-text-tertiary);font-family:var(--font-mono);margin-bottom:16px">${p.route}</div>
+    <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Isi halaman ini:</div>
+    <div class="feat-list">${p.features.map(f => `<div class="feat-item">${f}</div>`).join('')}</div>
+    <div style="margin-top:16px">
+      <button onclick="sendPrompt('Buatkan mockup wireframe untuk halaman ${p.name} di website personal saya')" style="font-size:13px">Lihat mockup halaman ini ↗</button>
+    </div>
+  `;
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+renderGrid(pages.pub, 'pub-grid', 'label-pub');
+renderGrid(pages.priv, 'priv-grid', 'label-priv');
+renderGrid(pages.util, 'util-grid', 'label-both');
+</script>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary:   '#222831',
+            secondary: '#393E46',
+            accent:    '#00ADB5',
+            light:     '#EEEEEE',
+          },
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+            body:    ['"DM Sans"', 'sans-serif'],
+            mono:    ['"JetBrains Mono"', 'monospace'],
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.7s ease forwards',
+            'float':   'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeUp: { '0%': { opacity:'0', transform:'translateY(30px)' }, '100%': { opacity:'1', transform:'translateY(0)' } },
+            float:  { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-10px)' } },
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"/>
+  <style>
+    /* ── Theme Variables ── */
+    :root {
+      --bg:        #EEEEEE;
+      --bg-card:   #FFFFFF;
+      --bg-nav:    rgba(238,238,238,0.85);
+      --border:    #d0d0d0;
+      --text:      #222831;
+      --text-muted:#555e6a;
+    }
+    html.dark {
+      --bg:        #222831;
+      --bg-card:   #393E46;
+      --bg-nav:    rgba(34,40,49,0.85);
+      --border:    #393E46;
+      --text:      #EEEEEE;
+      --text-muted:rgba(238,238,238,0.6);
+    }
+    body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
+
+    #iconMoon { display: block; }
+    #iconSun  { display: none; }
+    html.dark #iconMoon { display: none; }
+    html.dark #iconSun  { display: block; }
+
+    .reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+    .timeline-line { width: 2px; background: linear-gradient(to bottom, #00ADB5, #00ADB530); }
+    .timeline-dot { box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 80%, transparent), 0 0 12px #00ADB560; }
+    .timeline-item:hover .timeline-card { border-color: rgba(0,173,181,0.4); transform: translateX(4px); }
+    .timeline-card { transition: all 0.25s ease; }
+    .tag { transition: all 0.2s; }
+    .tag:hover { transform: scale(1.08); }
+  </style>
+</head>
+<body class="font-body overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b" style="background-color:var(--bg-nav);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="font-mono text-accent font-medium tracking-widest text-sm">&lt;PORTFOLIO /&gt;</a>
+      <ul class="hidden md:flex gap-8 text-sm font-medium" style="color:var(--text-muted)">
+        <li><a href="index.html" class="hover:text-accent transition-colors">Home</a></li>
+        <li><a href="about.html" class="text-accent">About</a></li>
+        <li><a href="projects.html" class="hover:text-accent transition-colors">Projects</a></li>
+        <li><a href="blog.html" class="hover:text-accent transition-colors">Blog</a></li>
+        <li><a href="contact.html" class="hover:text-accent transition-colors">Contact</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <button id="darkToggle" class="w-9 h-9 rounded-full border border-secondary hover:border-accent flex items-center justify-center transition-all hover:text-accent" style="color:var(--text-muted)" title="Toggle dark mode">
+          <svg id="iconMoon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg id="iconSun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="contact.html" class="bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all hover:scale-105">Hire Me</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SPLIT LAYOUT -->
+  <div class="max-w-7xl mx-auto px-6 pt-24 pb-20 flex flex-col lg:flex-row gap-12">
+
+    <!-- ════════════ SIDEBAR (Sticky) ════════════ -->
+    <aside class="lg:w-80 lg:sticky lg:top-28 lg:self-start flex-shrink-0">
+      <!-- Profile Photo -->
+      <div class="relative mb-6 animate-fade-up" style="animation-delay:0.1s">
+        <div class="relative w-48 h-48 mx-auto lg:mx-0">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80"
+               alt="Alex Kurniawan"
+               class="w-full h-full object-cover rounded-2xl border-2 border-accent/30"/>
+          <div class="absolute -bottom-2 -right-2 bg-accent text-primary text-xs font-bold px-2 py-1 rounded-lg">
+            Open to Work ✓
+          </div>
+        </div>
+      </div>
+
+      <!-- Name + Bio -->
+      <div class="mb-6 animate-fade-up" style="animation-delay:0.15s">
+        <h1 class="font-display text-3xl font-black mb-1">Alex Kurniawan</h1>
+        <p class="text-accent font-mono text-sm mb-3">Full-Stack Developer</p>
+        <p class="text-sm leading-relaxed" style="color:var(--text-muted)">
+          5+ years crafting robust web apps and beautiful UIs. Passionate about turning complex problems into elegant solutions. Based in Jakarta, Indonesia 🇮🇩
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-3 mb-8 animate-fade-up" style="animation-delay:0.2s">
+        <a href="#" class="flex items-center justify-center gap-2 bg-accent hover:bg-accent/80 text-primary font-bold px-5 py-3 rounded-full transition-all hover:scale-105 text-sm">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download CV
+        </a>
+        <a href="contact.html" class="flex items-center justify-center gap-2 border border-accent text-accent hover:bg-accent/10 font-semibold px-5 py-3 rounded-full transition-all text-sm">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+          Hire Me / Connect
+        </a>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="space-y-3 text-sm animate-fade-up" style="animation-delay:0.25s">
+        <div class="flex items-center gap-3" style="color:var(--text-muted)">
+          <svg class="text-accent flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+          Jakarta, Indonesia
+        </div>
+        <div class="flex items-center gap-3" style="color:var(--text-muted)">
+          <svg class="text-accent flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          alex@portfolio.dev
+        </div>
+        <div class="flex items-center gap-3" style="color:var(--text-muted)">
+          <svg class="text-accent flex-shrink-0" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          5+ Years Experience
+        </div>
+      </div>
+
+      <!-- Core Values -->
+      <div class="mt-8 border rounded-2xl p-5 animate-fade-up" style="background-color:var(--bg-card);border-color:var(--border);animation-delay:0.3s">
+        <h3 class="text-xs font-mono text-accent tracking-widest mb-4">// CORE VALUES</h3>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <span class="text-lg">🎯</span>
+            <div>
+              <p class="text-sm font-semibold">Outcome-Driven</p>
+              <p class="text-xs leading-relaxed" style="color:var(--text-muted)">I measure success by real impact, not hours logged.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-lg">🤝</span>
+            <div>
+              <p class="text-sm font-semibold">Collaborative</p>
+              <p class="text-xs leading-relaxed" style="color:var(--text-muted)">Best products are built together, not in silos.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-lg">♻️</span>
+            <div>
+              <p class="text-sm font-semibold">Continuous Learner</p>
+              <p class="text-xs leading-relaxed" style="color:var(--text-muted)">Staying curious is my career superpower.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ════════════ MAIN CONTENT ════════════ -->
+    <main class="flex-1 min-w-0">
+
+      <!-- Intro -->
+      <div class="reveal mb-14">
+        <p class="font-mono text-accent text-xs tracking-widest mb-3">// BIO</p>
+        <h2 class="font-display text-4xl md:text-5xl font-black mb-5 leading-tight">
+          Turning ideas into<br/><span class="text-accent italic">digital reality</span>
+        </h2>
+        <div class="space-y-4 leading-loose text-base max-w-2xl" style="color:var(--text-muted)">
+          <p>Hey there! I'm Alex — a full-stack developer who genuinely loves what I do. I started my journey with a curiosity about how things work on the internet, and that curiosity turned into a 5-year career building everything from high-traffic APIs to polished consumer apps.</p>
+          <p>My philosophy is simple: great software starts with understanding people. Before writing a single line of code, I ask: <span class="font-medium" style="color:var(--text)">who is this for, and what problem does it truly solve?</span></p>
+        </div>
+      </div>
+
+      <!-- ── Work Experience Timeline ── -->
+      <div class="reveal mb-14">
+        <p class="font-mono text-accent text-xs tracking-widest mb-6">// EXPERIENCE</p>
+        <h2 class="font-display text-3xl font-bold mb-8">Work History</h2>
+
+        <div class="relative pl-8">
+          <!-- Vertical line -->
+          <div class="timeline-line absolute left-3 top-2 bottom-2 rounded-full"></div>
+
+          <!-- Item 1 -->
+          <div class="timeline-item relative mb-10">
+            <div class="absolute left-[-29px] top-1.5 w-3.5 h-3.5 rounded-full bg-accent timeline-dot border-2" style="border-color:var(--bg)"></div>
+            <div class="timeline-card border rounded-xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                <div>
+                  <h3 class="font-display text-lg font-bold">Senior Frontend Developer</h3>
+                  <p class="text-accent text-sm font-medium">Tokopedia · Full-time</p>
+                </div>
+                <span class="font-mono text-xs rounded-full px-3 py-1 self-start" style="color:var(--text-muted);background-color:var(--bg)">2023 – Present</span>
+              </div>
+              <ul class="space-y-1.5 text-sm" style="color:var(--text-muted)">
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Led migration of legacy jQuery frontend to React — 40% performance improvement</li>
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Architected design system used by 5 product teams across 3 apps</li>
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Mentored 3 junior developers, improving team velocity by 25%</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="timeline-item relative mb-10">
+            <div class="absolute left-[-29px] top-1.5 w-3.5 h-3.5 rounded-full timeline-dot border-2 border-accent/60" style="background-color:var(--bg-card)"></div>
+            <div class="timeline-card border rounded-xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                <div>
+                  <h3 class="font-display text-lg font-bold">Full-Stack Developer</h3>
+                  <p class="text-accent text-sm font-medium">Gojek · Full-time</p>
+                </div>
+                <span class="font-mono text-xs rounded-full px-3 py-1 self-start" style="color:var(--text-muted);background-color:var(--bg)">2021 – 2023</span>
+              </div>
+              <ul class="space-y-1.5 text-sm" style="color:var(--text-muted)">
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Built real-time driver tracking microservice handling 100k concurrent connections</li>
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Implemented GoPayLater payment gateway integration — $2M+ monthly transactions</li>
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Reduced API response time by 60% through Redis caching strategies</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="timeline-item relative mb-10">
+            <div class="absolute left-[-29px] top-1.5 w-3.5 h-3.5 rounded-full timeline-dot border-2 border-accent/40" style="background-color:var(--bg-card)"></div>
+            <div class="timeline-card border rounded-xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                <div>
+                  <h3 class="font-display text-lg font-bold">Junior Web Developer</h3>
+                  <p class="text-accent text-sm font-medium">Dicoding Indonesia · Full-time</p>
+                </div>
+                <span class="font-mono text-xs rounded-full px-3 py-1 self-start" style="color:var(--text-muted);background-color:var(--bg)">2019 – 2021</span>
+              </div>
+              <ul class="space-y-1.5 text-sm" style="color:var(--text-muted)">
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Developed interactive learning modules used by 50k+ students</li>
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Maintained and improved platform CMS performance</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="timeline-item relative">
+            <div class="absolute left-[-29px] top-1.5 w-3.5 h-3.5 rounded-full timeline-dot border-2 border-accent/20" style="background-color:var(--bg-card)"></div>
+            <div class="timeline-card border rounded-xl p-5" style="background-color:var(--bg-card);border-color:var(--border)">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                <div>
+                  <h3 class="font-display text-lg font-bold">Freelance Developer</h3>
+                  <p class="text-accent text-sm font-medium">Self-employed</p>
+                </div>
+                <span class="font-mono text-xs rounded-full px-3 py-1 self-start" style="color:var(--text-muted);background-color:var(--bg)">2018 – 2019</span>
+              </div>
+              <ul class="space-y-1.5 text-sm" style="color:var(--text-muted)">
+                <li class="flex items-start gap-2"><span class="text-accent mt-1">▸</span> Delivered 10+ client websites and small business web apps</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Education ── -->
+      <div class="reveal mb-14">
+        <p class="font-mono text-accent text-xs tracking-widest mb-6">// EDUCATION</p>
+        <h2 class="font-display text-3xl font-bold mb-6">Academic Background</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="border hover:border-accent/30 rounded-2xl p-5 transition-all" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><span class="text-xl">🎓</span></div>
+              <div>
+                <h3 class="font-display font-bold mb-0.5">Universitas Indonesia</h3>
+                <p class="text-accent text-xs font-mono mb-2">S1 Ilmu Komputer</p>
+                <p class="text-xs" style="color:var(--text-muted)">2015 – 2019 · GPA 3.78/4.00</p>
+                <p class="text-xs mt-1" style="color:var(--text-muted)">Thesis: "Optimizing Graph Traversal for Social Network Analysis"</p>
+              </div>
+            </div>
+          </div>
+          <div class="border hover:border-accent/30 rounded-2xl p-5 transition-all" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><span class="text-xl">📜</span></div>
+              <div>
+                <h3 class="font-display font-bold mb-0.5">AWS Certified Solutions Architect</h3>
+                <p class="text-accent text-xs font-mono mb-2">Certification · Professional</p>
+                <p class="text-xs" style="color:var(--text-muted)">2022 · Amazon Web Services</p>
+              </div>
+            </div>
+          </div>
+          <div class="border hover:border-accent/30 rounded-2xl p-5 transition-all" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><span class="text-xl">📜</span></div>
+              <div>
+                <h3 class="font-display font-bold mb-0.5">Google UX Design Certificate</h3>
+                <p class="text-accent text-xs font-mono mb-2">Certification · Professional</p>
+                <p class="text-xs" style="color:var(--text-muted)">2021 · Google / Coursera</p>
+              </div>
+            </div>
+          </div>
+          <div class="border hover:border-accent/30 rounded-2xl p-5 transition-all" style="background-color:var(--bg-card);border-color:var(--border)">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><span class="text-xl">🏫</span></div>
+              <div>
+                <h3 class="font-display font-bold mb-0.5">SMAN 8 Jakarta</h3>
+                <p class="text-accent text-xs font-mono mb-2">SMA · IPA</p>
+                <p class="text-xs" style="color:var(--text-muted)">2012 – 2015</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Soft Skills & Hobbies ── -->
+      <div class="reveal">
+        <p class="font-mono text-accent text-xs tracking-widest mb-6">// PERSONALITY</p>
+        <h2 class="font-display text-3xl font-bold mb-6">Soft Skills &amp; Hobbies</h2>
+        <div class="grid sm:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-xs font-mono mb-4 tracking-widest" style="color:var(--text-muted)">SOFT SKILLS</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag bg-accent/10 border border-accent/30 text-accent text-xs px-4 py-2 rounded-full cursor-default">🧠 Problem-Solving</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">💬 Communication</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">🤝 Team Player</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">⏱️ Time Management</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">🎯 Attention to Detail</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">🔄 Adaptability</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">🧩 Creative Thinking</span>
+              <span class="tag border text-xs px-4 py-2 rounded-full cursor-default hover:border-accent/30 hover:text-accent transition-all" style="background-color:var(--bg-card);border-color:var(--border);color:var(--text-muted)">📐 Analytical Mindset</span>
+            </div>
+          </div>
+          <!-- Hobbies -->
+          <div>
+            <h3 class="text-xs font-mono mb-4 tracking-widest" style="color:var(--text-muted)">HOBBIES</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">🎮</div><p class="text-xs" style="color:var(--text-muted)">Gaming</p></div>
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">📸</div><p class="text-xs" style="color:var(--text-muted)">Photography</p></div>
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">📚</div><p class="text-xs" style="color:var(--text-muted)">Reading</p></div>
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">🏃</div><p class="text-xs" style="color:var(--text-muted)">Running</p></div>
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">✈️</div><p class="text-xs" style="color:var(--text-muted)">Traveling</p></div>
+              <div class="border rounded-xl p-4 text-center hover:border-accent/30 transition-all" style="background-color:var(--bg-card);border-color:var(--border)"><div class="text-2xl mb-1">🎵</div><p class="text-xs" style="color:var(--text-muted)">Music</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t py-10 mt-10" style="background-color:var(--bg-card);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+      <p class="text-xs" style="color:var(--text-muted)">© 2026 Alex Kurniawan. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">GitHub</a>
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">LinkedIn</a>
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">Twitter</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode — sync dengan localStorage (shared antar halaman)
+    const html = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+    document.getElementById('darkToggle').addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

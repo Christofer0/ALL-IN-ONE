@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Notes — BCW Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#000000",
+              secondary: "#4A70A9",
+              accent: "#8FABD4",
+              light: "#EFECE3",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: #000;
+        color: #efece3;
+        font-family: "Inter", sans-serif;
+        overflow: hidden;
+        height: 100vh;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4a70a9;
+        border-radius: 2px;
+      }
+      .sidebar {
+        width: 240px;
+        background: #0a0a0a;
+        border-right: 1px solid #1e1e1e;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        margin: 2px 8px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background: #161616;
+        color: #efece3;
+      }
+      .nav-item.active {
+        background: rgba(74, 112, 169, 0.15);
+        color: #8fabd4;
+        border: 1px solid rgba(74, 112, 169, 0.2);
+      }
+      .nav-section {
+        padding: 16px 24px 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #374151;
+      }
+      .notes-layout {
+        margin-left: 240px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Topbar */
+      .topbar {
+        height: 52px;
+        background: #000;
+        border-bottom: 1px solid #1e1e1e;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      /* 3-panel layout */
+      .notes-body {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
+      /* Panel 1: folders */
+      .folders-panel {
+        width: 180px;
+        border-right: 1px solid #1e1e1e;
+        background: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+      /* Panel 2: note list */
+      .notes-list-panel {
+        width: 260px;
+        border-right: 1px solid #1e1e1e;
+        background: #0d0d0d;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+      /* Panel 3: editor */
+      .editor-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      /* Note list item */
+      .note-item {
+        padding: 12px 14px;
+        border-bottom: 1px solid #111;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .note-item:hover {
+        background: #111;
+      }
+      .note-item.active {
+        background: rgba(74, 112, 169, 0.1);
+        border-left: 2px solid #4a70a9;
+      }
+      /* Folder item */
+      .folder-item {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        color: #6b7280;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 6px;
+        margin: 2px 8px;
+      }
+      .folder-item:hover {
+        background: #161616;
+        color: #efece3;
+      }
+      .folder-item.active {
+        color: #8fabd4;
+        background: rgba(74, 112, 169, 0.1);
+      }
+      /* Editor toolbar */
+      .editor-toolbar {
+        padding: 8px 16px;
+        border-bottom: 1px solid #1e1e1e;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+      }
+      .tool-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        padding: 5px 8px;
+        cursor: pointer;
+        color: #6b7280;
+        font-size: 0.78rem;
+        transition: all 0.15s;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .tool-btn:hover {
+        background: #161616;
+        color: #efece3;
+        border-color: #1e1e1e;
+      }
+      /* Editor split */
+      .editor-split {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
+      .editor-write {
+        flex: 1;
+        padding: 20px;
+        background: #0d0d0d;
+        border-right: 1px solid #1e1e1e;
+        overflow-y: auto;
+      }
+      .editor-preview {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #000;
+      }
+      textarea.md-editor {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #efece3;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        resize: none;
+      }
+      /* Markdown preview styles */
+      .preview h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: #efece3;
+      }
+      .preview h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 16px 0 8px;
+        color: #efece3;
+      }
+      .preview h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 12px 0 6px;
+        color: #efece3;
+      }
+      .preview p {
+        font-size: 0.85rem;
+        line-height: 1.8;
+        color: #aaaaaa;
+        margin-bottom: 10px;
+      }
+      .preview code {
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        color: #8fabd4;
+      }
+      .preview pre {
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        padding: 14px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 12px;
+      }
+      .preview pre code {
+        background: none;
+        border: none;
+        padding: 0;
+      }
+      .preview ul {
+        margin: 8px 0 12px 20px;
+        color: #aaaaaa;
+        font-size: 0.85rem;
+        line-height: 1.8;
+      }
+      .preview li::marker {
+        color: #4a70a9;
+      }
+      .preview strong {
+        color: #efece3;
+        font-weight: 600;
+      }
+      .preview blockquote {
+        border-left: 2px solid #4a70a9;
+        padding: 8px 14px;
+        margin: 10px 0;
+        color: #6b7280;
+        font-style: italic;
+        background: #0d0d0d;
+        border-radius: 0 6px 6px 0;
+      }
+      .preview hr {
+        border: none;
+        border-top: 1px solid #1e1e1e;
+        margin: 16px 0;
+      }
+      /* Tags */
+      .tag-chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: rgba(74, 112, 169, 0.1);
+        border: 1px solid rgba(74, 112, 169, 0.2);
+        color: #8fabd4;
+        cursor: pointer;
+      }
+      .tag-chip:hover {
+        background: rgba(74, 112, 169, 0.2);
+      }
+      /* Buttons */
+      .btn-primary {
+        background: #4a70a9;
+        color: #efece3;
+        border: none;
+        border-radius: 7px;
+        padding: 7px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-primary:hover {
+        background: #5a80b9;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #1e1e1e;
+        border-radius: 7px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-ghost:hover {
+        border-color: #4a70a9;
+        color: #8fabd4;
+      }
+      .search-input {
+        background: #161616;
+        border: 1px solid #1e1e1e;
+        border-radius: 7px;
+        padding: 8px 14px 8px 36px;
+        font-size: 0.8rem;
+        color: #efece3;
+        outline: none;
+        transition: border-color 0.2s;
+        width: 100%;
+      }
+      .search-input::placeholder {
+        color: #374151;
+      }
+      .search-input:focus {
+        border-color: rgba(74, 112, 169, 0.4);
+      }
+      .pin-icon {
+        color: #fbbf24;
+      }
+      /* Mode btn */
+      .mode-btn {
+        background: transparent;
+        border: 1px solid #1e1e1e;
+        border-radius: 5px;
+        padding: 4px 10px;
+        font-size: 0.68rem;
+        cursor: pointer;
+        color: #6b7280;
+        font-family: "JetBrains Mono", monospace;
+        transition: all 0.15s;
+      }
+      .mode-btn.active {
+        background: rgba(74, 112, 169, 0.12);
+        color: #8fabd4;
+        border-color: rgba(74, 112, 169, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div style="padding: 20px 24px; border-bottom: 1px solid #1e1e1e">
+        <div
+          style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em"
+        >
+          BCW<span style="color: #4a70a9">.</span>
+        </div>
+        <div
+          style="
+            font-size: 0.65rem;
+            color: #374151;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            margin-top: 2px;
+          "
+        >
+          Personal OS v1.0
+        </div>
+      </div>
+      <nav style="flex: 1; overflow-y: auto; padding: 8px 0">
+        <div class="nav-section">Main</div>
+        <a href="dashboard.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" /></svg
+          >Dashboard</a
+        >
+        <div class="nav-section">Tools</div>
+        <a href="projects-cms.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            /></svg
+          >Projects CMS</a
+        >
+        <a href="email-scheduler.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            />
+            <polyline points="22,6 12,13 2,6" /></svg
+          >Email Scheduler</a
+        >
+        <a href="notes.html" class="nav-item active"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+            />
+            <polyline points="14 2 14 8 20 8" /></svg
+          >Notes</a
+        >
+        <a href="cashflow.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg
+          >Cashflow</a
+        >
+        <div class="nav-section">Growth</div>
+        <a href="habits.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" /></svg
+          >Habit Tracker</a
+        >
+        <a href="goals.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" /></svg
+          >Goals / OKR</a
+        >
+        <a href="ai-chat.html" class="nav-item"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            /></svg
+          >AI Assistant</a
+        >
+      </nav>
+      <div style="padding: 16px; border-top: 1px solid #1e1e1e">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: rgba(74, 112, 169, 0.2);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 700;
+              font-size: 0.75rem;
+              color: #8fabd4;
+              flex-shrink: 0;
+            "
+          >
+            BCW
+          </div>
+          <div>
+            <div style="font-size: 0.78rem; font-weight: 600">Brillian CW</div>
+            <div style="font-size: 0.65rem; color: #374151">Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="notes-layout">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div style="font-size: 0.85rem; font-weight: 600; flex-shrink: 0">
+          Notes
+        </div>
+        <div style="position: relative; flex: 1; max-width: 300px">
+          <svg
+            style="
+              position: absolute;
+              left: 10px;
+              top: 50%;
+              transform: translateY(-50%);
+              color: #374151;
+            "
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search notes..."
+            oninput="searchNotes(this.value)"
+          />
+        </div>
+        <div style="display: flex; gap: 6px; margin-left: auto">
+          <button
+            class="mode-btn active"
+            id="mode-split"
+            onclick="setMode('split')"
+          >
+            Split
+          </button>
+          <button class="mode-btn" id="mode-write" onclick="setMode('write')">
+            Write
+          </button>
+          <button
+            class="mode-btn"
+            id="mode-preview"
+            onclick="setMode('preview')"
+          >
+            Preview
+          </button>
+        </div>
+        <button class="btn-primary" onclick="newNote()">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" /></svg
+          >New Note
+        </button>
+        <button class="btn-ghost" onclick="exportNote()">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" /></svg
+          >Export
+        </button>
+      </div>
+
+      <div class="notes-body">
+        <!-- Folders panel -->
+        <div class="folders-panel">
+          <div
+            style="
+              padding: 12px 16px 8px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <span
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: #374151;
+              "
+              >Folders</span
+            >
+            <button
+              onclick="addFolder()"
+              style="
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                color: #374151;
+                padding: 2px;
+              "
+              title="New folder"
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+          </div>
+          <div
+            id="folders-list"
+            style="flex: 1; overflow-y: auto; padding: 4px 0"
+          >
+            <!-- rendered by JS -->
+          </div>
+          <div style="padding: 10px 16px; border-top: 1px solid #1e1e1e">
+            <div
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.65rem;
+                color: #374151;
+              "
+              id="notes-count"
+            >
+              0 notes
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes list panel -->
+        <div class="notes-list-panel">
+          <div
+            style="
+              padding: 10px 14px;
+              border-bottom: 1px solid #1e1e1e;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span
+              style="font-size: 0.82rem; font-weight: 600; flex: 1"
+              id="folder-title"
+              >All Notes</span
+            >
+            <button
+              onclick="sortNotes()"
+              style="
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                color: #374151;
+                font-size: 0.68rem;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+              title="Sort"
+            >
+              Sort
+            </button>
+          </div>
+          <div id="notes-list" style="flex: 1; overflow-y: auto"></div>
+        </div>
+
+        <!-- Editor panel -->
+        <div class="editor-panel">
+          <!-- Editor meta bar -->
+          <div
+            style="
+              padding: 10px 16px;
+              border-bottom: 1px solid #1e1e1e;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+            id="note-meta-bar"
+          >
+            <div
+              id="note-title-display"
+              style="
+                font-size: 0.9rem;
+                font-weight: 600;
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: #6b7280;
+              "
+            >
+              Select or create a note
+            </div>
+            <div
+              id="note-tags"
+              style="display: flex; gap: 4px; flex-wrap: wrap"
+            ></div>
+            <button
+              id="pin-btn"
+              onclick="togglePin()"
+              style="
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                color: #374151;
+                padding: 4px;
+                transition: color 0.2s;
+              "
+              title="Pin note"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="m15 4.5-4 4L7 7l-1.5 1.5 4 4-3 6L8 20l6-3 4 4 1.5-1.5-1.5-4 4-4L20.5 10l-1.5-2.5z"
+                />
+              </svg>
+            </button>
+            <span
+              id="note-saved"
+              style="
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.62rem;
+                color: #374151;
+              "
+              >–</span
+            >
+          </div>
+
+          <!-- Toolbar -->
+          <div class="editor-toolbar" id="editor-toolbar">
+            <button
+              class="tool-btn"
+              onclick="insertMd('**', '**')"
+              title="Bold"
+            >
+              <b>B</b>
+            </button>
+            <button
+              class="tool-btn"
+              onclick="insertMd('*', '*')"
+              title="Italic"
+            >
+              <i>I</i>
+            </button>
+            <button
+              class="tool-btn"
+              onclick="insertMd('~~', '~~')"
+              title="Strikethrough"
+            >
+              <s>S</s>
+            </button>
+            <button class="tool-btn" onclick="insertMd('\n# ', '')">H1</button>
+            <button class="tool-btn" onclick="insertMd('\n## ', '')">H2</button>
+            <button class="tool-btn" onclick="insertMd('\n### ', '')">
+              H3
+            </button>
+            <div
+              style="
+                width: 1px;
+                height: 16px;
+                background: #1e1e1e;
+                margin: 0 2px;
+              "
+            ></div>
+            <button class="tool-btn" onclick="insertMd('\n- ', '')">
+              — List
+            </button>
+            <button class="tool-btn" onclick="insertMd('\n> ', '')">
+              ❝ Quote
+            </button>
+            <button class="tool-btn" onclick="insertMd('\`', '\`')">
+              Code
+            </button>
+            <button class="tool-btn" onclick="insertMd('\n```\n', '\n```')">
+              Block
+            </button>
+            <div
+              style="
+                width: 1px;
+                height: 16px;
+                background: #1e1e1e;
+                margin: 0 2px;
+              "
+            ></div>
+            <button class="tool-btn" onclick="insertMd('\n---\n', '')">
+              HR
+            </button>
+            <button class="tool-btn" onclick="insertMd('[', '](url)')">
+              Link
+            </button>
+            <div
+              style="
+                margin-left: auto;
+                display: flex;
+                gap: 6px;
+                align-items: center;
+              "
+            >
+              <span
+                style="
+                  font-size: 0.65rem;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  color: #374151;
+                "
+                id="word-count"
+                >0 words</span
+              >
+              <input
+                type="text"
+                id="tag-input"
+                placeholder="+ add tag"
+                style="
+                  background: #161616;
+                  border: 1px solid #1e1e1e;
+                  border-radius: 6px;
+                  padding: 4px 10px;
+                  font-size: 0.68rem;
+                  color: #efece3;
+                  outline: none;
+                  width: 90px;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+                onkeydown="addTag(event)"
+              />
+            </div>
+          </div>
+
+          <!-- Split view -->
+          <div class="editor-split" id="editor-split">
+            <div class="editor-write" id="editor-write-panel">
+              <textarea
+                class="md-editor"
+                id="md-textarea"
+                placeholder="Start writing in Markdown...&#10;&#10;# Hello World&#10;&#10;Write your thoughts here."
+                oninput="onEditorInput()"
+              ></textarea>
+            </div>
+            <div class="editor-preview" id="editor-preview-panel">
+              <div
+                class="preview"
+                id="md-preview"
+                style="font-family: &quot;Inter&quot;, sans-serif"
+              >
+                <div
+                  style="
+                    color: #374151;
+                    font-family: &quot;JetBrains Mono&quot;, monospace;
+                    font-size: 0.78rem;
+                    text-align: center;
+                    margin-top: 40px;
+                  "
+                >
+                  Preview will appear here
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let folders = [
+        { id: 1, name: "All Notes", icon: "📝" },
+        { id: 2, name: "Projects", icon: "🚀" },
+        { id: 3, name: "Personal", icon: "🙋" },
+        { id: 4, name: "Ideas", icon: "💡" },
+        { id: 5, name: "Archive", icon: "📦" },
+      ];
+      let notes = [
+        {
+          id: 1,
+          title: "AutoFlow AI – System Design",
+          folder: 2,
+          content: `# AutoFlow AI — System Design\n\n## Overview\nIntelligent workflow automation using LLMs to parse natural language.\n\n## Architecture\n- **Frontend:** Next.js 14 App Router\n- **Backend:** Node.js + Express\n- **AI:** OpenAI GPT-4o with structured outputs\n- **Queue:** Redis + BullMQ\n- **DB:** PostgreSQL + Prisma\n\n## Key Modules\n1. Intent Parser\n2. Connector Registry\n3. Pipeline Executor\n4. Monitoring & Alerting\n\n\`\`\`js\nconst response = await openai.chat.completions.create({\n  model: "gpt-4o",\n  response_format: { type: "json_object" },\n  messages: [{ role: "user", content: description }]\n});\n\`\`\`\n\n> **Note:** Always validate structured output before execution.`,
+          tags: ["project", "architecture"],
+          pinned: true,
+          updated: "2h ago",
+        },
+        {
+          id: 2,
+          title: "Meeting notes – Client XYZ",
+          folder: 2,
+          content: `# Meeting Notes – Client XYZ\n**Date:** April 13, 2025\n**Attendees:** Brillian, Pak Budi, Bu Sari\n\n## Discussed\n- Project timeline revised to June 30\n- Budget increased by 20%\n- Need to add mobile responsive design\n\n## Action Items\n- [ ] Send revised proposal by Friday\n- [ ] Create Figma mockup for review\n- [ ] Schedule next meeting for April 20`,
+          tags: ["client", "meeting"],
+          pinned: false,
+          updated: "Yesterday",
+        },
+        {
+          id: 3,
+          title: "Ideas dump – Weekend side project",
+          folder: 4,
+          content: `# Weekend Side Project Ideas\n\n## Apps I Want to Build\n- **AI-powered journaling** – daily prompts, mood tracking, insights\n- **Local business scanner** – find businesses without proper websites\n- **Bookmark brain** – AI categorizes your browser bookmarks\n- **Receipt scanner** – photo → cashflow entry auto\n\n## Tech Stack Ideas\n- Next.js + Supabase (fastest to ship)\n- Consider Expo for mobile versions\n\n---\n\nPick ONE and focus. Don't build all of them.`,
+          tags: ["ideas", "personal"],
+          pinned: false,
+          updated: "3 days ago",
+        },
+        {
+          id: 4,
+          title: "Prompt Engineering Notes",
+          folder: 1,
+          content: `# Prompt Engineering Patterns\n\n## Structured Output\nAlways use \`response_format: json_object\` for reliable parsing.\n\n## Few-shot examples\nProvide 2-3 examples in the system prompt for complex tasks.\n\n## Chain of Thought\nAdd "Think step by step" for reasoning tasks.\n\n## Temperature\n- Creative tasks: 0.7–1.0\n- Factual/structured: 0.0–0.3`,
+          tags: ["ai", "reference"],
+          pinned: false,
+          updated: "1 week ago",
+        },
+      ];
+      let currentNote = null;
+      let currentFolder = 1;
+      let currentMode = "split";
+      let nextNoteId = 5;
+      let saveTimer = null;
+
+      function renderFolders() {
+        const cnt = {};
+        notes.forEach((n) => {
+          cnt[n.folder] = (cnt[n.folder] || 0) + 1;
+        });
+        document.getElementById("folders-list").innerHTML = folders
+          .map(
+            (f) => `
+    <div class="folder-item ${currentFolder === f.id ? "active" : ""}" onclick="selectFolder(${f.id})">
+      <span>${f.icon}</span>
+      <span style="flex:1">${f.name}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem">${f.id === 1 ? notes.length : cnt[f.id] || 0}</span>
+    </div>
+  `,
+          )
+          .join("");
+        document.getElementById("notes-count").textContent =
+          notes.length + " notes total";
+      }
+
+      function renderNotesList(filter = "") {
+        let list =
+          currentFolder === 1
+            ? notes
+            : notes.filter((n) => n.folder === currentFolder);
+        if (filter)
+          list = list.filter(
+            (n) =>
+              n.title.toLowerCase().includes(filter) ||
+              n.content.toLowerCase().includes(filter) ||
+              n.tags.some((t) => t.includes(filter)),
+          );
+        list = list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+        document.getElementById("notes-list").innerHTML = list.length
+          ? list
+              .map(
+                (n) => `
+    <div class="note-item ${currentNote && currentNote.id === n.id ? "active" : ""}" onclick="selectNote(${n.id})">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        ${n.pinned ? '<span class="pin-icon" style="font-size:0.7rem">📌</span>' : ""}
+        <span style="font-size:0.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${n.title}</span>
+      </div>
+      <div style="font-size:0.72rem;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px">${n.content
+        .replace(/[#*`\n]/g, " ")
+        .trim()
+        .slice(0, 60)}...</div>
+      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+        ${n.tags
+          .slice(0, 2)
+          .map(
+            (t) =>
+              `<span class="tag-chip" style="font-size:0.55rem">#${t}</span>`,
+          )
+          .join("")}
+        <span style="margin-left:auto;font-size:0.62rem;color:#374151;font-family:'JetBrains Mono',monospace">${n.updated}</span>
+      </div>
+    </div>
+  `,
+              )
+              .join("")
+          : `<div style="text-align:center;padding:32px;color:#374151;font-family:'JetBrains Mono',monospace;font-size:0.75rem">No notes</div>`;
+      }
+
+      function selectFolder(id) {
+        currentFolder = id;
+        currentNote = null;
+        document.getElementById("folder-title").textContent = folders.find(
+          (f) => f.id === id,
+        )?.name;
+        renderFolders();
+        renderNotesList();
+        clearEditor();
+      }
+      function selectNote(id) {
+        currentNote = notes.find((n) => n.id === id);
+        loadNote();
+        renderNotesList();
+      }
+      function clearEditor() {
+        document.getElementById("md-textarea").value = "";
+        document.getElementById("md-preview").innerHTML =
+          "<div style=\"color:#374151;font-family:'JetBrains Mono',monospace;font-size:0.78rem;text-align:center;margin-top:40px\">Select or create a note</div>";
+        document.getElementById("note-title-display").textContent =
+          "Select or create a note";
+        document.getElementById("note-title-display").style.color = "#6B7280";
+        document.getElementById("note-tags").innerHTML = "";
+        document.getElementById("word-count").textContent = "0 words";
+      }
+
+      function loadNote() {
+        if (!currentNote) return;
+        document.getElementById("md-textarea").value = currentNote.content;
+        document.getElementById("note-title-display").textContent =
+          currentNote.title;
+        document.getElementById("note-title-display").style.color = "#EFECE3";
+        document.getElementById("note-tags").innerHTML = currentNote.tags
+          .map(
+            (t) =>
+              `<span class="tag-chip">#${t} <span onclick="removeTag('${t}')" style="cursor:pointer;opacity:0.6">×</span></span>`,
+          )
+          .join("");
+        document.getElementById("pin-btn").style.color = currentNote.pinned
+          ? "#fbbf24"
+          : "#374151";
+        renderPreview();
+        updateWordCount();
+      }
+
+      function newNote() {
+        const title = "New Note " + new Date().toLocaleDateString();
+        const n = {
+          id: nextNoteId++,
+          title,
+          folder: currentFolder === 1 ? 1 : currentFolder,
+          content: "# " + title + "\n\nStart writing...",
+          tags: [],
+          pinned: false,
+          updated: "Just now",
+        };
+        notes.unshift(n);
+        currentNote = n;
+        renderFolders();
+        renderNotesList();
+        loadNote();
+      }
+
+      function onEditorInput() {
+        if (!currentNote) return;
+        currentNote.content = document.getElementById("md-textarea").value;
+        currentNote.updated = "Just now";
+        currentNote.title =
+          currentNote.content.match(/^#\s+(.+)/m)?.[1] || currentNote.title;
+        document.getElementById("note-title-display").textContent =
+          currentNote.title;
+        renderPreview();
+        updateWordCount();
+        document.getElementById("note-saved").textContent = "Unsaved";
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          document.getElementById("note-saved").textContent = "Saved ✓";
+          renderNotesList();
+        }, 1200);
+      }
+
+      function renderPreview() {
+        if (!currentNote) return;
+        let html = currentNote.content
+          .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+          .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+          .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+          .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.+?)\*/g, "<em>$1</em>")
+          .replace(/~~(.+?)~~/g, "<s>$1</s>")
+          .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
+          .replace(/`(.+?)`/g, "<code>$1</code>")
+          .replace(/^\> (.+)$/gm, "<blockquote>$1</blockquote>")
+          .replace(/^- (.+)$/gm, "<li>$1</li>")
+          .replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>")
+          .replace(
+            /\[(.+?)\]\((.+?)\)/g,
+            '<a href="$2" style="color:#8FABD4">$1</a>',
+          )
+          .replace(/^---$/gm, "<hr>")
+          .replace(/\n\n/g, "</p><p>")
+          .replace(/\n/g, "<br>");
+        document.getElementById("md-preview").innerHTML =
+          `<div class="preview"><p>${html}</p></div>`;
+      }
+
+      function updateWordCount() {
+        const words = document
+          .getElementById("md-textarea")
+          .value.trim()
+          .split(/\s+/)
+          .filter((w) => w).length;
+        document.getElementById("word-count").textContent = words + " words";
+      }
+
+      function insertMd(before, after) {
+        const ta = document.getElementById("md-textarea");
+        const s = ta.selectionStart;
+        const e = ta.selectionEnd;
+        const sel = ta.value.substring(s, e);
+        ta.value =
+          ta.value.substring(0, s) +
+          before +
+          sel +
+          after +
+          ta.value.substring(e);
+        ta.focus();
+        ta.setSelectionRange(s + before.length, e + before.length);
+        onEditorInput();
+      }
+
+      function addTag(e) {
+        if (e.key !== "Enter") return;
+        const v = e.target.value.trim().replace(/[^a-z0-9-]/gi, "");
+        if (!v || !currentNote) return;
+        if (!currentNote.tags.includes(v)) {
+          currentNote.tags.push(v);
+        }
+        e.target.value = "";
+        document.getElementById("note-tags").innerHTML = currentNote.tags
+          .map(
+            (t) =>
+              `<span class="tag-chip">#${t} <span onclick="removeTag('${t}')" style="cursor:pointer;opacity:0.6">×</span></span>`,
+          )
+          .join("");
+      }
+      function removeTag(t) {
+        if (!currentNote) return;
+        currentNote.tags = currentNote.tags.filter((x) => x !== t);
+        document.getElementById("note-tags").innerHTML = currentNote.tags
+          .map(
+            (t) =>
+              `<span class="tag-chip">#${t} <span onclick="removeTag('${t}')" style="cursor:pointer;opacity:0.6">×</span></span>`,
+          )
+          .join("");
+      }
+      function togglePin() {
+        if (!currentNote) return;
+        currentNote.pinned = !currentNote.pinned;
+        document.getElementById("pin-btn").style.color = currentNote.pinned
+          ? "#fbbf24"
+          : "#374151";
+        renderNotesList();
+      }
+      function searchNotes(q) {
+        renderNotesList(q.toLowerCase());
+      }
+      function sortNotes() {
+        notes.sort((a, b) => a.title.localeCompare(b.title));
+        renderNotesList();
+      }
+      function addFolder() {
+        const name = prompt("Folder name:");
+        if (name) folders.push({ id: Date.now(), name, icon: "📁" });
+        renderFolders();
+      }
+      function exportNote() {
+        if (!currentNote) return;
+        const a = document.createElement("a");
+        a.href =
+          "data:text/markdown," + encodeURIComponent(currentNote.content);
+        a.download = currentNote.title.replace(/[^a-z0-9]/gi, "-") + ".md";
+        a.click();
+      }
+      function setMode(m) {
+        currentMode = m;
+        ["split", "write", "preview"].forEach((x) =>
+          document
+            .getElementById("mode-" + x)
+            .classList.toggle("active", x === m),
+        );
+        const wp = document.getElementById("editor-write-panel");
+        const pp = document.getElementById("editor-preview-panel");
+        if (m === "split") {
+          wp.style.display = "";
+          pp.style.display = "";
+        } else if (m === "write") {
+          wp.style.display = "";
+          pp.style.display = "none";
+        } else {
+          wp.style.display = "none";
+          pp.style.display = "";
+        }
+      }
+
+      renderFolders();
+      renderNotesList();
+      selectNote(1);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Projects — Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#222831', secondary:'#393E46', accent:'#00ADB5', light:'#EEEEEE' },
+          fontFamily: {
+            display:['"Playfair Display"','serif'],
+            body:['"DM Sans"','sans-serif'],
+            mono:['"JetBrains Mono"','monospace'],
+          },
+          animation: { 'fade-up':'fadeUp 0.6s ease forwards' },
+          keyframes: { fadeUp:{'0%':{opacity:'0',transform:'translateY(24px)'},'100%':{opacity:'1',transform:'translateY(0)'}} }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"/>
+  <style>
+    :root {
+      --bg:        #EEEEEE;
+      --bg-card:   #FFFFFF;
+      --bg-nav:    rgba(238,238,238,0.85);
+      --border:    #d0d0d0;
+      --text:      #222831;
+      --text-muted:#555e6a;
+    }
+    html.dark {
+      --bg:        #222831;
+      --bg-card:   #393E46;
+      --bg-nav:    rgba(34,40,49,0.85);
+      --border:    #393E46;
+      --text:      #EEEEEE;
+      --text-muted:rgba(238,238,238,0.6);
+    }
+    body { background-color: var(--bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
+    #iconMoon { display: block; }
+    #iconSun  { display: none; }
+    html.dark #iconMoon { display: none; }
+    html.dark #iconSun  { display: block; }
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+    .project-card{transition:all 0.3s ease}
+    .project-card:hover{transform:translateY(-6px)}
+    .project-card:hover .card-inner{border-color:rgba(0,173,181,0.4);box-shadow:0 20px 50px rgba(0,0,0,0.15),0 0 0 1px rgba(0,173,181,0.2)}
+    html.dark .project-card:hover .card-inner{box-shadow:0 20px 50px rgba(0,0,0,0.4),0 0 0 1px rgba(0,173,181,0.2)}
+    .filter-btn.active{background:#00ADB5;color:#222831;border-color:#00ADB5}
+  </style>
+</head>
+<body class="font-body overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b" style="background-color:var(--bg-nav);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="font-mono text-accent font-medium tracking-widest text-sm">&lt;PORTFOLIO /&gt;</a>
+      <ul class="hidden md:flex gap-8 text-sm font-medium" style="color:var(--text-muted)">
+        <li><a href="index.html" class="hover:text-accent transition-colors">Home</a></li>
+        <li><a href="about.html" class="hover:text-accent transition-colors">About</a></li>
+        <li><a href="projects.html" class="text-accent">Projects</a></li>
+        <li><a href="blog.html" class="hover:text-accent transition-colors">Blog</a></li>
+        <li><a href="contact.html" class="hover:text-accent transition-colors">Contact</a></li>
+      </ul>
+      <div class="flex items-center gap-3">
+        <button id="darkToggle" class="w-9 h-9 rounded-full border border-secondary hover:border-accent flex items-center justify-center transition-all hover:text-accent" style="color:var(--text-muted)" title="Toggle dark mode">
+          <svg id="iconMoon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg id="iconSun" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="contact.html" class="bg-accent hover:bg-accent/80 text-primary font-semibold text-sm px-4 py-2 rounded-full transition-all">Hire Me</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-6 pt-28 pb-20">
+
+    <!-- Page Header -->
+    <div class="reveal mb-12">
+      <p class="font-mono text-accent text-xs tracking-widest mb-2">// PORTFOLIO</p>
+      <h1 class="font-display text-5xl md:text-6xl font-black mb-4">My Projects</h1>
+      <p class="max-w-xl leading-relaxed" style="color:var(--text-muted)">A curated collection of things I've built — from enterprise platforms to personal experiments. Each one taught me something new.</p>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="reveal mb-10">
+      <div class="flex flex-col sm:flex-row gap-4 mb-5">
+        <!-- Search -->
+        <div class="relative flex-1 max-w-sm">
+          <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-light/30" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="searchInput" type="text" placeholder="Search projects..."
+            class="w-full border focus:border-accent/60 rounded-xl pl-10 pr-4 py-2.5 text-sm placeholder-light/30 outline-none transition-all focus:ring-1 focus:ring-accent/30"
+            style="background-color:var(--bg-card);border-color:var(--border);color:var(--text)"/>
+        </div>
+      </div>
+      <!-- Category Pills -->
+      <div class="flex gap-2 flex-wrap">
+        <button class="filter-btn active font-mono text-xs px-4 py-1.5 rounded-full border transition-all" data-filter="all">All</button>
+        <button class="filter-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-filter="web">Web App</button>
+        <button class="filter-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-filter="mobile">Mobile</button>
+        <button class="filter-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-filter="uiux">UI/UX</button>
+        <button class="filter-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-filter="backend">Backend</button>
+        <button class="filter-btn font-mono text-xs px-4 py-1.5 rounded-full border hover:border-accent/40 hover:text-accent transition-all" style="border-color:var(--border);color:var(--text-muted)" data-filter="oss">Open Source</button>
+      </div>
+    </div>
+
+    <!-- Projects Grid -->
+    <!-- Data Dummy Start -->
+    <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Project 1 -->
+      <div class="project-card reveal" data-category="web" data-title="devflow dashboard" style="animation-delay:0.05s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80" alt="DevFlow Dashboard" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 bg-accent text-primary text-xs font-bold px-3 py-0.5 rounded-full">Web App</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">DevFlow Dashboard</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">Real-time developer productivity dashboard with WebSocket integration. Track commits, PRs, and team velocity.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">React</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Node.js</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">WebSocket</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card reveal" data-category="mobile" data-title="financekit app" style="animation-delay:0.1s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="FinanceKit" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 backdrop-blur text-xs font-bold px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Mobile</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">FinanceKit App</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">AI-powered personal finance tracker with smart spending insights, budget alerts, and visual analytics.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">Flutter</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Dart</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Firebase</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card reveal" data-category="uiux" data-title="nebula design system" style="animation-delay:0.15s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80" alt="Nebula" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 backdrop-blur text-xs font-bold px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">UI/UX</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">Nebula Design System</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">Scalable component library used across 5 product teams. Built with Figma + Storybook for seamless DX.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">Figma</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Storybook</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">React</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="project-card reveal" data-category="backend" data-title="datastream api" style="animation-delay:0.2s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="DataStream" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 backdrop-blur text-xs font-bold px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Backend</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">DataStream API</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">High-throughput REST API handling 50k+ req/s with intelligent rate limiting, caching, and real-time metrics.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">Go</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Redis</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">PostgreSQL</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 5 -->
+      <div class="project-card reveal" data-category="oss" data-title="hookify library" style="animation-delay:0.25s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=600&q=80" alt="Hookify" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 backdrop-blur text-xs font-bold px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Open Source</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">Hookify Library</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">Open-source collection of 50+ battle-tested React hooks. 1.2k+ GitHub stars and growing community.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">TypeScript</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">React</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Jest</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 6 -->
+      <div class="project-card reveal" data-category="web" data-title="ecommerce platform" style="animation-delay:0.3s">
+        <div class="card-inner rounded-2xl overflow-hidden border h-full transition-all duration-300" style="background-color:var(--bg-card);border-color:var(--border)">
+          <div class="relative h-48 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80" alt="E-Commerce" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] to-transparent"></div>
+            <span class="absolute top-3 left-3 backdrop-blur text-xs font-bold px-3 py-0.5 rounded-full border" style="background-color:color-mix(in srgb,var(--bg) 60%,transparent);border-color:var(--border);color:var(--text-muted)">Web App</span>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-xl font-bold mb-2">ShopNest Platform</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted)">Full-featured e-commerce platform with real-time inventory, multi-vendor support, and analytics dashboard.</p>
+            <div class="flex gap-2 flex-wrap mb-4">
+              <span class="text-xs border border-accent/20 text-accent rounded-full px-2.5 py-0.5" style="background-color:var(--bg)">Next.js</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">Stripe</span>
+              <span class="text-xs border rounded-full px-2.5 py-0.5" style="background-color:var(--bg);border-color:var(--border);color:var(--text-muted)">MongoDB</span>
+            </div>
+            <a href="project_detail.html" class="flex items-center gap-1.5 text-accent text-xs font-mono hover:gap-3 transition-all">View Case Study <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- Data Dummy End -->
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-24">
+      <div class="text-6xl mb-4">🔍</div>
+      <h3 class="font-display text-2xl font-bold mb-2">No projects found</h3>
+      <p class="text-sm" style="color:var(--text-muted)">Try adjusting your search or filter to find what you're looking for.</p>
+      <button onclick="resetFilters()" class="mt-6 text-accent text-sm font-mono hover:underline">Clear filters →</button>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t py-10" style="background-color:var(--bg-card);border-color:var(--border)">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="font-mono text-accent text-sm">&lt;PORTFOLIO /&gt;</p>
+      <p class="text-xs" style="color:var(--text-muted)">© 2026 Alex Kurniawan. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">GitHub</a>
+        <a href="#" class="hover:text-accent transition-colors text-xs" style="color:var(--text-muted)">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode
+    const html = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+    document.getElementById('darkToggle').addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Filter logic
+    let activeFilter = 'all';
+    let searchQuery = '';
+
+    function applyFilters() {
+      const cards = document.querySelectorAll('.project-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const cat = card.dataset.category;
+        const title = card.dataset.title;
+        const matchFilter = activeFilter === 'all' || cat === activeFilter;
+        const matchSearch = title.includes(searchQuery);
+        if (matchFilter && matchSearch) {
+          card.style.display = '';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+      document.getElementById('projectsGrid').classList.toggle('hidden', visible === 0);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchQuery = e.target.value.toLowerCase();
+      applyFilters();
+    });
+
+    function resetFilters() {
+      activeFilter = 'all';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-filter="all"]').classList.add('active');
+      applyFilters();
+    }
+  </script>
+</body>
+</html>
