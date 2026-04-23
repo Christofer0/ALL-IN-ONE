@@ -46,6 +46,7 @@ const sessionId = ref<string | null>(null);
 const currentMode = ref<"brainstorm" | "review" | "plan">("brainstorm");
 const chatInput = ref("");
 const isTyping = ref(false);
+const isChatSidebarOpen = ref(false);
 const chatContainer = ref<HTMLElement | null>(null);
 
 const contexts = ref<ContextLayer[]>([
@@ -204,36 +205,83 @@ onMounted(() => {
 <template>
   <main class="page-content chat-page-wrapper">
     <!-- Header -->
-    <header class="chat-header">
+    <header
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+      "
+    >
       <div style="display: flex; align-items: center; gap: 12px">
-        <div style="font-size: 0.95rem; font-weight: 700; color: var(--p-light)">AI Chat</div>
-        <span class="badge-green status-badge">● Assistant Online</span>
+        <button 
+          class="btn-ghost lg:hidden" 
+          style="padding: 6px; border: none;"
+          @click="isChatSidebarOpen = !isChatSidebarOpen"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div>
+          <h1 style="font-size: 1.25rem; font-weight: 800; color: var(--p-light)">
+            AI Assistant
+          </h1>
+          <div
+            style="
+              font-size: 0.65rem;
+              font-family: 'JetBrains Mono', monospace;
+              color: var(--text-muted);
+              margin-top: 2px;
+            "
+          >
+            Powered by DeepSeek-V3 • Context Aware
+          </div>
+        </div>
       </div>
-      
-      <div style="display: flex; align-items: center; gap: 8px">
-        <div class="mode-toggles">
-          <button 
-            v-for="m in (['brainstorm', 'review', 'plan'] as const)" 
+
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div class="chat-modes">
+          <button
+            v-for="m in (['brainstorm', 'review', 'plan'] as const)"
             :key="m"
-            class="mode-tab" 
+            class="mode-tab"
             :class="{ active: currentMode === m }"
             @click="currentMode = m"
           >
-            {{ m === 'brainstorm' ? '⚡' : m === 'review' ? '🔍' : '📋' }} {{ m.charAt(0).toUpperCase() + m.slice(1) }}
+            {{ m.charAt(0).toUpperCase() + m.slice(1) }}
           </button>
         </div>
-        <button class="btn-ghost" style="font-size: 0.75rem" @click="clearChat">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+        <button class="btn-ghost" style="padding: 8px">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
-          New Chat
         </button>
       </div>
     </header>
 
     <div class="chat-layout">
+      <!-- Overlay for mobile chat sidebar -->
+      <div 
+        v-if="isChatSidebarOpen" 
+        class="fixed inset-0 bg-black/50 z-20 lg:hidden" 
+        @click="isChatSidebarOpen = false"
+      ></div>
+
       <!-- Sidebar -->
-      <aside class="chat-sidebar">
+      <aside class="chat-sidebar" :class="{ 'mobile-open': isChatSidebarOpen }">
         <div class="sidebar-section">
           <div class="section-label">Context Active</div>
           <div class="context-list">
@@ -581,4 +629,23 @@ onMounted(() => {
 .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .input-footer { margin-top: 10px; text-align: center; font-weight: 500; }
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+  .chat-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .chat-main {
+    width: 100% !important;
+  }
+}
 </style>

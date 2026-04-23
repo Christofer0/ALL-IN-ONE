@@ -23,6 +23,13 @@ onMounted(() => {
     <Sidebar :isOpen="isSidebarOpen" />
 
     <div class="main-content">
+      <!-- Overlay for mobile sidebar -->
+      <div
+        v-if="isSidebarOpen"
+        class="fixed inset-0 bg-black/50 z-30 lg:hidden"
+        @click="toggleSidebar"
+      ></div>
+
       <Navbar @toggleSidebar="toggleSidebar" />
       <router-view />
     </div>

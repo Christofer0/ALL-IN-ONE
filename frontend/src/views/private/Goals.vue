@@ -225,6 +225,8 @@ onMounted(() => {
         align-items: center;
         justify-content: space-between;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
       "
     >
       <div style="display: flex; align-items: center; gap: 12px">

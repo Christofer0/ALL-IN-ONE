@@ -178,7 +178,7 @@ onUnmounted(() => {
       </div>
 
       <!-- CTA Buttons -->
-      <div class="reveal flex gap-3 mb-12">
+      <div class="reveal flex flex-col sm:flex-row gap-3 mb-12">
         <a
           v-if="project.demoUrl"
           :href="project.demoUrl"
@@ -236,7 +236,7 @@ onUnmounted(() => {
         <!-- Main Content -->
         <article class="flex-1 min-w-0">
           <!-- Quick Stats -->
-          <div class="grid grid-cols-3 gap-4 mb-12">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
             <div
               class="border rounded-2xl p-4 text-center"
               style="background-color: var(--bg-card); border-color: var(--border)"

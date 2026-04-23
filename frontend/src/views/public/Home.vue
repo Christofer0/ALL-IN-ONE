@@ -110,7 +110,7 @@ const truncate = (text: string, length: number) => {
             <span class="text-accent font-medium">design</span> and
             <span class="text-accent font-medium">function</span>.
           </p>
-          <div class="flex gap-4 animate-fade-up" style="animation-delay: 0.3s">
+          <div class="flex flex-col sm:flex-row gap-4 animate-fade-up" style="animation-delay: 0.3s">
             <router-link
               to="/projects"
               class="bg-accent hover:bg-accent/80 text-white font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-accent/30"

@@ -514,28 +514,34 @@ const formatDate = (dateStr: string | null) => {
     </div>
 
     <div v-if="currentTab === 'history'" class="card overflow-hidden">
-      <table style="width: 100%; border-collapse: collapse">
-        <thead>
-          <tr>
-            <th class="th-mono">Date Sent</th>
-            <th class="th-mono">Subject</th>
-            <th class="th-mono">Recipients</th>
-            <th class="th-mono">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="e in historySorted" :key="e.id" class="table-row">
-            <td class="td-mono">{{ formatDate(e.sentAt) }}</td>
-            <td>{{ e.subject }}</td>
-            <td style="color: #6b7280; font-size: 0.78rem">{{ e.to }}</td>
-            <td>
-              <span v-if="e.status === 'sent'" class="badge-green">✓ Sent</span>
-              <span v-else-if="e.status === 'failed'" class="badge-red">✗ Failed</span>
-              <span v-else class="badge-blue">{{ e.status }}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div
+        style="
+          overflow-x: auto;
+          width: 100%;
+          -webkit-overflow-scrolling: touch;
+        "
+      >
+        <table style="width: 100%; border-collapse: collapse">
+          <thead>
+            <tr>
+              <th class="th-mono">Date Sent</th>
+              <th class="th-mono">Subject</th>
+              <th class="th-mono">Recipients</th>
+              <th class="th-mono">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="e in historySorted" :key="e.id" class="table-row">
+              <td class="td-mono">{{ formatDate(e.sentAt) }}</td>
+              <td>{{ e.subject }}</td>
+              <td style="color: #6b7280; font-size: 0.78rem">{{ e.to }}</td>
+              <td>
+                <span class="badge-green">Sent</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div

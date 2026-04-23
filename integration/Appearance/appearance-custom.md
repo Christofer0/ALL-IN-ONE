@@ -125,12 +125,12 @@ Kesan: _Mystical, atmospheric, otherworldly_. Cocok untuk Portfolio Data Scienti
 
 Kesan: _Scholarly, timeless, trustworthy_. Ideal untuk Portfolio Akademisi, Penulis, atau Peneliti.
 
-- **Background Color:** `#faf7f0`
+- **Background Color:** `#fdfcf8`
 - **Card Background:** `#ffffff`
-- **Accent Color:** `#8b4513`
-- **Border Color:** `#e8dcc8`
-- **Primary Text:** `#2c1810`
-- **Muted Text:** `#7a6a5a`
+- **Accent Color:** `#991b1b`
+- **Border Color:** `#e7e5e4`
+- **Primary Text:** `#1c1917`
+- **Muted Text:** `#78716c`
 
 ---
 
@@ -138,12 +138,12 @@ Kesan: _Scholarly, timeless, trustworthy_. Ideal untuk Portfolio Akademisi, Penu
 
 Kesan: _Energetic, futuristic, bold_. Menonjol dan berkesan kuat untuk Creative Developer.
 
-- **Background Color:** `#0a0a0f`
-- **Card Background:** `#13131f`
-- **Accent Color:** `#7c3aed`
-- **Border Color:** `#1e1e3a`
-- **Primary Text:** `#f0eeff`
-- **Muted Text:** `#a78bfa`
+- **Background Color:** `#09090b`
+- **Card Background:** `#18181b`
+- **Accent Color:** `#a855f7`
+- **Border Color:** `#27272a`
+- **Primary Text:** `#fafafa`
+- **Muted Text:** `#a1a1aa`
 
 ---
 
@@ -151,12 +151,12 @@ Kesan: _Energetic, futuristic, bold_. Menonjol dan berkesan kuat untuk Creative 
 
 Kesan: _Sturdy, warm-minimal, artisanal_. Unik dan berkarakter untuk Portfolio Engineer atau Maker.
 
-- **Background Color:** `#1a1a2e`
-- **Card Background:** `#16213e`
-- **Accent Color:** `#e07b39`
-- **Border Color:** `#0f3460`
-- **Primary Text:** `#eaeaea`
-- **Muted Text:** `#9ba4b4`
+- **Background Color:** `#0f172a`
+- **Card Background:** `#1e293b`
+- **Accent Color:** `#f97316`
+- **Border Color:** `#334155`
+- **Primary Text:** `#f1f5f9`
+- **Muted Text:** `#94a3b8`
 
 ---
 
@@ -164,12 +164,12 @@ Kesan: _Sturdy, warm-minimal, artisanal_. Unik dan berkarakter untuk Portfolio E
 
 Kesan: _Calm, natural, welcoming_. Menyegarkan dan bersih untuk Portfolio Biologi, Lingkungan, atau Health Tech.
 
-- **Background Color:** `#f4f8f4`
+- **Background Color:** `#f0f4f0`
 - **Card Background:** `#ffffff`
-- **Accent Color:** `#2d7d46`
-- **Border Color:** `#c8dfc8`
-- **Primary Text:** `#1a2e1a`
-- **Muted Text:** `#6b8f6b`
+- **Accent Color:** `#166534`
+- **Border Color:** `#dcfce7`
+- **Primary Text:** `#064e3b`
+- **Muted Text:** `#65a30d`
 
 ---
 
@@ -177,12 +177,12 @@ Kesan: _Calm, natural, welcoming_. Menyegarkan dan bersih untuk Portfolio Biolog
 
 Kesan: _Elegant, dramatic, refined_. Memiliki keindahan tersendiri untuk Portfolio Artist atau Photographer.
 
-- **Background Color:** `#120a0f`
-- **Card Background:** `#1e1018`
-- **Accent Color:** `#e879a0`
-- **Border Color:** `#3a1a28`
-- **Primary Text:** `#fdf0f5`
-- **Muted Text:** `#c084a0`
+- **Background Color:** `#0f0a0c`
+- **Card Background:** `#1c1216`
+- **Accent Color:** `#fb7185`
+- **Border Color:** `#3f212c`
+- **Primary Text:** `#fff1f2`
+- **Muted Text:** `#9f1239`
 
 ---
 
@@ -192,10 +192,10 @@ Kesan: _Ultra-clean, neutral, timeless_. Biarkan karya Anda berbicara, bukan war
 
 - **Background Color:** `#fafafa`
 - **Card Background:** `#ffffff`
-- **Accent Color:** `#374151`
-- **Border Color:** `#e5e7eb`
-- **Primary Text:** `#111827`
-- **Muted Text:** `#9ca3af`
+- **Accent Color:** `#18181b`
+- **Border Color:** `#e4e4e7`
+- **Primary Text:** `#09090b`
+- **Muted Text:** `#71717a`
 
 ---
 
@@ -203,12 +203,12 @@ Kesan: _Ultra-clean, neutral, timeless_. Biarkan karya Anda berbicara, bukan war
 
 Kesan: _Confident, corporate-cool, powerful_. Sangat kuat untuk Portfolio Finance Tech atau Startup Founder.
 
-- **Background Color:** `#030d1f`
-- **Card Background:** `#071832`
-- **Accent Color:** `#1d4ed8`
-- **Border Color:** `#0f2a52`
-- **Primary Text:** `#eff6ff`
-- **Muted Text:** `#93c5fd`
+- **Background Color:** `#020617`
+- **Card Background:** `#0f172a`
+- **Accent Color:** `#3b82f6`
+- **Border Color:** `#1e293b`
+- **Primary Text:** `#f8fafc`
+- **Muted Text:** `#60a5fa`
 
 ---
 
@@ -216,12 +216,12 @@ Kesan: _Confident, corporate-cool, powerful_. Sangat kuat untuk Portfolio Financ
 
 Kesan: _Warm, earthy, approachable_. Memiliki nuansa hangat dan personal, cocok untuk Freelancer kreatif atau Portfolio Illustrator.
 
-- **Background Color:** `#fdf6ee`
+- **Background Color:** `#fffaf5`
 - **Card Background:** `#ffffff`
-- **Accent Color:** `#c2410c`
-- **Border Color:** `#f0dfc4`
-- **Primary Text:** `#292524`
-- **Muted Text:** `#92400e`
+- **Accent Color:** `#ea580c`
+- **Border Color:** `#ffedd5`
+- **Primary Text:** `#431407`
+- **Muted Text:** `#9a3412`
 
 ---
 
@@ -229,12 +229,12 @@ Kesan: _Warm, earthy, approachable_. Memiliki nuansa hangat dan personal, cocok 
 
 Kesan: _Intense, techy, unforgettable_. Untuk Portfolio yang ingin tampil sangat berbeda — cocok untuk Game Developer atau Motion Designer.
 
-- **Background Color:** `#050a14`
-- **Card Background:** `#0a1628`
-- **Accent Color:** `#00ff88`
-- **Border Color:** `#0f2040`
-- **Primary Text:** `#e0f2fe`
-- **Muted Text:** `#38bdf8`
+- **Background Color:** `#020617`
+- **Card Background:** `#0b1120`
+- **Accent Color:** `#22c55e`
+- **Border Color:** `#1e293b`
+- **Primary Text:** `#f0fdf4`
+- **Muted Text:** `#4ade80`
 
 ---
 
